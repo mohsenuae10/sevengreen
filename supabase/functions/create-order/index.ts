@@ -94,6 +94,7 @@ serve(async (req) => {
       currency: "sar", // Saudi Riyal
       automatic_payment_methods: {
         enabled: true,
+        allow_redirects: 'never',
       },
       metadata: {
         order_id: order.id,

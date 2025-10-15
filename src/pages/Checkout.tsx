@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Loader2 } from 'lucide-react';
 
 // Initialize Stripe - Make sure VITE_STRIPE_PUBLISHABLE_KEY is set in .env
@@ -33,6 +33,28 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showExpressCheckout, setShowExpressCheckout] = useState(true);
+  const [expressAvailable, setExpressAvailable] = useState(false);
+
+  const handlePaymentSuccess = async () => {
+    try {
+      // Update order status
+      await supabase
+        .from('orders')
+        .update({ payment_status: 'completed' })
+        .eq('id', orderId);
+
+      // Send confirmation email
+      await supabase.functions.invoke('send-order-confirmation', {
+        body: { order_id: orderId },
+      });
+
+      clearCart();
+      navigate(`/order-success/${orderId}`);
+    } catch (error) {
+      console.error('Error after payment:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,19 +81,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
           variant: 'destructive',
         });
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Update order status
-        await supabase
-          .from('orders')
-          .update({ payment_status: 'completed' })
-          .eq('id', orderId);
-
-        // Send confirmation email
-        await supabase.functions.invoke('send-order-confirmation', {
-          body: { order_id: orderId },
-        });
-
-        clearCart();
-        navigate(`/order-success/${orderId}`);
+        await handlePaymentSuccess();
       }
     } catch (error) {
       console.error('Payment error:', error);
@@ -85,29 +95,121 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h3 className="text-lg font-bold mb-4">معلومات الدفع</h3>
-        <PaymentElement />
-      </div>
+  const handleExpressPayment = async (event: any) => {
+    if (!stripe) {
+      return;
+    }
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={!stripe || isProcessing}
-      >
-        {isProcessing ? (
-          <>
-            <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-            جاري المعالجة...
-          </>
-        ) : (
-          'إتمام الدفع'
-        )}
-      </Button>
-    </form>
+    setIsProcessing(true);
+
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements: elements!,
+        confirmParams: {
+          return_url: `${window.location.origin}/order-success/${orderId}`,
+        },
+        redirect: 'if_required',
+      });
+
+      if (error) {
+        toast({
+          title: 'خطأ في الدفع',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        await handlePaymentSuccess();
+      }
+    } catch (error) {
+      console.error('Express payment error:', error);
+      toast({
+        title: 'خطأ',
+        description: 'حدث خطأ أثناء معالجة الدفع',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Express Checkout (Apple Pay / Google Pay) */}
+      {showExpressCheckout && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="h-px bg-border flex-1" />
+            <span className="text-sm text-muted-foreground">الدفع السريع</span>
+            <div className="h-px bg-border flex-1" />
+          </div>
+          
+          <ExpressCheckoutElement
+            onReady={({ availablePaymentMethods }) => {
+              const hasExpressMethods = availablePaymentMethods && Object.keys(availablePaymentMethods).length > 0;
+              setExpressAvailable(hasExpressMethods);
+            }}
+            onConfirm={handleExpressPayment}
+            options={{
+              buttonHeight: 48,
+              buttonTheme: {
+                applePay: 'black',
+                googlePay: 'black',
+              },
+              layout: {
+                maxColumns: 1,
+                overflow: 'never',
+              },
+            }}
+          />
+        </div>
+      )}
+      
+      {/* فاصل مع زر التبديل */}
+      {expressAvailable && (
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowExpressCheckout(!showExpressCheckout)}
+              className="bg-background px-4"
+            >
+              {showExpressCheckout ? 'الدفع بطرق أخرى' : 'العودة للدفع السريع'}
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* Standard Payment Methods */}
+      {(!showExpressCheckout || !expressAvailable) && (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <h3 className="text-lg font-bold mb-4">معلومات الدفع</h3>
+            <PaymentElement />
+          </div>
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={!stripe || isProcessing}
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                جاري المعالجة...
+              </>
+            ) : (
+              'إتمام الدفع'
+            )}
+          </Button>
+        </form>
+      )}
+    </div>
   );
 }
 
