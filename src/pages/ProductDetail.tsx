@@ -2,11 +2,23 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, ArrowRight } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import ProductRating from '@/components/product/ProductRating';
+import TrustBadges from '@/components/product/TrustBadges';
+import SocialShare from '@/components/product/SocialShare';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -80,14 +92,22 @@ export default function ProductDetail() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Button
-        variant="ghost"
-        onClick={() => navigate(-1)}
-        className="mb-6"
-      >
-        <ArrowRight className="ml-2 h-4 w-4" />
-        رجوع
-      </Button>
+      {/* Breadcrumbs */}
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{product.name_ar}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="aspect-square rounded-lg overflow-hidden bg-secondary">
@@ -105,21 +125,38 @@ export default function ProductDetail() {
         </div>
 
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+          <div className="space-y-3">
+            {/* Category Badge */}
+            <Badge variant="secondary" className="text-sm">
+              {product.category}
+            </Badge>
+            
+            {/* Product Name */}
+            <h1 className="text-3xl md:text-4xl font-bold">
               {product.name_ar}
             </h1>
-            <p className="text-sm text-muted-foreground">{product.category}</p>
+            
+            {/* Rating */}
+            <ProductRating rating={4.5} reviewCount={128} />
+            
+            {/* SKU */}
+            <p className="text-sm text-muted-foreground">
+              رمز المنتج: {product.id.slice(0, 8).toUpperCase()}
+            </p>
           </div>
 
-          <div className="text-3xl font-bold text-primary">
-            {product.price.toFixed(2)} ريال
+          {/* Price */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-bold text-primary">
+              {product.price.toFixed(2)}
+            </span>
+            <span className="text-xl text-muted-foreground">ريال</span>
           </div>
 
           {product.description_ar && (
-            <div>
-              <h2 className="text-xl font-bold mb-2">الوصف</h2>
-              <p className="text-muted-foreground leading-relaxed">
+            <div className="border-t pt-6">
+              <h2 className="text-xl font-bold mb-3">وصف المنتج</h2>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                 {product.description_ar}
               </p>
             </div>
@@ -163,16 +200,26 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <Button
-              onClick={handleAddToCart}
-              size="lg"
-              className="w-full"
-              disabled={product.stock_quantity <= 0}
-            >
-              <ShoppingCart className="ml-2 h-5 w-5" />
-              أضف إلى السلة
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleAddToCart}
+                size="lg"
+                className="flex-1"
+                disabled={product.stock_quantity <= 0}
+              >
+                <ShoppingCart className="ml-2 h-5 w-5" />
+                أضف إلى السلة
+              </Button>
+              
+              {/* Share Button */}
+              <SocialShare 
+                productName={product.name_ar}
+              />
+            </div>
           </div>
+
+          {/* Trust Badges */}
+          <TrustBadges />
         </div>
       </div>
     </div>
