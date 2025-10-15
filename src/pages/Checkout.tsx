@@ -12,6 +12,9 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, Mail, Phone, User, FileText } from 'lucide-react';
 
+// Production domain for Stripe
+const PRODUCTION_DOMAIN = 'https://sevengreenstore.com';
+
 // Initialize Stripe
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
@@ -66,7 +69,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/order-success/${orderId}`,
+          return_url: `${PRODUCTION_DOMAIN}/order-success/${orderId}`,
         },
         redirect: 'if_required',
       });
@@ -103,7 +106,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements: elements!,
         confirmParams: {
-          return_url: `${window.location.origin}/order-success/${orderId}`,
+          return_url: `${PRODUCTION_DOMAIN}/order-success/${orderId}`,
         },
         redirect: 'if_required',
       });
@@ -315,7 +318,9 @@ export default function Checkout() {
     console.log('🔐 Client secret:', clientSecret ? '✅ Yes' : '❌ No');
     console.log('🔑 Stripe key:', stripePublishableKey ? '✅ Set' : '❌ Missing');
     console.log('🌐 Current URL:', window.location.href);
+    console.log('🎯 Production Domain:', PRODUCTION_DOMAIN);
     console.log('🔒 Is HTTPS:', window.location.protocol === 'https:');
+    console.log('🍏 Apple Pay Domain:', window.location.hostname);
     console.log('═══════════════════════════════════');
   }, [items, totalPrice, clientSecret]);
 
