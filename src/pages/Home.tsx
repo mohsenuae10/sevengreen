@@ -1,123 +1,93 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ProductCard } from '@/components/ProductCard';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { Sparkles, Leaf, Heart } from 'lucide-react';
+import { HeroBanner } from '@/components/home/HeroBanner';
+import { SpecialOffers } from '@/components/home/SpecialOffers';
+import { CategorySection } from '@/components/home/CategorySection';
+import { FeaturesSection } from '@/components/home/FeaturesSection';
+import { CTASection } from '@/components/home/CTASection';
+import { Droplets, Sparkles, Wind, Flower2 } from 'lucide-react';
 
 export default function Home() {
   const { data: products, isLoading } = useQuery({
-    queryKey: ['featured-products'],
+    queryKey: ['all-products'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('is_active', true)
-        .limit(6);
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data;
     },
   });
 
+  // Get featured product (most recent)
+  const featuredProduct = products?.[0];
+
+  // Get unique categories
+  const categories = products ? [...new Set(products.map(p => p.category))] : [];
+
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-primary/10 to-background py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-primary">
-              Seven Green
-            </h1>
-            <p className="text-xl md:text-2xl text-accent font-medium">
-              سفن جرين
-            </p>
-            <p className="text-lg text-muted-foreground">
-              منتجات العناية الطبيعية - صوابين، شامبو، ومنتجات التجميل
-            </p>
-            <div className="flex gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="text-lg">
-                <Link to="/products">
-                  تصفح المنتجات
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Banner */}
+      <HeroBanner product={featuredProduct} />
+
+      {/* Special Offers */}
+      <SpecialOffers />
 
       {/* Features Section */}
-      <section className="py-16 bg-secondary/30">
+      <FeaturesSection />
+
+      {/* Products by Category */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center space-y-3">
-              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Leaf className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold">طبيعي 100%</h3>
-              <p className="text-muted-foreground">
-                جميع منتجاتنا طبيعية وآمنة للاستخدام اليومي
-              </p>
-            </div>
-
-            <div className="text-center space-y-3">
-              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold">جودة عالية</h3>
-              <p className="text-muted-foreground">
-                منتجات مختارة بعناية لضمان أفضل النتائج
-              </p>
-            </div>
-
-            <div className="text-center space-y-3">
-              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Heart className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold">عناية فائقة</h3>
-              <p className="text-muted-foreground">
-                نهتم براحتك ورضاك عن منتجاتنا
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              منتجاتنا المميزة
+              تصفح منتجاتنا
             </h2>
-            <p className="text-muted-foreground">
-              اكتشف أفضل منتجاتنا الطبيعية
+            <p className="text-muted-foreground text-lg">
+              اختر من بين مجموعة واسعة من المنتجات الطبيعية
             </p>
           </div>
 
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">جاري التحميل...</p>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p className="text-muted-foreground mt-4">جاري التحميل...</p>
             </div>
           ) : products && products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {products.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
+            <div className="space-y-20">
+              {categories.map((category, index) => {
+                const icons = [
+                  <Droplets className="h-6 w-6 text-primary" />,
+                  <Sparkles className="h-6 w-6 text-primary" />,
+                  <Wind className="h-6 w-6 text-primary" />,
+                  <Flower2 className="h-6 w-6 text-primary" />,
+                ];
+                
+                return (
+                  <CategorySection
+                    key={category}
+                    title={category}
+                    category={category}
+                    products={products}
+                    icon={icons[index % icons.length]}
+                    delay={`${index * 0.1}s`}
+                  />
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground">لا توجد منتجات حالياً</p>
             </div>
           )}
-
-          <div className="text-center">
-            <Button asChild variant="outline" size="lg">
-              <Link to="/products">عرض جميع المنتجات</Link>
-            </Button>
-          </div>
         </div>
       </section>
+
+      {/* CTA Section */}
+      <CTASection />
     </div>
   );
 }
