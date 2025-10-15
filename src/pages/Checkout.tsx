@@ -10,9 +10,9 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Loader2, ShoppingBag } from 'lucide-react';
+import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, Mail, Phone, User, FileText } from 'lucide-react';
 
-// Initialize Stripe - Make sure VITE_STRIPE_PUBLISHABLE_KEY is set in .env
+// Initialize Stripe
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 if (!stripePublishableKey) {
@@ -37,13 +37,11 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
 
   const handlePaymentSuccess = async () => {
     try {
-      // Update order status
       await supabase
         .from('orders')
         .update({ payment_status: 'completed' })
         .eq('id', orderId);
 
-      // Send confirmation email
       await supabase.functions.invoke('send-order-confirmation', {
         body: { order_id: orderId },
       });
@@ -132,97 +130,117 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   };
 
   return (
-    <div className="space-y-8">
-      {/* Express Checkout Section - Apple Pay / Google Pay */}
-      <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-6 border-2 border-primary/20 transition-all duration-300 hover:shadow-xl hover:border-primary/30">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-foreground mb-2">الدفع السريع</h3>
-          <p className="text-sm text-muted-foreground">ادفع بأمان باستخدام Apple Pay أو Google Pay</p>
-        </div>
+    <div className="space-y-6">
+      {/* Express Checkout - Premium Modern Design */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 p-8 border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="absolute top-0 left-0 w-32 h-32 bg-accent/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
         
-        <ExpressCheckoutElement
-          onReady={({ availablePaymentMethods }) => {
-            console.log('🔍 Express Checkout Ready');
-            console.log('Available methods:', availablePaymentMethods);
-            
-            const hasExpress = availablePaymentMethods && 
-              (availablePaymentMethods.applePay || availablePaymentMethods.googlePay);
-            setExpressAvailable(hasExpress || false);
-            
-            if (!hasExpress) {
-              console.warn('⚠️ No express payment methods available');
-              console.warn('Check: HTTPS, Apple Wallet, Currency (SAR), Device/Browser');
-            }
-          }}
-          onLoadError={(error) => {
-            console.error('❌ Express Checkout Error:', error);
-            setExpressAvailable(false);
-          }}
-          onConfirm={handleExpressPayment}
-          options={{
-            buttonHeight: 55,
-            buttonTheme: {
-              applePay: 'black',
-              googlePay: 'black',
-            },
-            layout: {
-              maxColumns: 1,
-              overflow: 'never',
-            },
-          }}
-        />
-        
-        {expressAvailable === false && (
-          <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-center animate-fade-in">
-            <div className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
-              Apple Pay غير متاح حالياً
+        <div className="relative z-10">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full mb-4">
+              <ShieldCheck className="h-7 w-7 text-primary" />
             </div>
-            <div className="text-xs text-amber-700 dark:text-amber-300">
-              يرجى استخدام بطاقة الائتمان أدناه
-            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">الدفع السريع والآمن</h3>
+            <p className="text-sm text-muted-foreground">ادفع بسرعة وأمان باستخدام Apple Pay أو Google Pay</p>
           </div>
-        )}
+          
+          <div className="bg-background/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+            <ExpressCheckoutElement
+              onReady={({ availablePaymentMethods }) => {
+                console.log('🔍 Express Checkout Ready');
+                console.log('Available methods:', availablePaymentMethods);
+                
+                const hasExpress = availablePaymentMethods && 
+                  (availablePaymentMethods.applePay || availablePaymentMethods.googlePay);
+                setExpressAvailable(hasExpress || false);
+                
+                if (!hasExpress) {
+                  console.warn('⚠️ No express payment methods available');
+                  console.warn('Check: HTTPS, Apple Wallet, Currency (SAR), Device/Browser');
+                }
+              }}
+              onLoadError={(error) => {
+                console.error('❌ Express Checkout Error:', error);
+                setExpressAvailable(false);
+              }}
+              onConfirm={handleExpressPayment}
+              options={{
+                buttonHeight: 55,
+                buttonTheme: {
+                  applePay: 'black',
+                  googlePay: 'black',
+                },
+                layout: {
+                  maxColumns: 1,
+                  overflow: 'never',
+                },
+              }}
+            />
+          </div>
+          
+          {expressAvailable === false && (
+            <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl text-center backdrop-blur-sm">
+              <div className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
+                الدفع السريع غير متاح حالياً
+              </div>
+              <div className="text-xs text-amber-700 dark:text-amber-300">
+                استخدم بطاقة الائتمان أدناه للمتابعة
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
-      {/* فاصل أنيق */}
-      <div className="relative">
+      {/* Elegant Divider */}
+      <div className="relative py-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
+          <div className="w-full border-t-2 border-dashed border-border"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-6 py-2 text-sm font-medium text-muted-foreground rounded-full border border-border">
+          <span className="bg-background px-6 py-2 text-sm font-bold text-muted-foreground rounded-full border-2 border-border shadow-sm">
             أو ادفع بالبطاقة
           </span>
         </div>
       </div>
       
-      {/* Card Payment Section */}
+      {/* Card Payment - Premium Design */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-gradient-to-br from-background to-muted/20 border-2 border-border rounded-xl p-5 transition-all duration-300 hover:border-primary/30">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">معلومات البطاقة</h3>
+        <div className="relative overflow-hidden rounded-2xl bg-card border-2 border-border shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/5 to-transparent rounded-full blur-3xl"></div>
+          
+          <div className="relative z-10 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">معلومات البطاقة</h3>
+                  <p className="text-xs text-muted-foreground">جميع المعلومات محمية ومشفرة</p>
+                </div>
+              </div>
+              
               <div className="flex items-center gap-2">
-                <div className="text-xs text-muted-foreground">نقبل</div>
+                <div className="text-xs text-muted-foreground font-medium">نقبل</div>
                 <div className="flex gap-1.5">
-                  <div className="w-10 h-6 bg-white rounded border border-border flex items-center justify-center text-[10px] font-bold text-blue-600">
-                    VISA
+                  <div className="w-11 h-7 bg-background rounded border-2 border-border flex items-center justify-center shadow-sm">
+                    <div className="text-[9px] font-bold text-blue-600">VISA</div>
                   </div>
-                  <div className="w-10 h-6 bg-gradient-to-br from-orange-400 to-red-500 rounded border border-border flex items-center justify-center">
+                  <div className="w-11 h-7 bg-gradient-to-br from-orange-500 to-red-600 rounded border-2 border-border flex items-center justify-center shadow-sm">
                     <div className="flex gap-0.5">
-                      <div className="w-2 h-2 bg-red-600/80 rounded-full" />
-                      <div className="w-2 h-2 bg-orange-400/80 rounded-full" />
+                      <div className="w-2 h-2 bg-red-700 rounded-full"></div>
+                      <div className="w-2 h-2 bg-orange-300 rounded-full"></div>
                     </div>
                   </div>
-                  <div className="w-10 h-6 bg-gradient-to-br from-blue-500 to-blue-700 rounded border border-border flex items-center justify-center text-[8px] font-bold text-white">
-                    AMEX
+                  <div className="w-11 h-7 bg-gradient-to-br from-blue-600 to-blue-800 rounded border-2 border-border flex items-center justify-center shadow-sm">
+                    <div className="text-[8px] font-bold text-white">AMEX</div>
                   </div>
-                  <div className="w-10 h-6 bg-gradient-to-br from-purple-600 to-orange-400 rounded border border-border" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-background border border-border rounded-xl p-4">
+            <div className="bg-muted/30 backdrop-blur-sm rounded-xl p-5 border border-border/50">
               <PaymentElement 
                 options={{
                   layout: {
@@ -240,29 +258,29 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
         <Button
           type="submit"
           size="lg"
-          className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+          className="w-full h-16 text-lg font-bold rounded-xl bg-gradient-to-l from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary/95 hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 group relative overflow-hidden"
           disabled={!stripe || isProcessing}
         >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
           {isProcessing ? (
-            <>
-              <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-              جاري المعالجة...
-            </>
+            <div className="flex items-center gap-3">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span>جاري المعالجة الآمنة...</span>
+            </div>
           ) : (
-            <>
-              إتمام الدفع الآمن
-              <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </>
+            <div className="flex items-center gap-3">
+              <Lock className="h-5 w-5" />
+              <span>إتمام الدفع الآمن</span>
+              <ShieldCheck className="h-5 w-5" />
+            </div>
           )}
         </Button>
         
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <svg className="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-          </svg>
-          <span>الدفع مشفر بالكامل وآمن بنسبة 100%</span>
+        <div className="flex items-center justify-center gap-3 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/50 rounded-xl">
+          <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+            الدفع مشفر بالكامل وآمن بنسبة 100%
+          </span>
         </div>
       </form>
     </div>
@@ -361,7 +379,7 @@ export default function Checkout() {
             price: item.price,
             quantity: item.quantity,
           })),
-          shipping_fee: 0, // Can be calculated based on city
+          shipping_fee: 0,
         },
       });
 
@@ -388,184 +406,262 @@ export default function Checkout() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-primary mb-8">إتمام الطلب</h1>
-
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          {!clientSecret ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>معلومات الشحن</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleCreateOrder} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="customer_name">الاسم الكامل *</Label>
-                      <Input
-                        id="customer_name"
-                        name="customer_name"
-                        value={formData.customer_name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="customer_phone">رقم الهاتف *</Label>
-                      <Input
-                        id="customer_phone"
-                        name="customer_phone"
-                        type="tel"
-                        value={formData.customer_phone}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="customer_email">البريد الإلكتروني *</Label>
-                    <Input
-                      id="customer_email"
-                      name="customer_email"
-                      type="email"
-                      value={formData.customer_email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city">المدينة *</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_address">العنوان الكامل *</Label>
-                    <Textarea
-                      id="shipping_address"
-                      name="shipping_address"
-                      value={formData.shipping_address}
-                      onChange={handleInputChange}
-                      rows={3}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">ملاحظات إضافية (اختياري)</Label>
-                    <Textarea
-                      id="notes"
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleInputChange}
-                      rows={2}
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                        جاري المعالجة...
-                      </>
-                    ) : (
-                      'متابعة للدفع'
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>الدفع الآمن</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {!stripePromise ? (
-                  <div className="p-6 text-center space-y-4">
-                    <div className="text-destructive">
-                      ⚠️ خطأ في تهيئة نظام الدفع
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      يرجى التواصل مع الدعم الفني
-                    </p>
-                  </div>
-                ) : (
-                  <Elements
-                    stripe={stripePromise}
-                    options={{
-                      clientSecret,
-                      appearance: {
-                        theme: 'stripe',
-                      },
-                      locale: 'ar',
-                    }}
-                  >
-                    <CheckoutForm
-                      clientSecret={clientSecret}
-                      orderId={orderId!}
-                      orderNumber={orderNumber!}
-                    />
-                  </Elements>
-                )}
-              </CardContent>
-            </Card>
-          )}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto px-4 py-12">
+        {/* Header Section */}
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+            <Package className="h-8 w-8 text-primary" />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-l from-primary via-primary to-primary/80 bg-clip-text text-transparent mb-2">
+            إتمام الطلب
+          </h1>
+          <p className="text-muted-foreground">أكمل بياناتك لإتمام عملية الشراء الآمنة</p>
         </div>
 
-        <div className="lg:col-span-1">
-          <Card className="sticky top-20 shadow-xl border-2">
-            <CardHeader className="bg-gradient-to-br from-primary/5 to-primary/10">
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5" />
-                ملخص الطلب
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span>
-                      {item.name_ar} × {item.quantity}
-                    </span>
-                    <span>{(item.price * item.quantity).toFixed(2)} ريال</span>
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            {!clientSecret ? (
+              <div className="relative overflow-hidden rounded-2xl bg-card border-2 border-border shadow-lg">
+                <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10 p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <MapPin className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">معلومات الشحن</h2>
+                      <p className="text-sm text-muted-foreground">أدخل عنوانك لإتمام التوصيل</p>
+                    </div>
                   </div>
-                ))}
-              </div>
 
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">المجموع الفرعي</span>
-                  <span>{totalPrice.toFixed(2)} ريال</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">رسوم الشحن</span>
-                  <span>0.00 ريال</span>
-                </div>
-              </div>
+                  <form onSubmit={handleCreateOrder} className="space-y-5">
+                    <div className="grid md:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="customer_name" className="flex items-center gap-2 text-sm font-medium">
+                          <User className="h-4 w-4 text-primary" />
+                          الاسم الكامل *
+                        </Label>
+                        <Input
+                          id="customer_name"
+                          name="customer_name"
+                          value={formData.customer_name}
+                          onChange={handleInputChange}
+                          required
+                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
+                          placeholder="أدخل اسمك الكامل"
+                        />
+                      </div>
 
-              <div className="border-t pt-4">
-                <div className="flex justify-between text-lg font-bold">
-                  <span>الإجمالي</span>
-                  <span className="text-primary">{totalPrice.toFixed(2)} ريال</span>
+                      <div className="space-y-2">
+                        <Label htmlFor="customer_phone" className="flex items-center gap-2 text-sm font-medium">
+                          <Phone className="h-4 w-4 text-primary" />
+                          رقم الهاتف *
+                        </Label>
+                        <Input
+                          id="customer_phone"
+                          name="customer_phone"
+                          type="tel"
+                          value={formData.customer_phone}
+                          onChange={handleInputChange}
+                          required
+                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
+                          placeholder="05xxxxxxxx"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_email" className="flex items-center gap-2 text-sm font-medium">
+                        <Mail className="h-4 w-4 text-primary" />
+                        البريد الإلكتروني *
+                      </Label>
+                      <Input
+                        id="customer_email"
+                        name="customer_email"
+                        type="email"
+                        value={formData.customer_email}
+                        onChange={handleInputChange}
+                        required
+                        className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
+                        placeholder="example@email.com"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="city" className="flex items-center gap-2 text-sm font-medium">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        المدينة *
+                      </Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        required
+                        className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
+                        placeholder="الرياض، جدة، الدمام..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="shipping_address" className="flex items-center gap-2 text-sm font-medium">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        العنوان الكامل *
+                      </Label>
+                      <Textarea
+                        id="shipping_address"
+                        name="shipping_address"
+                        value={formData.shipping_address}
+                        onChange={handleInputChange}
+                        rows={3}
+                        required
+                        className="rounded-xl border-2 focus:border-primary transition-colors resize-none"
+                        placeholder="الحي، الشارع، رقم المبنى..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="notes" className="flex items-center gap-2 text-sm font-medium">
+                        <FileText className="h-4 w-4 text-primary" />
+                        ملاحظات إضافية (اختياري)
+                      </Label>
+                      <Textarea
+                        id="notes"
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleInputChange}
+                        rows={2}
+                        className="rounded-xl border-2 focus:border-primary transition-colors resize-none"
+                        placeholder="أي تعليمات خاصة للتوصيل..."
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                          جاري المعالجة...
+                        </>
+                      ) : (
+                        <>
+                          متابعة للدفع
+                          <CreditCard className="mr-2 h-5 w-5" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <div className="relative overflow-hidden rounded-2xl bg-card border-2 border-border shadow-lg">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/5 to-transparent rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10 p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Lock className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">الدفع الآمن</h2>
+                      <p className="text-sm text-muted-foreground">أكمل عملية الدفع بأمان تام</p>
+                    </div>
+                  </div>
+
+                  {!stripePromise ? (
+                    <div className="p-8 text-center space-y-4 bg-destructive/10 rounded-xl border-2 border-destructive/20">
+                      <div className="text-destructive text-lg font-bold">
+                        ⚠️ خطأ في تهيئة نظام الدفع
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        يرجى التواصل مع الدعم الفني
+                      </p>
+                    </div>
+                  ) : (
+                    <Elements
+                      stripe={stripePromise}
+                      options={{
+                        clientSecret,
+                        appearance: {
+                          theme: 'stripe',
+                        },
+                        locale: 'ar',
+                      }}
+                    >
+                      <CheckoutForm
+                        clientSecret={clientSecret}
+                        orderId={orderId!}
+                        orderNumber={orderNumber!}
+                      />
+                    </Elements>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Order Summary Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <div className="relative overflow-hidden rounded-2xl bg-card border-2 border-border shadow-xl">
+                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/10 to-accent/10"></div>
+                
+                <div className="relative z-10">
+                  <div className="p-6 bg-gradient-to-br from-primary/5 to-transparent">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <ShoppingBag className="h-5 w-5 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground">ملخص الطلب</h3>
+                    </div>
+                  </div>
+
+                  <div className="p-6 space-y-4">
+                    <div className="space-y-3">
+                      {items.map((item) => (
+                        <div key={item.id} className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                              <Package className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">{item.name_ar}</div>
+                              <div className="text-xs text-muted-foreground">الكمية: {item.quantity}</div>
+                            </div>
+                          </div>
+                          <span className="font-bold text-primary">{(item.price * item.quantity).toFixed(2)} ريال</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="border-t-2 border-dashed border-border pt-4 space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground font-medium">المجموع الفرعي</span>
+                        <span className="font-bold">{totalPrice.toFixed(2)} ريال</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground font-medium">رسوم الشحن</span>
+                        <span className="font-bold text-green-600">مجاناً</span>
+                      </div>
+                    </div>
+
+                    <div className="border-t-2 border-border pt-4 bg-primary/5 -mx-6 px-6 py-4 rounded-b-2xl">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-bold text-foreground">الإجمالي</span>
+                        <span className="text-2xl font-bold text-primary">{totalPrice.toFixed(2)} ريال</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
