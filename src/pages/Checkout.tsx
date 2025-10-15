@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShoppingBag } from 'lucide-react';
 
 // Initialize Stripe - Make sure VITE_STRIPE_PUBLISHABLE_KEY is set in .env
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
@@ -33,6 +33,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [expressAvailable, setExpressAvailable] = useState<boolean | null>(null);
 
   const handlePaymentSuccess = async () => {
     try {
@@ -133,13 +134,30 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   return (
     <div className="space-y-8">
       {/* Express Checkout Section - Apple Pay / Google Pay */}
-      <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20">
+      <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-6 border-2 border-primary/20 transition-all duration-300 hover:shadow-xl hover:border-primary/30">
         <div className="text-center mb-4">
           <h3 className="text-lg font-bold text-foreground mb-2">الدفع السريع</h3>
           <p className="text-sm text-muted-foreground">ادفع بأمان باستخدام Apple Pay أو Google Pay</p>
         </div>
         
         <ExpressCheckoutElement
+          onReady={({ availablePaymentMethods }) => {
+            console.log('🔍 Express Checkout Ready');
+            console.log('Available methods:', availablePaymentMethods);
+            
+            const hasExpress = availablePaymentMethods && 
+              (availablePaymentMethods.applePay || availablePaymentMethods.googlePay);
+            setExpressAvailable(hasExpress || false);
+            
+            if (!hasExpress) {
+              console.warn('⚠️ No express payment methods available');
+              console.warn('Check: HTTPS, Apple Wallet, Currency (SAR), Device/Browser');
+            }
+          }}
+          onLoadError={(error) => {
+            console.error('❌ Express Checkout Error:', error);
+            setExpressAvailable(false);
+          }}
           onConfirm={handleExpressPayment}
           options={{
             buttonHeight: 55,
@@ -153,6 +171,17 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
             },
           }}
         />
+        
+        {expressAvailable === false && (
+          <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-center animate-fade-in">
+            <div className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
+              Apple Pay غير متاح حالياً
+            </div>
+            <div className="text-xs text-amber-700 dark:text-amber-300">
+              يرجى استخدام بطاقة الائتمان أدناه
+            </div>
+          </div>
+        )}
       </div>
       
       {/* فاصل أنيق */}
@@ -169,47 +198,49 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
       
       {/* Card Payment Section */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-foreground">معلومات البطاقة</h3>
-            <div className="flex items-center gap-2">
-              <div className="text-xs text-muted-foreground">نقبل</div>
-              <div className="flex gap-1.5">
-                <div className="w-10 h-6 bg-white rounded border border-border flex items-center justify-center text-[10px] font-bold text-blue-600">
-                  VISA
-                </div>
-                <div className="w-10 h-6 bg-gradient-to-br from-orange-400 to-red-500 rounded border border-border flex items-center justify-center">
-                  <div className="flex gap-0.5">
-                    <div className="w-2 h-2 bg-red-600/80 rounded-full" />
-                    <div className="w-2 h-2 bg-orange-400/80 rounded-full" />
+        <div className="bg-gradient-to-br from-background to-muted/20 border-2 border-border rounded-xl p-5 transition-all duration-300 hover:border-primary/30">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground">معلومات البطاقة</h3>
+              <div className="flex items-center gap-2">
+                <div className="text-xs text-muted-foreground">نقبل</div>
+                <div className="flex gap-1.5">
+                  <div className="w-10 h-6 bg-white rounded border border-border flex items-center justify-center text-[10px] font-bold text-blue-600">
+                    VISA
                   </div>
+                  <div className="w-10 h-6 bg-gradient-to-br from-orange-400 to-red-500 rounded border border-border flex items-center justify-center">
+                    <div className="flex gap-0.5">
+                      <div className="w-2 h-2 bg-red-600/80 rounded-full" />
+                      <div className="w-2 h-2 bg-orange-400/80 rounded-full" />
+                    </div>
+                  </div>
+                  <div className="w-10 h-6 bg-gradient-to-br from-blue-500 to-blue-700 rounded border border-border flex items-center justify-center text-[8px] font-bold text-white">
+                    AMEX
+                  </div>
+                  <div className="w-10 h-6 bg-gradient-to-br from-purple-600 to-orange-400 rounded border border-border" />
                 </div>
-                <div className="w-10 h-6 bg-gradient-to-br from-blue-500 to-blue-700 rounded border border-border flex items-center justify-center text-[8px] font-bold text-white">
-                  AMEX
-                </div>
-                <div className="w-10 h-6 bg-gradient-to-br from-purple-600 to-orange-400 rounded border border-border" />
               </div>
             </div>
-          </div>
-          
-          <div className="bg-background border border-border rounded-xl p-4">
-            <PaymentElement 
-              options={{
-                layout: {
-                  type: 'accordion',
-                  defaultCollapsed: false,
-                  radios: true,
-                  spacedAccordionItems: true,
-                }
-              }}
-            />
+            
+            <div className="bg-background border border-border rounded-xl p-4">
+              <PaymentElement 
+                options={{
+                  layout: {
+                    type: 'accordion',
+                    defaultCollapsed: false,
+                    radios: true,
+                    spacedAccordionItems: true,
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
 
         <Button
           type="submit"
           size="lg"
-          className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+          className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
           disabled={!stripe || isProcessing}
         >
           {isProcessing ? (
@@ -242,6 +273,7 @@ export default function Checkout() {
   const { items, totalPrice } = useCart();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
@@ -255,9 +287,47 @@ export default function Checkout() {
     notes: '',
   });
 
-  if (items.length === 0 && !clientSecret) {
-    navigate('/cart');
-    return null;
+  // Debug logging
+  useEffect(() => {
+    console.log('═══════════════════════════════════');
+    console.log('🛒 Checkout Page Debug Info');
+    console.log('═══════════════════════════════════');
+    console.log('📦 Items in cart:', items.length);
+    console.log('💰 Total price:', totalPrice, 'SAR');
+    console.log('🔐 Client secret:', clientSecret ? '✅ Yes' : '❌ No');
+    console.log('🔑 Stripe key:', stripePublishableKey ? '✅ Set' : '❌ Missing');
+    console.log('🌐 Current URL:', window.location.href);
+    console.log('🔒 Is HTTPS:', window.location.protocol === 'https:');
+    console.log('═══════════════════════════════════');
+  }, [items, totalPrice, clientSecret]);
+
+  // Handle empty cart with delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+      
+      if (items.length === 0 && !clientSecret) {
+        toast({
+          title: 'السلة فارغة',
+          description: 'يرجى إضافة منتجات للسلة أولاً',
+          variant: 'destructive',
+        });
+        navigate('/cart');
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [items.length, clientSecret, navigate]);
+
+  if (isInitializing) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="mr-3 text-muted-foreground">جاري التحميل...</span>
+        </div>
+      </div>
+    );
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -458,9 +528,12 @@ export default function Checkout() {
         </div>
 
         <div className="lg:col-span-1">
-          <Card className="sticky top-20">
-            <CardHeader>
-              <CardTitle>ملخص الطلب</CardTitle>
+          <Card className="sticky top-20 shadow-xl border-2">
+            <CardHeader className="bg-gradient-to-br from-primary/5 to-primary/10">
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingBag className="h-5 w-5" />
+                ملخص الطلب
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
