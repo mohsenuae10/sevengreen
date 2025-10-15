@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -33,7 +32,7 @@ serve(async (req) => {
 
     if (orderError || !order) throw new Error("Order not found");
 
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
     const itemsList = order.order_items
       .map((item: any) => `
@@ -46,11 +45,17 @@ serve(async (req) => {
       `)
       .join("");
 
-    await resend.emails.send({
-      from: "Seven Green <onboarding@resend.dev>",
-      to: [order.customer_email],
-      subject: `تأكيد طلبك - ${order.order_number}`,
-      html: `
+    const emailResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Seven Green <onboarding@resend.dev>",
+        to: [order.customer_email],
+        subject: `تأكيد طلبك - ${order.order_number}`,
+        html: `
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
         <head>
@@ -112,8 +117,11 @@ serve(async (req) => {
           </div>
         </body>
         </html>
-      `,
+        `,
+      }),
     });
+
+    const emailData = await emailResponse.json();
 
     console.log("Order confirmation email sent to:", order.customer_email);
 
@@ -126,8 +134,9 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error sending confirmation email:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

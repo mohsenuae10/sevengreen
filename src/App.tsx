@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/contexts/CartContext';
+import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Home from '@/pages/Home';
@@ -10,6 +12,12 @@ import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
 import Checkout from '@/pages/Checkout';
 import OrderSuccess from '@/pages/OrderSuccess';
+import AdminLogin from '@/pages/admin/Login';
+import AdminDashboard from '@/pages/admin/Dashboard';
+import AdminProducts from '@/pages/admin/Products';
+import AdminOrders from '@/pages/admin/Orders';
+import AdminOrderDetail from '@/pages/admin/OrderDetail';
+import AdminSettings from '@/pages/admin/Settings';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -17,26 +25,41 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <BrowserRouter>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order-success/:orderId" element={<OrderSuccess />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-          <Toaster />
-        </BrowserRouter>
-      </CartProvider>
+      <BrowserRouter>
+        <AdminAuthProvider>
+          <CartProvider>
+            <Routes>
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
+              <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
+              <Route path="/admin/orders/:id" element={<ProtectedRoute><AdminOrderDetail /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+              
+              {/* Public Routes */}
+              <Route path="/*" element={
+                <div className="flex flex-col min-h-screen">
+                  <Header />
+                  <main className="flex-1">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/products" element={<Products />} />
+                      <Route path="/product/:id" element={<ProductDetail />} />
+                      <Route path="/cart" element={<Cart />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </main>
+                  <Footer />
+                </div>
+              } />
+            </Routes>
+            <Toaster />
+          </CartProvider>
+        </AdminAuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }
