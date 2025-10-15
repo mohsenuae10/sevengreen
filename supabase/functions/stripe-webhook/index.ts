@@ -22,7 +22,7 @@ serve(async (req) => {
     console.log("📨 Webhook received");
     
     // Verify webhook signature
-    const event = stripe.webhooks.constructEvent(
+    const event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
       webhookSecret
