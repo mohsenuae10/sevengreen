@@ -74,6 +74,24 @@ serve(async (req) => {
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true);
 
+    // Count of paid orders
+    const { count: paidOrdersCount } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('payment_status', 'paid');
+
+    // Count of pending payment orders
+    const { count: pendingPaymentCount } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('payment_status', 'pending');
+
+    // Count of shipped orders
+    const { count: shippedCount } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'shipped');
+
     // Sales chart data (last 7 days)
     const chartData = [];
     for (let i = 6; i >= 0; i--) {
@@ -113,6 +131,9 @@ serve(async (req) => {
           totalRevenue,
           pendingCount: pendingCount || 0,
           productsCount: productsCount || 0,
+          paidOrdersCount: paidOrdersCount || 0,
+          pendingPaymentCount: pendingPaymentCount || 0,
+          shippedCount: shippedCount || 0,
         },
         chartData,
         recentOrders,
