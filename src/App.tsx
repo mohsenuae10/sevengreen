@@ -18,6 +18,9 @@ import AdminProducts from '@/pages/admin/Products';
 import AdminOrders from '@/pages/admin/Orders';
 import AdminOrderDetail from '@/pages/admin/OrderDetail';
 import AdminSettings from '@/pages/admin/Settings';
+import PendingPaymentOrders from '@/pages/admin/PendingPaymentOrders';
+import PaidOrders from '@/pages/admin/PaidOrders';
+import ShippedOrders from '@/pages/admin/ShippedOrders';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -34,6 +37,9 @@ function App() {
               <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
+              <Route path="/admin/orders/pending-payment" element={<ProtectedRoute><PendingPaymentOrders /></ProtectedRoute>} />
+              <Route path="/admin/orders/paid" element={<ProtectedRoute><PaidOrders /></ProtectedRoute>} />
+              <Route path="/admin/orders/shipped" element={<ProtectedRoute><ShippedOrders /></ProtectedRoute>} />
               <Route path="/admin/orders/:id" element={<ProtectedRoute><AdminOrderDetail /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
               

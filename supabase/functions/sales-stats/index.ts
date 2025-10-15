@@ -32,7 +32,7 @@ serve(async (req) => {
       .from('orders')
       .select('total_amount')
       .gte('created_at', today.toISOString())
-      .eq('payment_status', 'paid');
+      .eq('payment_status', 'completed');
 
     const todayTotal = todaySales?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
 
@@ -41,7 +41,7 @@ serve(async (req) => {
       .from('orders')
       .select('total_amount')
       .gte('created_at', startOfWeek.toISOString())
-      .eq('payment_status', 'paid');
+      .eq('payment_status', 'completed');
 
     const weekTotal = weekSales?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
 
@@ -50,7 +50,7 @@ serve(async (req) => {
       .from('orders')
       .select('total_amount')
       .gte('created_at', startOfMonth.toISOString())
-      .eq('payment_status', 'paid');
+      .eq('payment_status', 'completed');
 
     const monthTotal = monthSales?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
 
@@ -58,7 +58,7 @@ serve(async (req) => {
     const { data: allSales } = await supabase
       .from('orders')
       .select('total_amount')
-      .eq('payment_status', 'paid');
+      .eq('payment_status', 'completed');
 
     const totalRevenue = allSales?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
 
@@ -78,7 +78,7 @@ serve(async (req) => {
     const { count: paidOrdersCount } = await supabase
       .from('orders')
       .select('*', { count: 'exact', head: true })
-      .eq('payment_status', 'paid');
+      .eq('payment_status', 'completed');
 
     // Count of pending payment orders
     const { count: pendingPaymentCount } = await supabase
@@ -105,7 +105,7 @@ serve(async (req) => {
         .select('total_amount')
         .gte('created_at', date.toISOString())
         .lt('created_at', nextDate.toISOString())
-        .eq('payment_status', 'paid');
+        .eq('payment_status', 'completed');
 
       const dayTotal = daySales?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
 
