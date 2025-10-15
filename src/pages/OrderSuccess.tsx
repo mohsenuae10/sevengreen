@@ -4,33 +4,64 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Package } from 'lucide-react';
+import { CheckCircle, Package, Loader2 } from 'lucide-react';
 
 export default function OrderSuccess() {
   const { orderId } = useParams<{ orderId: string }>();
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const { data: order } = useQuery({
+  const { data: order, refetch } = useQuery({
     queryKey: ['order', orderId],
     queryFn: async () => {
+      console.log('📦 Fetching order:', orderId, '(Attempt:', retryCount + 1, ')');
+      
       const { data, error } = await supabase
         .from('orders')
         .select('*, order_items(*)')
         .eq('id', orderId)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching order:', error);
+        throw error;
+      }
+      
+      console.log('✅ Order fetched:', data);
+      console.log('Payment status:', data.payment_status);
+      console.log('Stripe payment ID:', data.stripe_payment_id);
+      
       setIsLoading(false);
       return data;
     },
     enabled: !!orderId,
+    retry: 3,
+    retryDelay: 1000,
   });
+
+  // إعادة المحاولة تلقائياً إذا لم يتم العثور على الطلب
+  useEffect(() => {
+    if (!order && !isLoading && retryCount < 3) {
+      console.log('🔄 Retrying to fetch order...');
+      const timer = setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+        refetch();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [order, isLoading, retryCount, refetch]);
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <div className="text-center">
-          <p className="text-muted-foreground">جاري التحميل...</p>
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">جاري تحميل تفاصيل الطلب...</p>
+          {retryCount > 0 && (
+            <p className="text-sm text-muted-foreground">
+              محاولة {retryCount + 1} من 3...
+            </p>
+          )}
         </div>
       </div>
     );

@@ -97,12 +97,15 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
 
   const handleExpressPayment = async (event: any) => {
     if (!stripe) {
+      console.error('❌ Stripe not initialized');
       return;
     }
 
+    console.log('🍏 Apple Pay: Starting payment process');
     setIsProcessing(true);
 
     try {
+      console.log('🍏 Apple Pay: Confirming payment...');
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements: elements!,
         confirmParams: {
@@ -111,23 +114,38 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
         redirect: 'if_required',
       });
 
+      console.log('🍏 Apple Pay: Payment result:', { 
+        hasError: !!error, 
+        status: paymentIntent?.status,
+        orderId 
+      });
+
       if (error) {
+        console.error('❌ Apple Pay error:', error);
         toast({
           title: 'خطأ في الدفع',
           description: error.message,
           variant: 'destructive',
         });
+        setIsProcessing(false);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        console.log('✅ Apple Pay: Payment succeeded, updating order...');
+        
+        // تحديث حالة الدفع في قاعدة البيانات
         await handlePaymentSuccess();
+        
+        console.log('✅ Apple Pay: Order updated successfully');
+      } else {
+        // في حالة redirect تلقائي من Stripe، سيتم التوجيه تلقائياً
+        console.log('🔄 Apple Pay: Redirecting...');
       }
     } catch (error) {
-      console.error('Express payment error:', error);
+      console.error('❌ Apple Pay exception:', error);
       toast({
         title: 'خطأ',
         description: 'حدث خطأ أثناء معالجة الدفع',
         variant: 'destructive',
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -307,6 +325,42 @@ export default function Checkout() {
     shipping_address: '',
     notes: '',
   });
+
+  // Check for Stripe redirect with payment_intent
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentIntentId = urlParams.get('payment_intent');
+    const paymentIntentClientSecret = urlParams.get('payment_intent_client_secret');
+    
+    if (paymentIntentId && paymentIntentClientSecret) {
+      console.log('🔄 Returned from Stripe redirect');
+      console.log('Payment Intent ID:', paymentIntentId);
+      
+      // تحديث حالة الطلب تلقائياً
+      const updateOrderStatus = async () => {
+        try {
+          const { data: orders } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('stripe_payment_id', paymentIntentId)
+            .single();
+          
+          if (orders) {
+            await supabase
+              .from('orders')
+              .update({ payment_status: 'completed' })
+              .eq('id', orders.id);
+            
+            navigate(`/order-success/${orders.id}`);
+          }
+        } catch (error) {
+          console.error('Error updating order after redirect:', error);
+        }
+      };
+      
+      updateOrderStatus();
+    }
+  }, [navigate]);
 
   // Debug logging
   useEffect(() => {
