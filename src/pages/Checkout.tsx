@@ -33,8 +33,6 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showExpressCheckout, setShowExpressCheckout] = useState(true);
-  const [expressAvailable, setExpressAvailable] = useState(false);
 
   const handlePaymentSuccess = async () => {
     try {
@@ -135,80 +133,62 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   return (
     <div className="space-y-6">
       {/* Express Checkout (Apple Pay / Google Pay) */}
-      {showExpressCheckout && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="h-px bg-border flex-1" />
-            <span className="text-sm text-muted-foreground">الدفع السريع</span>
-            <div className="h-px bg-border flex-1" />
-          </div>
-          
-          <ExpressCheckoutElement
-            onReady={({ availablePaymentMethods }) => {
-              const hasExpressMethods = availablePaymentMethods && Object.keys(availablePaymentMethods).length > 0;
-              setExpressAvailable(hasExpressMethods);
-            }}
-            onConfirm={handleExpressPayment}
-            options={{
-              buttonHeight: 48,
-              buttonTheme: {
-                applePay: 'black',
-                googlePay: 'black',
-              },
-              layout: {
-                maxColumns: 1,
-                overflow: 'never',
-              },
-            }}
-          />
+      <div className="space-y-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="h-px bg-border flex-1" />
+          <span className="text-sm text-muted-foreground">الدفع السريع</span>
+          <div className="h-px bg-border flex-1" />
         </div>
-      )}
+        
+        <ExpressCheckoutElement
+          onConfirm={handleExpressPayment}
+          options={{
+            buttonHeight: 48,
+            buttonTheme: {
+              applePay: 'black',
+              googlePay: 'black',
+            },
+            layout: {
+              maxColumns: 1,
+              overflow: 'never',
+            },
+          }}
+        />
+      </div>
       
-      {/* فاصل مع زر التبديل */}
-      {expressAvailable && (
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowExpressCheckout(!showExpressCheckout)}
-              className="bg-background px-4"
-            >
-              {showExpressCheckout ? 'الدفع بطرق أخرى' : 'العودة للدفع السريع'}
-            </Button>
-          </div>
+      {/* فاصل */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t" />
         </div>
-      )}
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-background px-4 text-muted-foreground">أو</span>
+        </div>
+      </div>
       
       {/* Standard Payment Methods */}
-      {(!showExpressCheckout || !expressAvailable) && (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <h3 className="text-lg font-bold mb-4">معلومات الدفع</h3>
-            <PaymentElement />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <h3 className="text-lg font-bold mb-4">معلومات الدفع</h3>
+          <PaymentElement />
+        </div>
 
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full"
-            disabled={!stripe || isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                جاري المعالجة...
-              </>
-            ) : (
-              'إتمام الدفع'
-            )}
-          </Button>
-        </form>
-      )}
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={!stripe || isProcessing}
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              جاري المعالجة...
+            </>
+          ) : (
+            'إتمام الدفع'
+          )}
+        </Button>
+      </form>
     </div>
   );
 }
