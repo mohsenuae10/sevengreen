@@ -131,19 +131,18 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   };
 
   return (
-    <div className="space-y-6">
-      {/* Express Checkout (Apple Pay / Google Pay) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="h-px bg-border flex-1" />
-          <span className="text-sm text-muted-foreground">الدفع السريع</span>
-          <div className="h-px bg-border flex-1" />
+    <div className="space-y-8">
+      {/* Express Checkout Section - Apple Pay / Google Pay */}
+      <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-bold text-foreground mb-2">الدفع السريع</h3>
+          <p className="text-sm text-muted-foreground">ادفع بأمان باستخدام Apple Pay أو Google Pay</p>
         </div>
         
         <ExpressCheckoutElement
           onConfirm={handleExpressPayment}
           options={{
-            buttonHeight: 48,
+            buttonHeight: 55,
             buttonTheme: {
               applePay: 'black',
               googlePay: 'black',
@@ -156,38 +155,84 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
         />
       </div>
       
-      {/* فاصل */}
+      {/* فاصل أنيق */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t" />
+          <div className="w-full border-t border-border" />
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="bg-background px-4 text-muted-foreground">أو</span>
+        <div className="relative flex justify-center">
+          <span className="bg-background px-6 py-2 text-sm font-medium text-muted-foreground rounded-full border border-border">
+            أو ادفع بالبطاقة
+          </span>
         </div>
       </div>
       
-      {/* Standard Payment Methods */}
+      {/* Card Payment Section */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <h3 className="text-lg font-bold mb-4">معلومات الدفع</h3>
-          <PaymentElement />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-foreground">معلومات البطاقة</h3>
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-muted-foreground">نقبل</div>
+              <div className="flex gap-1.5">
+                <div className="w-10 h-6 bg-white rounded border border-border flex items-center justify-center text-[10px] font-bold text-blue-600">
+                  VISA
+                </div>
+                <div className="w-10 h-6 bg-gradient-to-br from-orange-400 to-red-500 rounded border border-border flex items-center justify-center">
+                  <div className="flex gap-0.5">
+                    <div className="w-2 h-2 bg-red-600/80 rounded-full" />
+                    <div className="w-2 h-2 bg-orange-400/80 rounded-full" />
+                  </div>
+                </div>
+                <div className="w-10 h-6 bg-gradient-to-br from-blue-500 to-blue-700 rounded border border-border flex items-center justify-center text-[8px] font-bold text-white">
+                  AMEX
+                </div>
+                <div className="w-10 h-6 bg-gradient-to-br from-purple-600 to-orange-400 rounded border border-border" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-background border border-border rounded-xl p-4">
+            <PaymentElement 
+              options={{
+                layout: {
+                  type: 'accordion',
+                  defaultCollapsed: false,
+                  radios: true,
+                  spacedAccordionItems: true,
+                }
+              }}
+            />
+          </div>
         </div>
 
         <Button
           type="submit"
           size="lg"
-          className="w-full"
+          className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
           disabled={!stripe || isProcessing}
         >
           {isProcessing ? (
             <>
-              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              <Loader2 className="ml-2 h-5 w-5 animate-spin" />
               جاري المعالجة...
             </>
           ) : (
-            'إتمام الدفع'
+            <>
+              إتمام الدفع الآمن
+              <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </>
           )}
         </Button>
+        
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <svg className="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+          </svg>
+          <span>الدفع مشفر بالكامل وآمن بنسبة 100%</span>
+        </div>
       </form>
     </div>
   );
