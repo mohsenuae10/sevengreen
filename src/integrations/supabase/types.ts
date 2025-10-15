@@ -173,10 +173,12 @@ export type Database = {
           instagram_url: string | null
           seo_home_description: string | null
           seo_home_title: string | null
+          store_domain: string | null
           store_email: string | null
           store_logo_url: string | null
           store_name: string | null
           store_phone: string | null
+          store_url: string | null
           updated_at: string | null
           whatsapp_number: string | null
         }
@@ -188,10 +190,12 @@ export type Database = {
           instagram_url?: string | null
           seo_home_description?: string | null
           seo_home_title?: string | null
+          store_domain?: string | null
           store_email?: string | null
           store_logo_url?: string | null
           store_name?: string | null
           store_phone?: string | null
+          store_url?: string | null
           updated_at?: string | null
           whatsapp_number?: string | null
         }
@@ -203,10 +207,12 @@ export type Database = {
           instagram_url?: string | null
           seo_home_description?: string | null
           seo_home_title?: string | null
+          store_domain?: string | null
           store_email?: string | null
           store_logo_url?: string | null
           store_name?: string | null
           store_phone?: string | null
+          store_url?: string | null
           updated_at?: string | null
           whatsapp_number?: string | null
         }

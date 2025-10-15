@@ -23,6 +23,15 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    // Get site settings
+    const { data: settings } = await supabaseClient
+      .from("site_settings")
+      .select("store_name, store_url")
+      .single();
+
+    const storeName = settings?.store_name || "Seven Green";
+    const storeUrl = settings?.store_url || "https://sevengreenstore.com";
+
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
       .from("orders")
@@ -52,7 +61,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Seven Green <onboarding@resend.dev>",
+        from: `${storeName} <onboarding@resend.dev>`,
         to: [order.customer_email],
         subject: `تأكيد طلبك - ${order.order_number}`,
         html: `
@@ -67,8 +76,10 @@ serve(async (req) => {
         <body style="margin: 0; padding: 20px; background-color: #f5f5f5;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #2d5016; margin: 0;">Seven Green</h1>
-              <p style="color: #d4a85c; margin: 5px 0;">سفن جرين</p>
+              <h1 style="color: #2d5016; margin: 0;">${storeName}</h1>
+              <p style="color: #d4a85c; margin: 5px 0;">
+                <a href="${storeUrl}" style="color: #d4a85c; text-decoration: none;">${storeUrl.replace('https://', '')}</a>
+              </p>
             </div>
             
             <h2 style="color: #2d5016;">شكراً لطلبك! 🎉</h2>
@@ -111,7 +122,8 @@ serve(async (req) => {
             <p style="color: #666; margin-top: 30px;">سيتم إرسال رقم تتبع الشحنة عبر البريد الإلكتروني فور شحن طلبك.</p>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 12px;">
-              <p>Seven Green - منتجات العناية الطبيعية</p>
+              <p>${storeName} - منتجات العناية الطبيعية</p>
+              <p><a href="${storeUrl}" style="color: #999; text-decoration: none;">${storeUrl.replace('https://', '')}</a></p>
               <p>© 2025 جميع الحقوق محفوظة</p>
             </div>
           </div>

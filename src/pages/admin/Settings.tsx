@@ -36,6 +36,8 @@ export default function AdminSettings() {
     currency: settings?.currency || 'ريال',
     seo_home_title: settings?.seo_home_title || '',
     seo_home_description: settings?.seo_home_description || '',
+    store_domain: settings?.store_domain || '',
+    store_url: settings?.store_url || '',
   });
 
   const updateMutation = useMutation({
@@ -75,6 +77,25 @@ export default function AdminSettings() {
                 <Input
                   value={formData.currency}
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>النطاق (Domain)</Label>
+                <Input
+                  value={formData.store_domain}
+                  onChange={(e) => setFormData({ ...formData, store_domain: e.target.value })}
+                  placeholder="sevengreenstore.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>رابط المتجر الكامل</Label>
+                <Input
+                  value={formData.store_url}
+                  onChange={(e) => setFormData({ ...formData, store_url: e.target.value })}
+                  placeholder="https://sevengreenstore.com"
                 />
               </div>
             </div>
