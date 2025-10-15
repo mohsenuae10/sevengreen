@@ -12,8 +12,14 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Loader2 } from 'lucide-react';
 
-// Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+// Initialize Stripe - Make sure VITE_STRIPE_PUBLISHABLE_KEY is set in .env
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+
+if (!stripePublishableKey) {
+  console.error('⚠️ VITE_STRIPE_PUBLISHABLE_KEY is not set in .env file');
+}
+
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 interface CheckoutFormProps {
   clientSecret: string;
@@ -292,22 +298,33 @@ export default function Checkout() {
                 <CardTitle>الدفع الآمن</CardTitle>
               </CardHeader>
               <CardContent>
-                <Elements
-                  stripe={stripePromise}
-                  options={{
-                    clientSecret,
-                    appearance: {
-                      theme: 'stripe',
-                    },
-                    locale: 'ar',
-                  }}
-                >
-                  <CheckoutForm
-                    clientSecret={clientSecret}
-                    orderId={orderId!}
-                    orderNumber={orderNumber!}
-                  />
-                </Elements>
+                {!stripePromise ? (
+                  <div className="p-6 text-center space-y-4">
+                    <div className="text-destructive">
+                      ⚠️ خطأ في تهيئة نظام الدفع
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      يرجى التواصل مع الدعم الفني
+                    </p>
+                  </div>
+                ) : (
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
+                      clientSecret,
+                      appearance: {
+                        theme: 'stripe',
+                      },
+                      locale: 'ar',
+                    }}
+                  >
+                    <CheckoutForm
+                      clientSecret={clientSecret}
+                      orderId={orderId!}
+                      orderNumber={orderNumber!}
+                    />
+                  </Elements>
+                )}
               </CardContent>
             </Card>
           )}

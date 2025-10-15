@@ -10,9 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
+type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
 export default function AdminOrderDetail() {
   const { id } = useParams();
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState<OrderStatus>('pending');
   const [trackingNumber, setTrackingNumber] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -26,7 +28,7 @@ export default function AdminOrderDetail() {
         .eq('id', id)
         .single();
       if (error) throw error;
-      setStatus(data.status);
+      setStatus(data.status as OrderStatus);
       setTrackingNumber(data.tracking_number || '');
       return data;
     },
@@ -83,7 +85,7 @@ export default function AdminOrderDetail() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>حالة الطلب</Label>
-                <Select value={status} onValueChange={setStatus}>
+                <Select value={status} onValueChange={(value) => setStatus(value as OrderStatus)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
