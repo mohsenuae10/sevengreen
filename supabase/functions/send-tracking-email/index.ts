@@ -1,0 +1,119 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { order_id, tracking_number } = await req.json();
+
+    if (!order_id || !tracking_number) {
+      throw new Error("Order ID and tracking number are required");
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Get order details
+    const { data: order, error: orderError } = await supabaseClient
+      .from("orders")
+      .select("*")
+      .eq("id", order_id)
+      .single();
+
+    if (orderError || !order) throw new Error("Order not found");
+
+    // Update tracking number
+    await supabaseClient
+      .from("orders")
+      .update({ 
+        tracking_number,
+        status: "shipped"
+      })
+      .eq("id", order_id);
+
+    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+    await resend.emails.send({
+      from: "Seven Green <onboarding@resend.dev>",
+      to: [order.customer_email],
+      subject: `تم شحن طلبك - ${order.order_number}`,
+      html: `
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: 'Tajawal', Arial, sans-serif; }
+          </style>
+        </head>
+        <body style="margin: 0; padding: 20px; background-color: #f5f5f5;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #2d5016; margin: 0;">Seven Green</h1>
+              <p style="color: #d4a85c; margin: 5px 0;">سفن جرين</p>
+            </div>
+            
+            <h2 style="color: #2d5016;">تم شحن طلبك! 📦</h2>
+            <p>عزيزي/عزيزتي ${order.customer_name}،</p>
+            <p>نود إعلامك بأن طلبك قد تم شحنه وهو في طريقه إليك.</p>
+            
+            <div style="background-color: #f0f7e9; padding: 20px; border-radius: 8px; margin: 25px 0; border-right: 4px solid #2d5016;">
+              <h3 style="color: #2d5016; margin-top: 0;">رقم التتبع</h3>
+              <p style="font-size: 24px; font-weight: bold; color: #2d5016; margin: 10px 0; letter-spacing: 1px;">
+                ${tracking_number}
+              </p>
+            </div>
+
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #2d5016; margin-top: 0;">معلومات الطلب</h3>
+              <p><strong>رقم الطلب:</strong> ${order.order_number}</p>
+              <p><strong>المبلغ الإجمالي:</strong> ${order.total_amount.toFixed(2)} ريال</p>
+            </div>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-right: 4px solid #d4a85c;">
+              <p style="margin: 0;"><strong>ملاحظة:</strong> يمكنك استخدام رقم التتبع أعلاه لمتابعة حالة الشحنة مع شركة الشحن.</p>
+            </div>
+
+            <p style="color: #666; margin-top: 30px;">إذا كان لديك أي استفسار، لا تتردد في التواصل معنا.</p>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 12px;">
+              <p>Seven Green - منتجات العناية الطبيعية</p>
+              <p>© 2025 جميع الحقوق محفوظة</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    console.log("Tracking email sent to:", order.customer_email);
+
+    return new Response(
+      JSON.stringify({ success: true }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.error("Error sending tracking email:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
+  }
+});
