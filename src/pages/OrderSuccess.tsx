@@ -70,11 +70,10 @@ export default function OrderSuccess() {
     queryFn: async () => {
       console.log('📦 Fetching order:', orderId, '(Attempt:', retryCount + 1, ')');
       
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, order_items(*)')
-        .eq('id', orderId)
-        .single();
+      // استخدام edge function للحصول على بيانات الطلب
+      const { data, error } = await supabase.functions.invoke('get-order-details', {
+        body: { order_id: orderId },
+      });
       
       if (error) {
         console.error('❌ Error fetching order:', error);
