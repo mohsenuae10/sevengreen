@@ -10,6 +10,60 @@ export default function OrderSuccess() {
   const { orderId } = useParams<{ orderId: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
+  const [paymentUpdated, setPaymentUpdated] = useState(false);
+
+  // تحديث حالة الدفع فور الوصول للصفحة (بعد redirect من Stripe)
+  useEffect(() => {
+    const updatePaymentStatus = async () => {
+      if (!orderId || paymentUpdated) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentIntentId = urlParams.get('payment_intent');
+      const paymentIntentClientSecret = urlParams.get('payment_intent_client_secret');
+      const paymentMethod = urlParams.get('payment_method');
+
+      console.log('🔍 Checking URL parameters:', {
+        paymentIntentId,
+        hasSecret: !!paymentIntentClientSecret,
+        paymentMethod,
+        orderId
+      });
+
+      // إذا كنا قادمين من redirect (يوجد payment_intent في URL)
+      if (paymentIntentId && paymentIntentClientSecret) {
+        console.log('✅ Payment completed via redirect, updating order status...');
+        
+        try {
+          // تحديث حالة الدفع إلى completed
+          const { error: updateError } = await supabase
+            .from('orders')
+            .update({ payment_status: 'completed' })
+            .eq('id', orderId);
+
+          if (updateError) {
+            console.error('❌ Error updating payment status:', updateError);
+          } else {
+            console.log('✅ Payment status updated to completed');
+            setPaymentUpdated(true);
+
+            // إرسال بريد تأكيد الطلب
+            try {
+              await supabase.functions.invoke('send-order-confirmation', {
+                body: { order_id: orderId },
+              });
+              console.log('✅ Confirmation email sent');
+            } catch (emailError) {
+              console.error('❌ Error sending email:', emailError);
+            }
+          }
+        } catch (error) {
+          console.error('❌ Exception updating payment:', error);
+        }
+      }
+    };
+
+    updatePaymentStatus();
+  }, [orderId, paymentUpdated]);
 
   const { data: order, refetch } = useQuery({
     queryKey: ['order', orderId],

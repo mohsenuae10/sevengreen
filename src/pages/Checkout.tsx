@@ -102,24 +102,22 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
     }
 
     console.log('🍏 Apple Pay: Starting payment process');
+    console.log('🍏 Order ID:', orderId);
     setIsProcessing(true);
 
     try {
       console.log('🍏 Apple Pay: Confirming payment...');
-      const { error, paymentIntent } = await stripe.confirmPayment({
+      
+      // استخدام redirect: 'always' للتأكد من أننا نذهب إلى صفحة النجاح
+      const { error } = await stripe.confirmPayment({
         elements: elements!,
         confirmParams: {
-          return_url: `${PRODUCTION_DOMAIN}/order-success/${orderId}`,
+          return_url: `${PRODUCTION_DOMAIN}/order-success/${orderId}?payment_method=apple_pay`,
         },
-        redirect: 'if_required',
+        redirect: 'always', // تأكد من الانتقال دائماً
       });
 
-      console.log('🍏 Apple Pay: Payment result:', { 
-        hasError: !!error, 
-        status: paymentIntent?.status,
-        orderId 
-      });
-
+      // هذا السطر لن يتم الوصول إليه إلا في حالة خطأ (لأن redirect: 'always')
       if (error) {
         console.error('❌ Apple Pay error:', error);
         toast({
@@ -128,16 +126,6 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
           variant: 'destructive',
         });
         setIsProcessing(false);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        console.log('✅ Apple Pay: Payment succeeded, updating order...');
-        
-        // تحديث حالة الدفع في قاعدة البيانات
-        await handlePaymentSuccess();
-        
-        console.log('✅ Apple Pay: Order updated successfully');
-      } else {
-        // في حالة redirect تلقائي من Stripe، سيتم التوجيه تلقائياً
-        console.log('🔄 Apple Pay: Redirecting...');
       }
     } catch (error) {
       console.error('❌ Apple Pay exception:', error);
