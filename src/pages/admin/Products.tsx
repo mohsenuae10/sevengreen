@@ -182,6 +182,12 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const [formData, setFormData] = useState({
     name_ar: product?.name_ar || '',
     description_ar: product?.description_ar || '',
+    ingredients_ar: product?.ingredients_ar || '',
+    how_to_use_ar: product?.how_to_use_ar || '',
+    benefits_ar: product?.benefits_ar || '',
+    warnings_ar: product?.warnings_ar || '',
+    size_info: product?.size_info || '',
+    made_in: product?.made_in || '',
     price: product?.price || '',
     category: product?.category || '',
     stock_quantity: product?.stock_quantity || '',
@@ -341,6 +347,12 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       const productData = {
         name_ar: formData.name_ar.trim(),
         description_ar: formData.description_ar?.trim() || null,
+        ingredients_ar: formData.ingredients_ar?.trim() || null,
+        how_to_use_ar: formData.how_to_use_ar?.trim() || null,
+        benefits_ar: formData.benefits_ar?.trim() || null,
+        warnings_ar: formData.warnings_ar?.trim() || null,
+        size_info: formData.size_info?.trim() || null,
+        made_in: formData.made_in?.trim() || null,
         price: parseFloat(formData.price as any),
         category: formData.category.trim(),
         stock_quantity: parseInt(formData.stock_quantity as any),
@@ -461,6 +473,66 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
           rows={3}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>المكونات</Label>
+        <Textarea
+          value={formData.ingredients_ar}
+          onChange={(e) => setFormData({ ...formData, ingredients_ar: e.target.value })}
+          placeholder="أدخل مكونات المنتج..."
+          rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>طريقة الاستخدام</Label>
+        <Textarea
+          value={formData.how_to_use_ar}
+          onChange={(e) => setFormData({ ...formData, how_to_use_ar: e.target.value })}
+          placeholder="كيفية استخدام المنتج..."
+          rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>الفوائد</Label>
+        <Textarea
+          value={formData.benefits_ar}
+          onChange={(e) => setFormData({ ...formData, benefits_ar: e.target.value })}
+          placeholder="فوائد المنتج..."
+          rows={2}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>التحذيرات (اختياري)</Label>
+        <Textarea
+          value={formData.warnings_ar}
+          onChange={(e) => setFormData({ ...formData, warnings_ar: e.target.value })}
+          placeholder="تحذيرات الاستخدام..."
+          rows={2}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>معلومات الحجم</Label>
+          <Input
+            value={formData.size_info}
+            onChange={(e) => setFormData({ ...formData, size_info: e.target.value })}
+            placeholder="مثال: 250 مل"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>بلد المنشأ</Label>
+          <Input
+            value={formData.made_in}
+            onChange={(e) => setFormData({ ...formData, made_in: e.target.value })}
+            placeholder="مثال: المملكة العربية السعودية"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

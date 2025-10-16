@@ -153,49 +153,67 @@ export type Database = {
       }
       products: {
         Row: {
+          benefits_ar: string | null
           category: string
           created_at: string | null
           description_ar: string | null
+          how_to_use_ar: string | null
           id: string
           image_url: string | null
+          ingredients_ar: string | null
           is_active: boolean | null
+          made_in: string | null
           name_ar: string
           price: number
           seo_description: string | null
           seo_keywords: string | null
           seo_title: string | null
+          size_info: string | null
           stock_quantity: number
           updated_at: string | null
+          warnings_ar: string | null
         }
         Insert: {
+          benefits_ar?: string | null
           category: string
           created_at?: string | null
           description_ar?: string | null
+          how_to_use_ar?: string | null
           id?: string
           image_url?: string | null
+          ingredients_ar?: string | null
           is_active?: boolean | null
+          made_in?: string | null
           name_ar: string
           price: number
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
+          size_info?: string | null
           stock_quantity?: number
           updated_at?: string | null
+          warnings_ar?: string | null
         }
         Update: {
+          benefits_ar?: string | null
           category?: string
           created_at?: string | null
           description_ar?: string | null
+          how_to_use_ar?: string | null
           id?: string
           image_url?: string | null
+          ingredients_ar?: string | null
           is_active?: boolean | null
+          made_in?: string | null
           name_ar?: string
           price?: number
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
+          size_info?: string | null
           stock_quantity?: number
           updated_at?: string | null
+          warnings_ar?: string | null
         }
         Relationships: []
       }

@@ -16,6 +16,7 @@ import { ProductSchema } from '@/components/SEO/ProductSchema';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { ProductImageGallery } from '@/components/product/ProductImageGallery';
+import { ProductTabs } from '@/components/product/ProductTabs';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -195,15 +196,6 @@ export default function ProductDetail() {
             <span className="text-xl text-muted-foreground">ريال</span>
           </div>
 
-          {product.description_ar && (
-            <div className="border-t pt-6">
-              <h2 className="text-xl font-bold mb-3">وصف المنتج</h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {product.description_ar}
-              </p>
-            </div>
-          )}
-
           <div className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground mb-2">الكمية</p>
@@ -264,6 +256,17 @@ export default function ProductDetail() {
           <TrustBadges />
         </div>
       </div>
+
+      {/* Product Details Tabs */}
+      <ProductTabs
+        description={product.description_ar}
+        ingredients={product.ingredients_ar}
+        howToUse={product.how_to_use_ar}
+        benefits={product.benefits_ar}
+        warnings={product.warnings_ar}
+        sizeInfo={product.size_info}
+        madeIn={product.made_in}
+      />
 
       {/* Related Products */}
       <RelatedProducts currentProductId={product.id} category={product.category} />
