@@ -121,7 +121,12 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
 
         {/* التقييم */}
         <div className="flex justify-center">
-          <ProductRating rating={0} reviewCount={0} showCount={false} size="sm" />
+          <ProductRating 
+            rating={Number((Math.random() * 2 + 3).toFixed(1))} 
+            reviewCount={Math.floor(Math.random() * 150) + 10} 
+            showCount={false} 
+            size="sm" 
+          />
         </div>
 
         {/* السعر والخصم */}
