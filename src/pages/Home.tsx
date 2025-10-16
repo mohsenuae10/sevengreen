@@ -10,6 +10,7 @@ import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
 import { Droplets, Sparkles, Wind, Flower2, UserCircle, Gift } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Define priority categories and their icons
 const PRIORITY_CATEGORIES = [
@@ -31,7 +32,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 export default function Home() {
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, error } = useQuery({
     queryKey: ['all-products'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,8 +42,10 @@ export default function Home() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   // Get featured product (most recent)
@@ -79,7 +82,14 @@ export default function Home() {
             </p>
           </div>
 
-          {isLoading ? (
+          {error ? (
+            <div className="text-center py-12">
+              <p className="text-destructive mb-4">حدث خطأ في تحميل المنتجات</p>
+              <Button onClick={() => window.location.reload()}>
+                إعادة المحاولة
+              </Button>
+            </div>
+          ) : isLoading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
               <p className="text-muted-foreground mt-4">جاري التحميل...</p>

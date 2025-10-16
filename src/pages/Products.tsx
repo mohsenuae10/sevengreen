@@ -9,7 +9,7 @@ import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, error } = useQuery({
     queryKey: ['products', selectedCategory],
     queryFn: async () => {
       let query = supabase
@@ -23,8 +23,10 @@ export default function Products() {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data || [];
     },
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   const categories = [
@@ -81,7 +83,14 @@ export default function Products() {
         </div>
       </div>
 
-      {isLoading ? (
+      {error ? (
+        <div className="text-center py-12">
+          <p className="text-destructive mb-4">حدث خطأ في تحميل المنتجات</p>
+          <Button onClick={() => window.location.reload()}>
+            إعادة المحاولة
+          </Button>
+        </div>
+      ) : isLoading ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">جاري التحميل...</p>
         </div>

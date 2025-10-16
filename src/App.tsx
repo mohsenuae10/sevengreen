@@ -31,7 +31,17 @@ import PaidOrders from '@/pages/admin/PaidOrders';
 import ShippedOrders from '@/pages/admin/ShippedOrders';
 import NotFound from '@/pages/NotFound';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      retry: 1,
+    },
+  },
+});
 
 function App() {
   return (
