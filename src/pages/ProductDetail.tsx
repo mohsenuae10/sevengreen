@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, ArrowRight } from 'lucide-react';
+import { ShoppingCart, ArrowRight, CreditCard } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -82,6 +82,48 @@ export default function ProductDetail() {
       title: 'تمت الإضافة',
       description: `تم إضافة ${quantity}x ${product.name_ar} إلى السلة`,
     });
+  };
+
+  const handleBuyNow = async () => {
+    if (!product) return;
+    
+    if (product.stock_quantity <= 0) {
+      toast({
+        title: 'غير متوفر',
+        description: 'هذا المنتج غير متوفر حالياً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: 'جاري التحويل للدفع...',
+        description: 'يرجى الانتظار',
+      });
+
+      const { data, error } = await supabase.functions.invoke('create-product-checkout', {
+        body: {
+          productId: product.id,
+          quantity: quantity,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('لم يتم الحصول على رابط الدفع');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: 'خطأ في الدفع',
+        description: error instanceof Error ? error.message : 'فشل إنشاء جلسة الدفع',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (isLoading) {
@@ -234,21 +276,36 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={handleAddToCart}
-                size="lg"
-                className="flex-1"
-                disabled={product.stock_quantity <= 0}
-              >
-                <ShoppingCart className="ml-2 h-5 w-5" />
-                أضف إلى السلة
-              </Button>
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleAddToCart}
+                  size="lg"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={product.stock_quantity <= 0}
+                >
+                  <ShoppingCart className="ml-2 h-5 w-5" />
+                  أضف إلى السلة
+                </Button>
+                
+                <Button
+                  onClick={handleBuyNow}
+                  size="lg"
+                  className="flex-1"
+                  disabled={product.stock_quantity <= 0}
+                >
+                  <CreditCard className="ml-2 h-5 w-5" />
+                  اشتر الآن
+                </Button>
+              </div>
               
               {/* Share Button */}
-              <SocialShare 
-                productName={product.name_ar}
-              />
+              <div className="flex justify-center">
+                <SocialShare 
+                  productName={product.name_ar}
+                />
+              </div>
             </div>
           </div>
 
