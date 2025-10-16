@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, ArrowRight } from 'lucide-react';
+import { ShoppingCart, ArrowRight, Zap } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -82,6 +82,32 @@ export default function ProductDetail() {
       title: 'تمت الإضافة',
       description: `تم إضافة ${quantity}x ${product.name_ar} إلى السلة`,
     });
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+    
+    if (product.stock_quantity <= 0) {
+      toast({
+        title: 'غير متوفر',
+        description: 'هذا المنتج غير متوفر حالياً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Add to cart first
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: product.id,
+        name_ar: product.name_ar,
+        price: product.price,
+        image_url: product.image_url,
+      });
+    }
+
+    // Navigate to checkout
+    navigate('/checkout');
   };
 
   if (isLoading) {
@@ -234,16 +260,29 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={handleAddToCart}
-                size="lg"
-                className="flex-1"
-                disabled={product.stock_quantity <= 0}
-              >
-                <ShoppingCart className="ml-2 h-5 w-5" />
-                أضف إلى السلة
-              </Button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleAddToCart}
+                  size="lg"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={product.stock_quantity <= 0}
+                >
+                  <ShoppingCart className="ml-2 h-5 w-5" />
+                  أضف إلى السلة
+                </Button>
+                
+                <Button
+                  onClick={handleBuyNow}
+                  size="lg"
+                  className="flex-1"
+                  disabled={product.stock_quantity <= 0}
+                >
+                  <Zap className="ml-2 h-5 w-5" />
+                  اشتر الآن
+                </Button>
+              </div>
               
               {/* Share Button */}
               <SocialShare 
