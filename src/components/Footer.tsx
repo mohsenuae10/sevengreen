@@ -1,7 +1,9 @@
-import { Facebook, Instagram } from 'lucide-react';
+import { Facebook, Instagram, Mail } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
+import { NewsletterForm } from '@/components/NewsletterForm';
+import { Separator } from '@/components/ui/separator';
 
 export const Footer = () => {
   const { data: settings } = useQuery({
@@ -15,116 +17,194 @@ export const Footer = () => {
     },
   });
 
+  const { data: categories } = useQuery({
+    queryKey: ['product-categories'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('category')
+        .eq('is_active', true);
+      
+      if (!data) return [];
+      
+      // Get unique categories
+      const uniqueCategories = [...new Set(data.map(p => p.category))];
+      return uniqueCategories.slice(0, 6); // Show max 6 categories
+    },
+  });
+
   return (
     <footer className="border-t bg-secondary/30 mt-auto">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-lg font-bold text-primary mb-3">
-              {settings?.store_name || 'Seven Green'}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              منتجات العناية الطبيعية - صوابين، شامبو، ومنتجات التجميل
-            </p>
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Column 1: Store Info + Newsletter */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-xl font-bold text-primary mb-2">
+                {settings?.store_name || 'Seven Green'}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                متجرك المتخصص في منتجات العناية الطبيعية - صوابين، شامبو، ومنتجات التجميل الطبيعية 100%
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-primary">النشرة البريدية</h4>
+              <NewsletterForm />
+            </div>
           </div>
 
+          {/* Column 2: Quick Links */}
           <div>
-            <h3 className="text-lg font-bold text-primary mb-3">روابط سريعة</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-lg font-bold text-primary mb-4">روابط سريعة</h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   الرئيسية
                 </Link>
               </li>
               <li>
-                <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   المنتجات
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   من نحن
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   اتصل بنا
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   الأسئلة الشائعة
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* Column 3: Product Categories */}
           <div>
-            <h3 className="text-lg font-bold text-primary mb-3">السياسات</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-lg font-bold text-primary mb-4">فئات المنتجات</h3>
+            <ul className="space-y-3 text-sm">
+              {categories && categories.length > 0 ? (
+                categories.map((category, index) => (
+                  <li key={index}>
+                    <Link 
+                      to={`/products?category=${encodeURIComponent(category)}`}
+                      className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                    >
+                      <span className="w-1 h-1 bg-primary rounded-full"></span>
+                      {category}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="text-muted-foreground text-sm">جاري التحميل...</li>
+              )}
               <li>
-                <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                  سياسة الخصوصية
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
-                  شروط الخدمة
-                </Link>
-              </li>
-              <li>
-                <Link to="/return-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                  سياسة الإرجاع
-                </Link>
-              </li>
-              <li>
-                <Link to="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                  سياسة الشحن
+                <Link 
+                  to="/products"
+                  className="text-primary hover:underline transition-colors flex items-center gap-2 font-medium"
+                >
+                  عرض جميع المنتجات ←
                 </Link>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-primary mb-3">تواصل معنا</h3>
-            <div className="flex gap-4 mb-4">
-              {settings?.facebook_url && (
-                <a 
-                  href={settings.facebook_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="h-5 w-5" />
-                </a>
-              )}
-              {settings?.instagram_url && (
-                <a 
-                  href={settings.instagram_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="h-5 w-5" />
-                </a>
-              )}
+          {/* Column 4: Policies + Payment Methods + Social */}
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-bold text-primary mb-4">السياسات</h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                    <span className="w-1 h-1 bg-primary rounded-full"></span>
+                    سياسة الخصوصية
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                    <span className="w-1 h-1 bg-primary rounded-full"></span>
+                    شروط الخدمة
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/return-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                    <span className="w-1 h-1 bg-primary rounded-full"></span>
+                    سياسة الإرجاع
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                    <span className="w-1 h-1 bg-primary rounded-full"></span>
+                    سياسة الشحن
+                  </Link>
+                </li>
+              </ul>
             </div>
-            <div className="text-sm text-muted-foreground">
-              <p className="mb-2">طرق الدفع المتاحة:</p>
+
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-primary">تواصل معنا</h4>
+              <div className="flex gap-3">
+                {settings?.facebook_url && (
+                  <a 
+                    href={settings.facebook_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-primary/10 hover:bg-primary hover:text-primary-foreground p-2.5 rounded-full transition-all"
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="h-5 w-5" />
+                  </a>
+                )}
+                {settings?.instagram_url && (
+                  <a 
+                    href={settings.instagram_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-primary/10 hover:bg-primary hover:text-primary-foreground p-2.5 rounded-full transition-all"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-primary">طرق الدفع</h4>
               <div className="flex gap-2 flex-wrap">
-                <span className="px-2 py-1 bg-secondary rounded text-xs">Mada</span>
-                <span className="px-2 py-1 bg-secondary rounded text-xs">Visa</span>
-                <span className="px-2 py-1 bg-secondary rounded text-xs">Mastercard</span>
-                <span className="px-2 py-1 bg-secondary rounded text-xs">Apple Pay</span>
+                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
+                  mada
+                </div>
+                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
+                  VISA
+                </div>
+                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
+                  Mastercard
+                </div>
+                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
+                   Pay
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>© 2025 {settings?.store_name || 'Seven Green'}. جميع الحقوق محفوظة.</p>
+        <Separator className="my-8" />
+
+        <div className="text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} {settings?.store_name || 'Seven Green'}. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
