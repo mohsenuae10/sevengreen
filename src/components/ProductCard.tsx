@@ -111,7 +111,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         )}
       </Link>
       
-      <CardContent className="p-1.5 space-y-0.5">
+      <CardContent className="p-2 space-y-1.5">
         {/* التقييم */}
         <div className="flex justify-center">
           <ProductRating rating={4.5} reviewCount={Math.floor(Math.random() * 50) + 5} showCount={false} size="xs" />
@@ -119,54 +119,54 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
 
         {/* اسم المنتج */}
         <Link to={`/product/${id}`}>
-          <h3 className="font-bold text-[9px] text-center hover:text-primary transition-colors line-clamp-2 min-h-[1.8rem] leading-tight">
+          <h3 className="font-bold text-[10px] text-center hover:text-primary transition-colors line-clamp-2 min-h-[2rem] leading-tight">
             {name_ar}
           </h3>
         </Link>
 
         {/* السعر والخصم */}
-        <div className="text-center space-y-0.5">
+        <div className="text-center space-y-1">
           <div className="flex items-center justify-center gap-1.5">
-            <p className="text-sm font-bold text-red-600">
+            <p className="text-base font-bold text-primary">
               ₪ {price.toFixed(0)}
             </p>
             {hasDiscount && (
-              <p className="text-[9px] text-muted-foreground line-through">
+              <p className="text-[10px] text-muted-foreground line-through">
                 ₪ {oldPrice.toFixed(0)}
               </p>
             )}
           </div>
           {hasDiscount && (
-            <div className="bg-red-50 rounded px-1 py-0 inline-block">
-              <p className="text-[8px] text-red-600 font-semibold">
-                - {discountPercentage}%
+            <div className="bg-red-50 dark:bg-red-950/30 rounded-md px-1.5 py-0.5 inline-block">
+              <p className="text-[9px] text-red-600 dark:text-red-400 font-semibold">
+                وفّر {discountPercentage}%
               </p>
             </div>
           )}
         </div>
 
         {stock_quantity <= 0 && (
-          <p className="text-[8px] text-destructive text-center">غير متوفر</p>
+          <p className="text-[9px] text-destructive text-center font-medium">غير متوفر</p>
         )}
 
         {/* أزرار الإجراءات */}
-        <div className="grid grid-cols-2 gap-1">
+        <div className="grid grid-cols-2 gap-1.5 pt-1">
           <Button
             onClick={handleAddToCart}
             variant="outline"
-            className="text-[9px] h-6 rounded-full font-bold border-green-600 text-green-600 hover:bg-green-50"
+            className="text-[10px] h-7 rounded-lg font-bold border-2 border-primary/20 text-foreground hover:bg-primary/5 hover:border-primary/40 transition-all"
             disabled={stock_quantity <= 0}
           >
-            <ShoppingCart className="ml-1 h-2.5 w-2.5" />
+            <ShoppingCart className="ml-1 h-3 w-3" />
             للسلة
           </Button>
           
           <Button
             onClick={handleBuyNow}
-            className="bg-green-600 hover:bg-green-700 text-white text-[9px] h-6 rounded-full font-bold"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground text-[10px] h-7 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
             disabled={stock_quantity <= 0}
           >
-            <Zap className="ml-1 h-2.5 w-2.5" />
+            <Zap className="ml-1 h-3 w-3" />
             اشتر الآن
           </Button>
         </div>
