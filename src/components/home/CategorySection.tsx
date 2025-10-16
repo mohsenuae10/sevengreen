@@ -39,7 +39,7 @@ interface CategorySectionProps {
 }
 
 export const CategorySection = ({ title, category, products, icon, delay = '0s' }: CategorySectionProps) => {
-  const categoryProducts = products.filter(p => p.category === category).slice(0, 4);
+  const categoryProducts = products.filter(p => p.category === category).slice(0, 6);
   
   // Get banner image for this category (fallback to first image if not found)
   const bannerImage = categoryBanners[category] || hairCareBanner;
@@ -109,7 +109,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s' 
       </div>
       
       {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
         {categoryProducts.map((product) => (
           <ProductCard key={product.id} {...product} />
         ))}

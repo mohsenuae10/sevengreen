@@ -4,7 +4,7 @@ interface ProductRatingProps {
   rating: number;
   reviewCount?: number;
   showCount?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }
 
 export default function ProductRating({ 
@@ -14,6 +14,7 @@ export default function ProductRating({
   size = 'md' 
 }: ProductRatingProps) {
   const sizeClasses = {
+    xs: 'h-2.5 w-2.5',
     sm: 'h-3 w-3',
     md: 'h-4 w-4',
     lg: 'h-5 w-5',
