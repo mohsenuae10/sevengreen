@@ -686,17 +686,23 @@ export default function Checkout() {
                   <div className="p-6 space-y-4">
                     <div className="space-y-3">
                       {items.map((item) => (
-                        <div key={item.id} className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                              <Package className="h-4 w-4 text-primary" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">{item.name_ar}</div>
+                        <div key={item.id} className="flex justify-between items-start gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                          <div className="flex items-start gap-3 flex-1">
+                            {item.image_url && (
+                              <div className="w-16 h-16 rounded-lg overflow-hidden bg-background border border-border flex-shrink-0">
+                                <img 
+                                  src={item.image_url} 
+                                  alt={item.name_ar}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm mb-1 line-clamp-2">{item.name_ar}</div>
                               <div className="text-xs text-muted-foreground">الكمية: {item.quantity}</div>
                             </div>
                           </div>
-                          <span className="font-bold text-primary">{(item.price * item.quantity).toFixed(2)} ريال</span>
+                          <span className="font-bold text-primary whitespace-nowrap">{(item.price * item.quantity).toFixed(2)} ريال</span>
                         </div>
                       ))}
                     </div>
