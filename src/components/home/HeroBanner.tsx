@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, RefreshCw, Headphones } from 'lucide-react';
 import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface HeroBannerProps {
@@ -59,6 +59,37 @@ export const HeroBanner = ({ product }: HeroBannerProps) => {
                   </Link>
                 </Button>
               )}
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6 mt-6 border-t border-white/20">
+              <div className="flex items-center gap-2 text-white/90">
+                <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                  <ShieldCheck className="h-5 w-5 text-accent" />
+                </div>
+                <span className="text-sm font-medium">طبيعي 100%</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-white/90">
+                <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                  <Truck className="h-5 w-5 text-accent" />
+                </div>
+                <span className="text-sm font-medium">شحن مجاني</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-white/90">
+                <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                  <RefreshCw className="h-5 w-5 text-accent" />
+                </div>
+                <span className="text-sm font-medium">إرجاع مجاني</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-white/90">
+                <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                  <Headphones className="h-5 w-5 text-accent" />
+                </div>
+                <span className="text-sm font-medium">دعم 24/7</span>
+              </div>
             </div>
           </div>
           

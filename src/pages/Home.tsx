@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { HeroBanner } from '@/components/home/HeroBanner';
+import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
 import { SpecialOffers } from '@/components/home/SpecialOffers';
 import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
+import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
@@ -43,11 +45,17 @@ export default function Home() {
       {/* Hero Banner */}
       <HeroBanner product={featuredProduct} />
 
+      {/* Featured Products Carousel */}
+      <FeaturedProductsCarousel />
+
       {/* Special Offers */}
       <SpecialOffers />
 
       {/* Features Section */}
       <FeaturesSection />
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
       {/* Products by Category */}
       <section className="py-20 bg-background">
