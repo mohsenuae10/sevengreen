@@ -67,19 +67,7 @@ export default function Home() {
       />
       <OrganizationSchema />
       
-      {/* Featured Products Carousel */}
-      <FeaturedProductsCarousel />
-
-      {/* Special Offers */}
-      <SpecialOffers />
-
-      {/* Features Section */}
-      <FeaturesSection />
-
-      {/* Testimonials Section */}
-      <TestimonialsSection />
-
-      {/* Products by Category */}
+      {/* Products by Category - في الأعلى */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in">
@@ -116,6 +104,18 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* Featured Products Carousel */}
+      <FeaturedProductsCarousel />
+
+      {/* Special Offers */}
+      <SpecialOffers />
+
+      {/* Features Section */}
+      <FeaturesSection />
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
       {/* CTA Section */}
       <CTASection />
