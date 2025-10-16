@@ -1,14 +1,14 @@
-import { Facebook, Instagram, Phone, Mail } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Footer = () => {
   const { data: settings } = useQuery({
-    queryKey: ['site-settings-footer'],
+    queryKey: ['public-settings-footer'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('site_settings')
-        .select('store_name, store_phone, store_email, facebook_url, instagram_url, whatsapp_number')
+        .from('public_settings')
+        .select('store_name, facebook_url, instagram_url, whatsapp_number')
         .single();
       return data;
     },
@@ -64,22 +64,6 @@ export const Footer = () => {
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Instagram className="h-5 w-5" />
-                </a>
-              )}
-              {settings?.store_phone && (
-                <a 
-                  href={`tel:${settings.store_phone}`}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Phone className="h-5 w-5" />
-                </a>
-              )}
-              {settings?.store_email && (
-                <a 
-                  href={`mailto:${settings.store_email}`}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Mail className="h-5 w-5" />
                 </a>
               )}
             </div>

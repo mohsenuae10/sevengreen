@@ -164,6 +164,51 @@ export type Database = {
         }
         Relationships: []
       }
+      public_settings: {
+        Row: {
+          currency: string | null
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          seo_home_description: string | null
+          seo_home_title: string | null
+          store_domain: string | null
+          store_logo_url: string | null
+          store_name: string | null
+          store_url: string | null
+          updated_at: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          currency?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          seo_home_description?: string | null
+          seo_home_title?: string | null
+          store_domain?: string | null
+          store_logo_url?: string | null
+          store_name?: string | null
+          store_url?: string | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          currency?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          seo_home_description?: string | null
+          seo_home_title?: string | null
+          store_domain?: string | null
+          store_logo_url?: string | null
+          store_name?: string | null
+          store_url?: string | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           currency: string | null
