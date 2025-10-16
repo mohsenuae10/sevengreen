@@ -36,7 +36,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <Link to={`/product/${id}`}>
         {image_url ? (
           <OptimizedImage
@@ -46,30 +46,30 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             aspectRatio="1/1"
           />
         ) : (
-          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-xs">
+          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[10px]">
             لا توجد صورة
           </div>
         )}
       </Link>
       
-      <CardContent className="p-3">
+      <CardContent className="p-2">
         <Link to={`/product/${id}`}>
-          <h3 className="font-bold text-sm mb-1 hover:text-primary transition-colors line-clamp-2">
+          <h3 className="font-semibold text-xs mb-1 hover:text-primary transition-colors line-clamp-2 leading-tight">
             {name_ar}
           </h3>
         </Link>
-        <p className="text-lg font-bold text-primary">
+        <p className="text-sm font-bold text-primary">
           {price.toFixed(2)} ريال
         </p>
         {stock_quantity <= 0 && (
-          <p className="text-xs text-destructive mt-1">غير متوفر</p>
+          <p className="text-[10px] text-destructive mt-0.5">غير متوفر</p>
         )}
       </CardContent>
 
-      <CardFooter className="p-3 pt-0">
+      <CardFooter className="p-2 pt-0">
         <Button
           onClick={handleAddToCart}
-          className="w-full text-xs h-8"
+          className="w-full text-[10px] h-7 px-2"
           disabled={stock_quantity <= 0}
         >
           <ShoppingCart className="ml-1 h-3 w-3" />
