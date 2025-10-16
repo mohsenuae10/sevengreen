@@ -26,6 +26,12 @@ export const Header = () => {
             <Link to="/products" className="text-sm font-medium hover:text-primary transition-colors">
               المنتجات
             </Link>
+            <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
+              من نحن
+            </Link>
+            <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+              اتصل بنا
+            </Link>
           </nav>
 
           <Link to="/cart">

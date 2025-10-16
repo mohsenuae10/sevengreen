@@ -12,6 +12,13 @@ import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
 import Checkout from '@/pages/Checkout';
 import OrderSuccess from '@/pages/OrderSuccess';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
+import FAQ from '@/pages/FAQ';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfService from '@/pages/TermsOfService';
+import ReturnPolicy from '@/pages/ReturnPolicy';
+import ShippingPolicy from '@/pages/ShippingPolicy';
 import AdminLogin from '@/pages/admin/Login';
 import AdminDashboard from '@/pages/admin/Dashboard';
 import AdminProducts from '@/pages/admin/Products';
@@ -55,6 +62,13 @@ function App() {
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/checkout" element={<Checkout />} />
                       <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="/terms-of-service" element={<TermsOfService />} />
+                      <Route path="/return-policy" element={<ReturnPolicy />} />
+                      <Route path="/shipping-policy" element={<ShippingPolicy />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </main>
