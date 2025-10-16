@@ -220,39 +220,64 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
 
-    const imageUrl = await handleImageUpload();
-    if (imageFile && !imageUrl) return;
-
-    const productData = {
-      ...formData,
-      price: parseFloat(formData.price as any),
-      stock_quantity: parseInt(formData.stock_quantity as any),
-      image_url: imageUrl,
-    };
-
-    if (product) {
-      const { error } = await supabase
-        .from('products')
-        .update(productData)
-        .eq('id', product.id);
-
-      if (error) {
-        toast({ title: 'خطأ في تحديث المنتج', variant: 'destructive' });
+    try {
+      const imageUrl = await handleImageUpload();
+      if (imageFile && !imageUrl) {
+        setUploading(false);
         return;
       }
-    } else {
-      const { error } = await supabase.from('products').insert(productData);
 
-      if (error) {
-        toast({ title: 'خطأ في إضافة المنتج', variant: 'destructive' });
-        return;
+      const productData = {
+        ...formData,
+        price: parseFloat(formData.price as any),
+        stock_quantity: parseInt(formData.stock_quantity as any),
+        image_url: imageUrl || formData.image_url,
+      };
+
+      if (product) {
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', product.id);
+
+        if (error) {
+          console.error('Update error:', error);
+          toast({ 
+            title: 'خطأ في تحديث المنتج', 
+            description: error.message,
+            variant: 'destructive' 
+          });
+          return;
+        }
+      } else {
+        const { error } = await supabase.from('products').insert(productData);
+
+        if (error) {
+          console.error('Insert error:', error);
+          toast({ 
+            title: 'خطأ في إضافة المنتج', 
+            description: error.message,
+            variant: 'destructive' 
+          });
+          return;
+        }
       }
+
+      toast({ title: product ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح' });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      onClose();
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      toast({ 
+        title: 'حدث خطأ', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setUploading(false);
     }
-
-    toast({ title: product ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح' });
-    queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-    onClose();
   };
 
   return (
