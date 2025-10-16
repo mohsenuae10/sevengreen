@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://sevengreenstore.com/sitemap.xml
+Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-sitemap

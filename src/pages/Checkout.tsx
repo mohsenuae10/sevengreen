@@ -11,6 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, Mail, Phone, User, FileText } from 'lucide-react';
+import { SEOHead } from '@/components/SEO/SEOHead';
+import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 
 // Production domain for Stripe
 const PRODUCTION_DOMAIN = 'https://sevengreenstore.com';
@@ -453,8 +455,20 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-12">
+    <>
+      <SEOHead
+        title="إتمام الطلب"
+        description="أكمل طلبك من سفن جرين للمنتجات الطبيعية"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'الرئيسية', url: '/' },
+          { name: 'سلة التسوق', url: '/cart' },
+          { name: 'إتمام الطلب', url: '/checkout' },
+        ]}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container mx-auto px-4 py-12">
         {/* Header Section */}
         <div className="mb-10 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
@@ -712,5 +726,6 @@ export default function Checkout() {
         </div>
       </div>
     </div>
+    </>
   );
 }

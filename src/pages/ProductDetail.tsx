@@ -14,6 +14,8 @@ import SocialShare from '@/components/product/SocialShare';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { ProductSchema } from '@/components/SEO/ProductSchema';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+import { OptimizedImage } from '@/components/OptimizedImage';
+import { RelatedProducts } from '@/components/RelatedProducts';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -148,19 +150,19 @@ export default function ProductDetail() {
       </Breadcrumb>
 
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="aspect-square rounded-lg overflow-hidden bg-secondary">
-          {product.image_url ? (
-            <img
-              src={product.image_url}
-              alt={product.name_ar}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              لا توجد صورة
-            </div>
-          )}
-        </div>
+        {product.image_url ? (
+          <OptimizedImage
+            src={product.image_url}
+            alt={`${product.name_ar} - منتج طبيعي 100% من سفن جرين | ${product.category}`}
+            className="rounded-lg"
+            aspectRatio="1/1"
+            priority={true}
+          />
+        ) : (
+          <div className="aspect-square rounded-lg bg-secondary flex items-center justify-center text-muted-foreground">
+            لا توجد صورة
+          </div>
+        )}
 
         <div className="space-y-6">
           <div className="space-y-3">
@@ -260,6 +262,9 @@ export default function ProductDetail() {
           <TrustBadges />
         </div>
       </div>
+
+      {/* Related Products */}
+      <RelatedProducts currentProductId={product.id} category={product.category} />
     </div>
   );
 }

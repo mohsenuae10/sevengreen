@@ -41,16 +41,16 @@ Deno.serve(async (req) => {
 
     // Home page
     sitemap += '  <url>\n';
-    sitemap += `    <loc>${baseUrl}/</loc>\n`;
-    sitemap += `    <lastmod>${currentDate}</lastmod>\n`;
+    sitemap += '    <loc>' + baseUrl + '/</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
     sitemap += '    <changefreq>daily</changefreq>\n';
     sitemap += '    <priority>1.0</priority>\n';
     sitemap += '  </url>\n';
 
     // Products listing page
     sitemap += '  <url>\n';
-    sitemap += `    <loc>${baseUrl}/products</loc>\n`;
-    sitemap += `    <lastmod>${currentDate}</lastmod>\n`;
+    sitemap += '    <loc>' + baseUrl + '/products</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
     sitemap += '    <changefreq>daily</changefreq>\n';
     sitemap += '    <priority>0.9</priority>\n';
     sitemap += '  </url>\n';
@@ -63,28 +63,84 @@ Deno.serve(async (req) => {
           : currentDate;
         
         sitemap += '  <url>\n';
-        sitemap += `    <loc>${baseUrl}/product/${product.id}</loc>\n`;
-        sitemap += `    <lastmod>${lastmod}</lastmod>\n`;
+        sitemap += '    <loc>' + baseUrl + '/product/' + product.id + '</loc>\n';
+        sitemap += '    <lastmod>' + lastmod + '</lastmod>\n';
         sitemap += '    <changefreq>weekly</changefreq>\n';
         sitemap += '    <priority>0.8</priority>\n';
         sitemap += '  </url>\n';
       }
     }
 
+    // About page
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/about</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>monthly</changefreq>\n';
+    sitemap += '    <priority>0.7</priority>\n';
+    sitemap += '  </url>\n';
+
+    // Contact page
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/contact</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>monthly</changefreq>\n';
+    sitemap += '    <priority>0.7</priority>\n';
+    sitemap += '  </url>\n';
+
+    // FAQ page
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/faq</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>monthly</changefreq>\n';
+    sitemap += '    <priority>0.6</priority>\n';
+    sitemap += '  </url>\n';
+
+    // Privacy Policy
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/privacy-policy</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>yearly</changefreq>\n';
+    sitemap += '    <priority>0.4</priority>\n';
+    sitemap += '  </url>\n';
+
+    // Terms of Service
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/terms-of-service</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>yearly</changefreq>\n';
+    sitemap += '    <priority>0.4</priority>\n';
+    sitemap += '  </url>\n';
+
+    // Return Policy
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/return-policy</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>yearly</changefreq>\n';
+    sitemap += '    <priority>0.4</priority>\n';
+    sitemap += '  </url>\n';
+
+    // Shipping Policy
+    sitemap += '  <url>\n';
+    sitemap += '    <loc>' + baseUrl + '/shipping-policy</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
+    sitemap += '    <changefreq>yearly</changefreq>\n';
+    sitemap += '    <priority>0.4</priority>\n';
+    sitemap += '  </url>\n';
+
     // Cart page
     sitemap += '  <url>\n';
-    sitemap += `    <loc>${baseUrl}/cart</loc>\n`;
-    sitemap += `    <lastmod>${currentDate}</lastmod>\n`;
+    sitemap += '    <loc>' + baseUrl + '/cart</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
     sitemap += '    <changefreq>weekly</changefreq>\n';
-    sitemap += '    <priority>0.7</priority>\n';
+    sitemap += '    <priority>0.5</priority>\n';
     sitemap += '  </url>\n';
 
     // Checkout page
     sitemap += '  <url>\n';
-    sitemap += `    <loc>${baseUrl}/checkout</loc>\n`;
-    sitemap += `    <lastmod>${currentDate}</lastmod>\n`;
+    sitemap += '    <loc>' + baseUrl + '/checkout</loc>\n';
+    sitemap += '    <lastmod>' + currentDate + '</lastmod>\n';
     sitemap += '    <changefreq>weekly</changefreq>\n';
-    sitemap += '    <priority>0.8</priority>\n';
+    sitemap += '    <priority>0.5</priority>\n';
     sitemap += '  </url>\n';
 
     sitemap += '</urlset>';

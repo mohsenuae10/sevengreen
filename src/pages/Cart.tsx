@@ -3,32 +3,58 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEOHead } from '@/components/SEO/SEOHead';
+import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-md mx-auto text-center space-y-6">
-          <div className="mx-auto w-24 h-24 rounded-full bg-secondary flex items-center justify-center">
-            <ShoppingBag className="h-12 w-12 text-muted-foreground" />
+      <>
+        <SEOHead
+          title="سلة التسوق"
+          description="سلة التسوق الخاصة بك في متجر سفن جرين للمنتجات الطبيعية"
+        />
+        <BreadcrumbSchema
+          items={[
+            { name: 'الرئيسية', url: '/' },
+            { name: 'سلة التسوق', url: '/cart' },
+          ]}
+        />
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto text-center space-y-6">
+            <div className="mx-auto w-24 h-24 rounded-full bg-secondary flex items-center justify-center">
+              <ShoppingBag className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h2 className="text-2xl font-bold">السلة فارغة</h2>
+            <p className="text-muted-foreground">
+              ابدأ بإضافة منتجات إلى سلة التسوق
+            </p>
+            <Button asChild size="lg">
+              <Link to="/products">تصفح المنتجات</Link>
+            </Button>
           </div>
-          <h2 className="text-2xl font-bold">السلة فارغة</h2>
-          <p className="text-muted-foreground">
-            ابدأ بإضافة منتجات إلى سلة التسوق
-          </p>
-          <Button asChild size="lg">
-            <Link to="/products">تصفح المنتجات</Link>
-          </Button>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-primary mb-8">سلة التسوق</h1>
+    <>
+      <SEOHead
+        title="سلة التسوق"
+        description="سلة التسوق الخاصة بك في متجر سفن جرين للمنتجات الطبيعية"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'الرئيسية', url: '/' },
+          { name: 'سلة التسوق', url: '/cart' },
+        ]}
+      />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-primary mb-8">سلة التسوق</h1>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
@@ -36,19 +62,18 @@ export default function Cart() {
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex gap-4">
-                  <div className="w-24 h-24 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.name_ar}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        صورة
-                      </div>
-                    )}
-                  </div>
+                  {item.image_url ? (
+                    <OptimizedImage
+                      src={item.image_url}
+                      alt={`${item.name_ar} - منتج طبيعي من سفن جرين`}
+                      className="w-24 h-24 flex-shrink-0"
+                      aspectRatio="1/1"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-lg bg-secondary flex-shrink-0 flex items-center justify-center text-muted-foreground">
+                      صورة
+                    </div>
+                  )}
 
                   <div className="flex-1">
                     <h3 className="font-bold text-lg mb-2">{item.name_ar}</h3>
@@ -138,5 +163,6 @@ export default function Cart() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Package, Loader2 } from 'lucide-react';
+import { SEOHead } from '@/components/SEO/SEOHead';
 
 export default function OrderSuccess() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -106,36 +107,53 @@ export default function OrderSuccess() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">جاري تحميل تفاصيل الطلب...</p>
-          {retryCount > 0 && (
-            <p className="text-sm text-muted-foreground">
-              محاولة {retryCount + 1} من 3...
-            </p>
-          )}
+      <>
+        <SEOHead
+          title="جاري تحميل الطلب"
+          description="جاري تحميل تفاصيل طلبك من سفن جرين"
+        />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+            <p className="text-muted-foreground">جاري تحميل تفاصيل الطلب...</p>
+            {retryCount > 0 && (
+              <p className="text-sm text-muted-foreground">
+                محاولة {retryCount + 1} من 3...
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (!order) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">الطلب غير موجود</h2>
-          <Button asChild>
-            <Link to="/">العودة للرئيسية</Link>
-          </Button>
+      <>
+        <SEOHead
+          title="الطلب غير موجود"
+          description="نعتذر، لم نتمكن من العثور على تفاصيل هذا الطلب"
+        />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold">الطلب غير موجود</h2>
+            <Button asChild>
+              <Link to="/">العودة للرئيسية</Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
+    <>
+      <SEOHead
+        title="تم استلام طلبك بنجاح"
+        description="شكراً لك على طلبك من سفن جرين. سنتواصل معك قريباً."
+      />
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8 space-y-4">
           <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
             <CheckCircle className="h-12 w-12 text-primary" />
@@ -217,5 +235,6 @@ export default function OrderSuccess() {
         </div>
       </div>
     </div>
+    </>
   );
 }

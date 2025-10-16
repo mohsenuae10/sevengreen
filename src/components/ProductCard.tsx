@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter } from './ui/card';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
+import { OptimizedImage } from './OptimizedImage';
 
 interface ProductCardProps {
   id: string;
@@ -11,9 +12,10 @@ interface ProductCardProps {
   price: number;
   image_url: string | null;
   stock_quantity: number;
+  category?: string;
 }
 
-export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity }: ProductCardProps) => {
+export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category }: ProductCardProps) => {
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
@@ -36,19 +38,18 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity }: P
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <Link to={`/product/${id}`}>
-        <div className="aspect-square overflow-hidden bg-secondary">
-          {image_url ? (
-            <img
-              src={image_url}
-              alt={name_ar}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              لا توجد صورة
-            </div>
-          )}
-        </div>
+        {image_url ? (
+          <OptimizedImage
+            src={image_url}
+            alt={`${name_ar} - منتج طبيعي 100% من سفن جرين${category ? ` | ${category}` : ''}`}
+            className="aspect-square"
+            aspectRatio="1/1"
+          />
+        ) : (
+          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground">
+            لا توجد صورة
+          </div>
+        )}
       </Link>
       
       <CardContent className="p-4">

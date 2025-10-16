@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface HeroBannerProps {
   product?: {
@@ -65,11 +66,15 @@ export const HeroBanner = ({ product }: HeroBannerProps) => {
             {product?.image_url ? (
               <div className="relative group">
                 <div className="absolute inset-0 bg-accent/20 rounded-3xl blur-3xl group-hover:blur-2xl transition-all"></div>
-                <img 
-                  src={product.image_url} 
-                  alt={product.name_ar}
-                  className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-300"
-                />
+                <div className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+                  <OptimizedImage
+                    src={product.image_url}
+                    alt={`${product.name_ar} - منتج طبيعي مميز من سفن جرين`}
+                    className="w-full"
+                    aspectRatio="4/3"
+                    priority={true}
+                  />
+                </div>
               </div>
             ) : (
               <div className="bg-white/10 backdrop-blur-sm rounded-3xl h-96 flex items-center justify-center border border-white/20">
