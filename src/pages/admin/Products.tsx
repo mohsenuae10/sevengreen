@@ -196,83 +196,155 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const handleImageUpload = async () => {
     if (!imageFile) return formData.image_url;
 
-    setUploading(true);
-    const fileExt = imageFile.name.split('.').pop();
-    const fileName = `products/${Date.now()}.${fileExt}`;
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `products/${Date.now()}.${fileExt}`;
 
-    const { error: uploadError, data } = await supabase.storage
-      .from('product-images')
-      .upload(fileName, imageFile);
+      console.log('Uploading image:', fileName);
 
-    if (uploadError) {
-      toast({ title: 'خطأ في رفع الصورة', variant: 'destructive' });
-      setUploading(false);
+      const { error: uploadError, data } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, imageFile);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast({ 
+          title: 'خطأ في رفع الصورة', 
+          description: uploadError.message,
+          variant: 'destructive' 
+        });
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      console.log('Image uploaded successfully:', publicUrl);
+      return publicUrl;
+    } catch (error: any) {
+      console.error('Image upload exception:', error);
+      toast({ 
+        title: 'خطأ في رفع الصورة', 
+        description: error.message,
+        variant: 'destructive' 
+      });
       return null;
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(fileName);
-
-    setUploading(false);
-    return publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation: تحقق من الحقول المطلوبة
+    if (!formData.name_ar?.trim()) {
+      toast({ 
+        title: 'خطأ في البيانات', 
+        description: 'يجب إدخال اسم المنتج',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
+    if (!formData.category?.trim()) {
+      toast({ 
+        title: 'خطأ في البيانات', 
+        description: 'يجب اختيار الفئة',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
+    if (!formData.price || parseFloat(formData.price as any) <= 0) {
+      toast({ 
+        title: 'خطأ في البيانات', 
+        description: 'يجب إدخال سعر صحيح',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
+    if (!formData.stock_quantity || parseInt(formData.stock_quantity as any) < 0) {
+      toast({ 
+        title: 'خطأ في البيانات', 
+        description: 'يجب إدخال كمية صحيحة',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
     setUploading(true);
 
     try {
       const imageUrl = await handleImageUpload();
       if (imageFile && !imageUrl) {
-        setUploading(false);
-        return;
+        return; // setUploading(false) سيتم استدعاؤه في finally
       }
 
+      // تنظيف البيانات: إزالة المسافات الزائدة
       const productData = {
-        ...formData,
+        name_ar: formData.name_ar.trim(),
+        description_ar: formData.description_ar?.trim() || null,
         price: parseFloat(formData.price as any),
+        category: formData.category.trim(),
         stock_quantity: parseInt(formData.stock_quantity as any),
-        image_url: imageUrl || formData.image_url,
+        image_url: imageUrl || formData.image_url || null,
+        seo_title: formData.seo_title?.trim() || null,
+        seo_description: formData.seo_description?.trim() || null,
+        seo_keywords: formData.seo_keywords?.trim() || null,
       };
 
+      console.log('Attempting to save product:', productData);
+
       if (product) {
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from('products')
           .update(productData)
-          .eq('id', product.id);
+          .eq('id', product.id)
+          .select();
 
         if (error) {
-          console.error('Update error:', error);
+          console.error('Update error details:', error);
           toast({ 
             title: 'خطأ في تحديث المنتج', 
-            description: error.message,
+            description: error.message || 'حدث خطأ غير متوقع',
             variant: 'destructive' 
           });
           return;
         }
+        
+        console.log('Product updated successfully:', data);
       } else {
-        const { error } = await supabase.from('products').insert(productData);
+        const { error, data } = await supabase
+          .from('products')
+          .insert(productData)
+          .select();
 
         if (error) {
-          console.error('Insert error:', error);
+          console.error('Insert error details:', error);
           toast({ 
             title: 'خطأ في إضافة المنتج', 
-            description: error.message,
+            description: error.message || 'حدث خطأ غير متوقع',
             variant: 'destructive' 
           });
           return;
         }
+        
+        console.log('Product inserted successfully:', data);
       }
 
-      toast({ title: product ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح' });
+      toast({ 
+        title: product ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح',
+        description: `المنتج "${productData.name_ar}" تم ${product ? 'تحديثه' : 'إضافته'} بنجاح`
+      });
+      
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       onClose();
     } catch (error: any) {
       console.error('Submission error:', error);
       toast({ 
         title: 'حدث خطأ', 
-        description: error.message,
+        description: error.message || 'فشل في حفظ المنتج',
         variant: 'destructive' 
       });
     } finally {
@@ -382,7 +454,14 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           إلغاء
         </Button>
         <Button type="submit" disabled={uploading}>
-          {uploading ? 'جاري الرفع...' : product ? 'تحديث' : 'إضافة'}
+          {uploading ? (
+            <>
+              <div className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              {imageFile ? 'جاري رفع الصورة...' : 'جاري الحفظ...'}
+            </>
+          ) : (
+            product ? 'تحديث' : 'إضافة'
+          )}
         </Button>
       </div>
     </form>
