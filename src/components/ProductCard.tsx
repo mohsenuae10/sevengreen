@@ -62,7 +62,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-card">
       {/* شارة المنتج */}
       {hasBadge && (
-        <Badge className="absolute top-2 right-2 z-10 bg-yellow-400 text-black font-bold text-[10px] hover:bg-yellow-400">
+        <Badge className="absolute top-1 right-1 z-10 bg-yellow-400 text-black font-bold text-[8px] px-1.5 py-0.5 hover:bg-yellow-400">
           {randomBadge}
         </Badge>
       )}
@@ -70,10 +70,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       {/* أيقونة المفضلة */}
       <button
         onClick={toggleFavorite}
-        className="absolute top-2 left-2 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
+        className="absolute top-1 left-1 z-10 w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
       >
         <Heart
-          className={`h-4 w-4 transition-colors ${
+          className={`h-3 w-3 transition-colors ${
             isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'
           }`}
         />
@@ -88,55 +88,57 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             aspectRatio="1/1"
           />
         ) : (
-          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-xs">
+          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
             لا توجد صورة
           </div>
         )}
       </Link>
       
-      <CardContent className="p-3 space-y-2">
+      <CardContent className="p-2 space-y-1">
         {/* التقييم */}
         <div className="flex justify-center">
-          <ProductRating rating={4.5} reviewCount={Math.floor(Math.random() * 50) + 5} showCount={false} />
+          <ProductRating rating={4.5} reviewCount={Math.floor(Math.random() * 50) + 5} showCount={false} size="sm" />
         </div>
 
         {/* اسم المنتج */}
         <Link to={`/product/${id}`}>
-          <h3 className="font-bold text-sm text-center hover:text-primary transition-colors line-clamp-2 min-h-[2.5rem]">
+          <h3 className="font-bold text-[10px] text-center hover:text-primary transition-colors line-clamp-2 min-h-[2rem] leading-tight">
             {name_ar}
           </h3>
         </Link>
 
         {/* السعر والخصم */}
-        <div className="text-center space-y-1">
-          <div className="flex items-center justify-center gap-2">
-            <p className="text-xl font-bold text-red-600">
+        <div className="text-center space-y-0.5">
+          <div className="flex items-center justify-center gap-1.5">
+            <p className="text-base font-bold text-red-600">
               ₪ {price.toFixed(0)}
             </p>
             {hasDiscount && (
-              <p className="text-sm text-muted-foreground line-through">
+              <p className="text-[10px] text-muted-foreground line-through">
                 ₪ {oldPrice.toFixed(0)}
               </p>
             )}
           </div>
           {hasDiscount && (
-            <p className="text-xs text-red-600 font-semibold">
-              - {discountPercentage}%
-            </p>
+            <div className="bg-red-50 rounded px-1.5 py-0.5 inline-block">
+              <p className="text-[9px] text-red-600 font-semibold">
+                - {discountPercentage}%
+              </p>
+            </div>
           )}
         </div>
 
         {stock_quantity <= 0 && (
-          <p className="text-xs text-destructive text-center">غير متوفر</p>
+          <p className="text-[9px] text-destructive text-center">غير متوفر</p>
         )}
 
         {/* زر الإضافة للسلة */}
         <Button
           onClick={handleAddToCart}
-          className="w-full bg-green-600 hover:bg-green-700 text-white text-xs h-9 rounded-lg"
+          className="w-full bg-green-600 hover:bg-green-700 text-white text-[10px] h-7 rounded-full font-bold"
           disabled={stock_quantity <= 0}
         >
-          <ShoppingCart className="ml-1 h-3.5 w-3.5" />
+          <ShoppingCart className="ml-1 h-3 w-3" />
           إضافة للسلة
         </Button>
       </CardContent>
