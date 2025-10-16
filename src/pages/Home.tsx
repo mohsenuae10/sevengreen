@@ -53,11 +53,11 @@ export default function Home() {
 
   // Filter available categories based on priority and products
   const availableCategories = PRIORITY_CATEGORIES.filter(cat => 
-    products?.some(p => p.category === cat)
+    products?.some(p => p.category?.trim() === cat)
   );
   
-  // Show all priority categories (including empty ones)
-  const displayCategories = PRIORITY_CATEGORIES;
+  // Show only available categories (not empty ones)
+  const displayCategories = availableCategories;
 
   return (
     <div className="min-h-screen">
@@ -75,10 +75,10 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              تصفح منتجاتنا
+              المنتجات المتوفرة
             </h2>
             <p className="text-muted-foreground text-lg">
-              اختر من بين مجموعة واسعة من المنتجات الطبيعية
+              منتجات طبيعية 100% للعناية بالشعر والجسم
             </p>
           </div>
 
