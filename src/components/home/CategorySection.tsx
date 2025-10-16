@@ -41,10 +41,39 @@ interface CategorySectionProps {
 export const CategorySection = ({ title, category, products, icon, delay = '0s' }: CategorySectionProps) => {
   const categoryProducts = products.filter(p => p.category === category).slice(0, 4);
   
-  if (categoryProducts.length === 0) return null;
-
   // Get banner image for this category (fallback to first image if not found)
   const bannerImage = categoryBanners[category] || hairCareBanner;
+
+  // If no products, show "قريباً" message with banner
+  if (categoryProducts.length === 0) {
+    return (
+      <div className="animate-fade-in" style={{ animationDelay: delay }}>
+        {/* Category Banner */}
+        <div className="relative rounded-3xl overflow-hidden mb-8 group opacity-60">
+          <div className="absolute inset-0">
+            <img 
+              src={bannerImage} 
+              alt={`${title} - منتجات طبيعية`}
+              className="w-full h-64 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/90 to-background/70"></div>
+          </div>
+          
+          <div className="relative z-10 p-8 md:p-12 flex items-center gap-4">
+            {icon && (
+              <div className="w-16 h-16 rounded-2xl bg-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
+                {icon}
+              </div>
+            )}
+            <div>
+              <h3 className="text-3xl md:text-4xl font-bold text-primary mb-2">{title}</h3>
+              <p className="text-muted-foreground text-lg">قريباً... منتجات طبيعية مميزة</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in" style={{ animationDelay: delay }}>
