@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart, Heart, Zap } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import { OptimizedImage } from './OptimizedImage';
@@ -20,6 +20,7 @@ interface ProductCardProps {
 
 export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
   // محاكاة خصم عشوائي للعرض (يمكن استبداله ببيانات حقيقية من قاعدة البيانات)
@@ -32,7 +33,8 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   const hasBadge = Math.random() > 0.5;
   const randomBadge = badges[Math.floor(Math.random() * badges.length)];
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (stock_quantity <= 0) {
       toast({
         title: 'غير متوفر',
@@ -47,6 +49,21 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       title: 'تمت الإضافة',
       description: `تم إضافة ${name_ar} إلى السلة`,
     });
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (stock_quantity <= 0) {
+      toast({
+        title: 'غير متوفر',
+        description: 'هذا المنتج غير متوفر حالياً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    addToCart({ id, name_ar, price, image_url });
+    navigate('/checkout');
   };
 
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -132,15 +149,27 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           <p className="text-[8px] text-destructive text-center">غير متوفر</p>
         )}
 
-        {/* زر الإضافة للسلة */}
-        <Button
-          onClick={handleAddToCart}
-          className="w-full bg-green-600 hover:bg-green-700 text-white text-[9px] h-6 rounded-full font-bold"
-          disabled={stock_quantity <= 0}
-        >
-          <ShoppingCart className="ml-1 h-2.5 w-2.5" />
-          إضافة للسلة
-        </Button>
+        {/* أزرار الإجراءات */}
+        <div className="grid grid-cols-2 gap-1">
+          <Button
+            onClick={handleAddToCart}
+            variant="outline"
+            className="text-[9px] h-6 rounded-full font-bold border-green-600 text-green-600 hover:bg-green-50"
+            disabled={stock_quantity <= 0}
+          >
+            <ShoppingCart className="ml-1 h-2.5 w-2.5" />
+            للسلة
+          </Button>
+          
+          <Button
+            onClick={handleBuyNow}
+            className="bg-green-600 hover:bg-green-700 text-white text-[9px] h-6 rounded-full font-bold"
+            disabled={stock_quantity <= 0}
+          >
+            <Zap className="ml-1 h-2.5 w-2.5" />
+            اشتر الآن
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
