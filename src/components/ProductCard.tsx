@@ -111,34 +111,42 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         )}
       </Link>
       
-      <CardContent className="p-2 space-y-1.5">
-        {/* التقييم */}
-        <div className="flex justify-center">
-          <ProductRating rating={4.5} reviewCount={Math.floor(Math.random() * 50) + 5} showCount={false} size="xs" />
-        </div>
-
+      <CardContent className="p-3 space-y-2">
         {/* اسم المنتج */}
         <Link to={`/product/${id}`}>
-          <h3 className="font-bold text-[10px] text-center hover:text-primary transition-colors line-clamp-2 min-h-[2rem] leading-tight">
+          <h3 className="font-bold text-xs text-center hover:text-primary transition-colors line-clamp-2 min-h-[2.25rem] leading-snug">
             {name_ar}
           </h3>
         </Link>
 
+        {/* التقييم */}
+        <div className="flex justify-center">
+          <ProductRating rating={4.5} reviewCount={Math.floor(Math.random() * 50) + 5} showCount={false} size="sm" />
+        </div>
+
         {/* السعر والخصم */}
-        <div className="text-center space-y-1">
-          <div className="flex items-center justify-center gap-1.5">
-            <p className="text-base font-bold text-primary">
-              ₪ {price.toFixed(0)}
-            </p>
-            {hasDiscount && (
-              <p className="text-[10px] text-muted-foreground line-through">
-                ₪ {oldPrice.toFixed(0)}
+        <div className="text-center space-y-1.5">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-baseline gap-1">
+              <p className="text-xl font-bold text-primary">
+                {price.toFixed(2)}
               </p>
+              <p className="text-xs font-semibold text-muted-foreground">
+                ر.س
+              </p>
+            </div>
+            {hasDiscount && (
+              <div className="flex items-baseline gap-1">
+                <p className="text-xs text-muted-foreground line-through">
+                  {oldPrice.toFixed(2)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">ر.س</p>
+              </div>
             )}
           </div>
           {hasDiscount && (
-            <div className="bg-red-50 dark:bg-red-950/30 rounded-md px-1.5 py-0.5 inline-block">
-              <p className="text-[9px] text-red-600 dark:text-red-400 font-semibold">
+            <div className="bg-red-50 dark:bg-red-950/30 rounded-md px-2 py-1 inline-block">
+              <p className="text-[10px] text-red-600 dark:text-red-400 font-bold">
                 وفّر {discountPercentage}%
               </p>
             </div>
@@ -146,30 +154,20 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         </div>
 
         {stock_quantity <= 0 && (
-          <p className="text-[9px] text-destructive text-center font-medium">غير متوفر</p>
+          <p className="text-[10px] text-destructive text-center font-semibold bg-destructive/10 rounded-md py-1">
+            غير متوفر
+          </p>
         )}
 
-        {/* أزرار الإجراءات */}
-        <div className="grid grid-cols-2 gap-1.5 pt-1">
-          <Button
-            onClick={handleAddToCart}
-            variant="outline"
-            className="text-[10px] h-7 rounded-lg font-bold border-2 border-primary/20 text-foreground hover:bg-primary/5 hover:border-primary/40 transition-all"
-            disabled={stock_quantity <= 0}
-          >
-            <ShoppingCart className="ml-1 h-3 w-3" />
-            للسلة
-          </Button>
-          
-          <Button
-            onClick={handleBuyNow}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground text-[10px] h-7 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
-            disabled={stock_quantity <= 0}
-          >
-            <Zap className="ml-1 h-3 w-3" />
-            اشتر الآن
-          </Button>
-        </div>
+        {/* زر اشتر الآن */}
+        <Button
+          onClick={handleBuyNow}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
+          disabled={stock_quantity <= 0}
+        >
+          <Zap className="ml-1.5 h-4 w-4" />
+          اشتر الآن
+        </Button>
       </CardContent>
     </Card>
   );
