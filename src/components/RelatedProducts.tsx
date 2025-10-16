@@ -21,9 +21,9 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
 
       if (error) throw error;
 
-      // Shuffle and return 4 random products
+      // Shuffle and return 6 random products
       const shuffled = data?.sort(() => 0.5 - Math.random()) || [];
-      return shuffled.slice(0, 4);
+      return shuffled.slice(0, 6);
     },
   });
 
@@ -35,7 +35,7 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-8">منتجات ذات صلة</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {products.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
