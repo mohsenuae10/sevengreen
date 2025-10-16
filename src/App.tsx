@@ -34,9 +34,9 @@ import NotFound from '@/pages/NotFound';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
-      refetchOnWindowFocus: false,
+      staleTime: 0, // Always fresh data
+      gcTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: true,
       refetchOnMount: true,
       retry: 1,
     },

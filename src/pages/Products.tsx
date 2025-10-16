@@ -18,7 +18,7 @@ export default function Products() {
         .eq('is_active', true);
       
       if (selectedCategory) {
-        query = query.eq('category', selectedCategory);
+        query = query.eq('category', selectedCategory.trim());
       }
 
       const { data, error } = await query;

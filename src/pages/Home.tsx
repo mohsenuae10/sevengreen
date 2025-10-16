@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { HeroBanner } from '@/components/home/HeroBanner';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
@@ -32,6 +33,13 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 export default function Home() {
+  const queryClient = useQueryClient();
+  
+  // Clear old cache on mount
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['all-products'] });
+  }, [queryClient]);
+
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['all-products'],
     queryFn: async () => {
