@@ -46,33 +46,33 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             aspectRatio="1/1"
           />
         ) : (
-          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground">
+          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-xs">
             لا توجد صورة
           </div>
         )}
       </Link>
       
-      <CardContent className="p-4">
+      <CardContent className="p-3">
         <Link to={`/product/${id}`}>
-          <h3 className="font-bold text-lg mb-2 hover:text-primary transition-colors">
+          <h3 className="font-bold text-sm mb-1 hover:text-primary transition-colors line-clamp-2">
             {name_ar}
           </h3>
         </Link>
-        <p className="text-2xl font-bold text-primary">
+        <p className="text-lg font-bold text-primary">
           {price.toFixed(2)} ريال
         </p>
         {stock_quantity <= 0 && (
-          <p className="text-sm text-destructive mt-1">غير متوفر</p>
+          <p className="text-xs text-destructive mt-1">غير متوفر</p>
         )}
       </CardContent>
 
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-3 pt-0">
         <Button
           onClick={handleAddToCart}
-          className="w-full"
+          className="w-full text-xs h-8"
           disabled={stock_quantity <= 0}
         >
-          <ShoppingCart className="ml-2 h-4 w-4" />
+          <ShoppingCart className="ml-1 h-3 w-3" />
           أضف للسلة
         </Button>
       </CardFooter>
