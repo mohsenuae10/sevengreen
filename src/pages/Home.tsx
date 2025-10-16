@@ -66,9 +66,7 @@ export default function Home() {
         url="/"
       />
       <OrganizationSchema />
-      {/* Hero Banner */}
-      <HeroBanner product={featuredProduct} />
-
+      
       {/* Featured Products Carousel */}
       <FeaturedProductsCarousel />
 
