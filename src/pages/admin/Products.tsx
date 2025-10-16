@@ -193,6 +193,26 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // الحد الأقصى: 5MB
+      const maxSize = 5 * 1024 * 1024;
+      
+      if (file.size > maxSize) {
+        toast({
+          title: 'حجم الملف كبير جداً',
+          description: 'يجب أن يكون حجم الصورة أقل من 5 ميجابايت',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      console.log('Image file selected:', file.name, 'Size:', file.size, 'bytes');
+      setImageFile(file);
+    }
+  };
+
   const handleImageUpload = async () => {
     if (!imageFile) return formData.image_url;
 
@@ -201,10 +221,21 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       const fileName = `products/${Date.now()}.${fileExt}`;
 
       console.log('Uploading image:', fileName);
+      console.log('File size:', imageFile.size, 'bytes');
 
-      const { error: uploadError, data } = await supabase.storage
+      // إضافة timeout: 30 ثانية كحد أقصى
+      const uploadPromise = supabase.storage
         .from('product-images')
         .upload(fileName, imageFile);
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('انتهت مهلة رفع الصورة. يرجى المحاولة مرة أخرى.')), 30000)
+      );
+
+      const { error: uploadError, data } = await Promise.race([
+        uploadPromise,
+        timeoutPromise
+      ]) as any;
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
@@ -226,7 +257,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       console.error('Image upload exception:', error);
       toast({ 
         title: 'خطأ في رفع الصورة', 
-        description: error.message,
+        description: error.message || 'حدث خطأ أثناء رفع الصورة',
         variant: 'destructive' 
       });
       return null;
@@ -276,9 +307,23 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     setUploading(true);
 
     try {
-      const imageUrl = await handleImageUpload();
-      if (imageFile && !imageUrl) {
-        return; // setUploading(false) سيتم استدعاؤه في finally
+      let imageUrl = formData.image_url;
+      
+      if (imageFile) {
+        console.log('Starting image upload...');
+        imageUrl = await handleImageUpload();
+        
+        if (!imageUrl) {
+          console.error('Image upload failed - imageUrl is null');
+          toast({
+            title: 'فشل رفع الصورة',
+            description: 'لم يتم رفع الصورة. يرجى المحاولة مرة أخرى.',
+            variant: 'destructive'
+          });
+          return;
+        }
+        
+        console.log('Image upload completed:', imageUrl);
       }
 
       // تنظيف البيانات: إزالة المسافات الزائدة
@@ -348,6 +393,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         variant: 'destructive' 
       });
     } finally {
+      console.log('Setting uploading to false');
       setUploading(false);
     }
   };
@@ -419,8 +465,9 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         <Input
           type="file"
           accept="image/*"
-          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+          onChange={handleImageChange}
         />
+        <p className="text-sm text-muted-foreground">الحد الأقصى لحجم الملف: 5 ميجابايت</p>
       </div>
 
       <div className="border-t pt-4 space-y-4">
