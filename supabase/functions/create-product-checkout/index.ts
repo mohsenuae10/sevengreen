@@ -18,10 +18,14 @@ serve(async (req) => {
   );
 
   try {
-    const { productId, quantity = 1 } = await req.json();
+    const { productId, quantity = 1, customerInfo } = await req.json();
     
     if (!productId) {
       throw new Error("Product ID is required");
+    }
+
+    if (!customerInfo || !customerInfo.customer_name || !customerInfo.customer_email) {
+      throw new Error("Customer information is required");
     }
 
     // جلب بيانات المنتج
@@ -57,11 +61,9 @@ serve(async (req) => {
 
     // البحث عن عميل موجود أو إنشاء جديد
     let customerId: string | undefined;
-    if (userEmail) {
-      const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
-      if (customers.data.length > 0) {
-        customerId = customers.data[0].id;
-      }
+    const customers = await stripe.customers.list({ email: customerInfo.customer_email, limit: 1 });
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
     }
 
     // تحويل السعر إلى سنت (Stripe يستخدم أصغر وحدة عملة)
@@ -70,7 +72,7 @@ serve(async (req) => {
     // إنشاء جلسة دفع
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : userEmail,
+      customer_email: customerId ? undefined : customerInfo.customer_email,
       line_items: [
         {
           price_data: {
@@ -91,12 +93,20 @@ serve(async (req) => {
       metadata: {
         product_id: productId,
         quantity: quantity.toString(),
+        customer_name: customerInfo.customer_name,
+        customer_phone: customerInfo.customer_phone,
+        city: customerInfo.city,
+        shipping_address: customerInfo.shipping_address,
       },
       payment_intent_data: {
         metadata: {
           product_id: productId,
           product_name: product.name_ar,
           quantity: quantity.toString(),
+          customer_name: customerInfo.customer_name,
+          customer_phone: customerInfo.customer_phone,
+          city: customerInfo.city,
+          shipping_address: customerInfo.shipping_address,
         },
       },
     });

@@ -84,7 +84,7 @@ export default function ProductDetail() {
     });
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!product) return;
     
     if (product.stock_quantity <= 0) {
@@ -96,34 +96,8 @@ export default function ProductDetail() {
       return;
     }
 
-    try {
-      toast({
-        title: 'جاري التحويل للدفع...',
-        description: 'يرجى الانتظار',
-      });
-
-      const { data, error } = await supabase.functions.invoke('create-product-checkout', {
-        body: {
-          productId: product.id,
-          quantity: quantity,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        throw new Error('لم يتم الحصول على رابط الدفع');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      toast({
-        title: 'خطأ في الدفع',
-        description: error instanceof Error ? error.message : 'فشل إنشاء جلسة الدفع',
-        variant: 'destructive',
-      });
-    }
+    // التحويل إلى صفحة الشراء السريع
+    navigate(`/quick-checkout?productId=${product.id}&quantity=${quantity}`);
   };
 
   if (isLoading) {

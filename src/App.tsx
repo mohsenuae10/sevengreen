@@ -12,6 +12,7 @@ import Products from '@/pages/Products';
 import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
 import Checkout from '@/pages/Checkout';
+import QuickCheckout from '@/pages/QuickCheckout';
 import OrderSuccess from '@/pages/OrderSuccess';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
@@ -72,6 +73,7 @@ function App() {
                       <Route path="/product/:id" element={<ProductDetail />} />
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/quick-checkout" element={<QuickCheckout />} />
                       <Route path="/order-success/:orderId" element={<OrderSuccess />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
