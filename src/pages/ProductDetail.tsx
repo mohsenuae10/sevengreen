@@ -11,6 +11,9 @@ import { Minus, Plus } from 'lucide-react';
 import ProductRating from '@/components/product/ProductRating';
 import TrustBadges from '@/components/product/TrustBadges';
 import SocialShare from '@/components/product/SocialShare';
+import { SEOHead } from '@/components/SEO/SEOHead';
+import { ProductSchema } from '@/components/SEO/ProductSchema';
+import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -90,8 +93,43 @@ export default function ProductDetail() {
     );
   }
 
+  const productUrl = `/product/${product.id}`;
+  const isInStock = product.stock_quantity > 0;
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <SEOHead
+        title={product.name_ar}
+        description={product.description_ar || product.seo_description || `اكتشف ${product.name_ar} من سفن جرين - منتج طبيعي 100% للعناية بالشعر`}
+        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, سفن جرين`}
+        image={product.image_url || undefined}
+        type="product"
+        url={productUrl}
+        price={Number(product.price)}
+        currency="SAR"
+        availability={isInStock ? 'instock' : 'outofstock'}
+      />
+      <ProductSchema
+        name={product.name_ar}
+        description={product.description_ar || product.seo_description || ''}
+        image={product.image_url || ''}
+        price={Number(product.price)}
+        currency="SAR"
+        sku={product.id}
+        availability={isInStock ? 'InStock' : 'OutOfStock'}
+        category={product.category}
+        rating={4.5}
+        reviewCount={0}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'الرئيسية', url: '/' },
+          { name: 'المنتجات', url: '/products' },
+          { name: product.category, url: `/products?category=${product.category}` },
+          { name: product.name_ar, url: productUrl },
+        ]}
+      />
+      
       {/* Breadcrumbs */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>

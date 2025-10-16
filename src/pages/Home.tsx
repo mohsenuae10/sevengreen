@@ -5,6 +5,8 @@ import { SpecialOffers } from '@/components/home/SpecialOffers';
 import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
 import { CTASection } from '@/components/home/CTASection';
+import { SEOHead } from '@/components/SEO/SEOHead';
+import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
 import { Droplets, Sparkles, Wind, Flower2 } from 'lucide-react';
 
 export default function Home() {
@@ -30,6 +32,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      <SEOHead
+        title="الرئيسية"
+        description="سيفن جرين يقدّم منتجات طبيعية، وخاصة بار شامبو (شامبو صلب) يحتوي على مزيج من 12 عشبة طبيعية مثل الجينسنغ، أوراق التوت، زنجبيل وغيرها، لتغذية الشعر والعناية به بطريقة طبيعية 100%"
+        keywords="شامبو طبيعي, صابون الشعر, منتجات طبيعية, عناية الشعر, سفن جرين, شامبو صلب, أعشاب طبيعية"
+        type="website"
+        url="/"
+      />
+      <OrganizationSchema />
       {/* Hero Banner */}
       <HeroBanner product={featuredProduct} />
 

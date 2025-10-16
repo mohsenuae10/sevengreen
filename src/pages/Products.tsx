@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from '@/components/ProductCard';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/SEO/SEOHead';
+import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -27,8 +29,29 @@ export default function Products() {
 
   const categories = ['صابون', 'شامبو', 'عناية'];
 
+  const seoTitle = selectedCategory 
+    ? `منتجات ${selectedCategory}` 
+    : 'جميع المنتجات';
+  
+  const seoDescription = selectedCategory
+    ? `تصفح مجموعة ${selectedCategory} من سفن جرين - منتجات طبيعية 100% للعناية بالشعر والجسم`
+    : 'تصفح جميع منتجات سفن جرين الطبيعية - شامبو صلب، صابون، ومنتجات العناية الطبيعية';
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords="منتجات طبيعية, شامبو صلب, صابون طبيعي, عناية الشعر, سفن جرين"
+        type="website"
+        url="/products"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'الرئيسية', url: '/' },
+          { name: 'المنتجات', url: '/products' },
+        ]}
+      />
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-primary mb-6">منتجاتنا</h1>
         
