@@ -28,8 +28,8 @@ export default function ProductRating({
             key={star}
             className={`${sizeClasses[size]} ${
               star <= rating
-                ? 'fill-accent text-accent'
-                : 'fill-muted text-muted'
+                ? 'fill-yellow-400 text-yellow-400'
+                : 'fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700'
             }`}
           />
         ))}
