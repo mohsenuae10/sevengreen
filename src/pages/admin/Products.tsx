@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -10,9 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ImageUploader } from '@/components/product/ImageUploader';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 const CATEGORIES = [
   'العناية بالشعر',
@@ -188,62 +190,71 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     seo_description: product?.seo_description || '',
     seo_keywords: product?.seo_keywords || '',
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // الحد الأقصى: 5MB
-      const maxSize = 5 * 1024 * 1024;
-      
-      if (file.size > maxSize) {
-        toast({
-          title: 'حجم الملف كبير جداً',
-          description: 'يجب أن يكون حجم الصورة أقل من 5 ميجابايت',
-          variant: 'destructive'
+  // جلب الصور الحالية عند التعديل
+  useEffect(() => {
+    if (product?.id) {
+      supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', product.id)
+        .order('display_order', { ascending: true })
+        .then(({ data }) => {
+          if (data) setExistingImages(data);
         });
-        return;
-      }
-      
-      console.log('Image file selected:', file.name, 'Size:', file.size, 'bytes');
-      setImageFile(file);
     }
+  }, [product?.id]);
+
+  const handleImagesChange = (files: File[]) => {
+    setImageFiles(files);
   };
 
-  const handleImageUpload = async () => {
-    if (!imageFile) return formData.image_url;
+  const deleteExistingImage = async (imageId: string) => {
+    const { error } = await supabase
+      .from('product_images')
+      .delete()
+      .eq('id', imageId);
 
+    if (error) {
+      toast({
+        title: 'خطأ',
+        description: 'فشل حذف الصورة',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setExistingImages(existingImages.filter(img => img.id !== imageId));
+    toast({ title: 'تم حذف الصورة بنجاح' });
+  };
+
+  const handleImageUpload = async (file: File): Promise<string | null> => {
     try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `products/${Date.now()}.${fileExt}`;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       console.log('Uploading image:', fileName);
-      console.log('File size:', imageFile.size, 'bytes');
 
-      // إضافة timeout: 30 ثانية كحد أقصى
       const uploadPromise = supabase.storage
         .from('product-images')
-        .upload(fileName, imageFile);
+        .upload(fileName, file);
 
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('انتهت مهلة رفع الصورة. يرجى المحاولة مرة أخرى.')), 30000)
+        setTimeout(() => reject(new Error('انتهت مهلة رفع الصورة')), 30000)
       );
 
-      const { error: uploadError, data } = await Promise.race([
+      const { error: uploadError } = await Promise.race([
         uploadPromise,
         timeoutPromise
       ]) as any;
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        toast({ 
-          title: 'خطأ في رفع الصورة', 
-          description: uploadError.message,
-          variant: 'destructive' 
-        });
         return null;
       }
 
@@ -251,15 +262,9 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         .from('product-images')
         .getPublicUrl(fileName);
 
-      console.log('Image uploaded successfully:', publicUrl);
       return publicUrl;
     } catch (error: any) {
       console.error('Image upload exception:', error);
-      toast({ 
-        title: 'خطأ في رفع الصورة', 
-        description: error.message || 'حدث خطأ أثناء رفع الصورة',
-        variant: 'destructive' 
-      });
       return null;
     }
   };
@@ -307,33 +312,39 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     setUploading(true);
 
     try {
-      let imageUrl = formData.image_url;
-      
-      if (imageFile) {
-        console.log('Starting image upload...');
-        imageUrl = await handleImageUpload();
+      // رفع الصور الجديدة
+      let uploadedUrls: string[] = [];
+      if (imageFiles.length > 0) {
+        console.log('Starting upload of', imageFiles.length, 'images...');
         
-        if (!imageUrl) {
-          console.error('Image upload failed - imageUrl is null');
+        for (const file of imageFiles) {
+          const url = await handleImageUpload(file);
+          if (url) uploadedUrls.push(url);
+        }
+
+        if (uploadedUrls.length === 0) {
           toast({
-            title: 'فشل رفع الصورة',
-            description: 'لم يتم رفع الصورة. يرجى المحاولة مرة أخرى.',
+            title: 'فشل رفع الصور',
+            description: 'لم يتم رفع أي صورة. يرجى المحاولة مرة أخرى.',
             variant: 'destructive'
           });
           return;
         }
         
-        console.log('Image upload completed:', imageUrl);
+        console.log('Images uploaded:', uploadedUrls.length);
       }
 
-      // تنظيف البيانات: إزالة المسافات الزائدة
+      // تحديد الصورة الرئيسية (أول صورة جديدة أو الصورة الحالية)
+      const primaryImageUrl = uploadedUrls[0] || existingImages.find(img => img.is_primary)?.image_url || formData.image_url;
+
+      // تنظيف البيانات
       const productData = {
         name_ar: formData.name_ar.trim(),
         description_ar: formData.description_ar?.trim() || null,
         price: parseFloat(formData.price as any),
         category: formData.category.trim(),
         stock_quantity: parseInt(formData.stock_quantity as any),
-        image_url: imageUrl || formData.image_url || null,
+        image_url: primaryImageUrl || null,
         seo_title: formData.seo_title?.trim() || null,
         seo_description: formData.seo_description?.trim() || null,
         seo_keywords: formData.seo_keywords?.trim() || null,
@@ -341,41 +352,55 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
 
       console.log('Attempting to save product:', productData);
 
+      let productId = product?.id;
+
       if (product) {
-        const { error, data } = await supabase
+        const { error } = await supabase
           .from('products')
           .update(productData)
-          .eq('id', product.id)
-          .select();
+          .eq('id', product.id);
 
         if (error) {
-          console.error('Update error details:', error);
+          console.error('Update error:', error);
           toast({ 
             title: 'خطأ في تحديث المنتج', 
-            description: error.message || 'حدث خطأ غير متوقع',
+            description: error.message,
             variant: 'destructive' 
           });
           return;
         }
-        
-        console.log('Product updated successfully:', data);
       } else {
         const { error, data } = await supabase
           .from('products')
           .insert(productData)
-          .select();
+          .select()
+          .single();
 
         if (error) {
-          console.error('Insert error details:', error);
+          console.error('Insert error:', error);
           toast({ 
             title: 'خطأ في إضافة المنتج', 
-            description: error.message || 'حدث خطأ غير متوقع',
+            description: error.message,
             variant: 'destructive' 
           });
           return;
         }
         
-        console.log('Product inserted successfully:', data);
+        productId = data.id;
+      }
+
+      // إضافة الصور الجديدة إلى product_images
+      if (uploadedUrls.length > 0 && productId) {
+        const startOrder = existingImages.length;
+        
+        for (let i = 0; i < uploadedUrls.length; i++) {
+          await supabase.from('product_images').insert({
+            product_id: productId,
+            image_url: uploadedUrls[i],
+            display_order: startOrder + i,
+            is_primary: i === 0 && existingImages.length === 0,
+          });
+        }
       }
 
       toast({ 
@@ -461,13 +486,41 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="space-y-2">
-        <Label>صورة المنتج</Label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-        <p className="text-sm text-muted-foreground">الحد الأقصى لحجم الملف: 5 ميجابايت</p>
+        <Label>صور المنتج</Label>
+        <ImageUploader onImagesChange={handleImagesChange} maxImages={10} />
+        
+        {/* الصور الحالية */}
+        {existingImages.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <p className="text-sm font-medium">الصور الحالية ({existingImages.length})</p>
+            <div className="grid grid-cols-4 gap-2">
+              {existingImages.map((img) => (
+                <div key={img.id} className="relative group">
+                  <OptimizedImage
+                    src={img.image_url}
+                    alt="صورة المنتج"
+                    className="rounded-lg"
+                    aspectRatio="1/1"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => deleteExistingImage(img.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  {img.is_primary && (
+                    <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
+                      رئيسية
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="border-t pt-4 space-y-4">
@@ -504,7 +557,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           {uploading ? (
             <>
               <div className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              {imageFile ? 'جاري رفع الصورة...' : 'جاري الحفظ...'}
+              {imageFiles.length > 0 ? 'جاري رفع الصور...' : 'جاري الحفظ...'}
             </>
           ) : (
             product ? 'تحديث' : 'إضافة'

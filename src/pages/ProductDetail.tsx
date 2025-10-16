@@ -14,8 +14,8 @@ import SocialShare from '@/components/product/SocialShare';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { ProductSchema } from '@/components/SEO/ProductSchema';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
-import { OptimizedImage } from '@/components/OptimizedImage';
 import { RelatedProducts } from '@/components/RelatedProducts';
+import { ProductImageGallery } from '@/components/product/ProductImageGallery';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,14 +34,25 @@ export default function ProductDetail() {
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: productData, error: productError } = await supabase
         .from('products')
         .select('*')
         .eq('id', id)
         .single();
       
-      if (error) throw error;
-      return data;
+      if (productError) throw productError;
+
+      // جلب الصور المرتبطة
+      const { data: images, error: imagesError } = await supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', id)
+        .order('display_order', { ascending: true });
+
+      return {
+        ...productData,
+        images: images || []
+      };
     },
   });
 
@@ -150,19 +161,10 @@ export default function ProductDetail() {
       </Breadcrumb>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {product.image_url ? (
-          <OptimizedImage
-            src={product.image_url}
-            alt={`${product.name_ar} - منتج طبيعي 100% من سفن جرين | ${product.category}`}
-            className="rounded-lg"
-            aspectRatio="1/1"
-            priority={true}
-          />
-        ) : (
-          <div className="aspect-square rounded-lg bg-secondary flex items-center justify-center text-muted-foreground">
-            لا توجد صورة
-          </div>
-        )}
+        <ProductImageGallery 
+          images={product.images.length > 0 ? product.images : [{ image_url: product.image_url }]}
+          productName={product.name_ar}
+        />
 
         <div className="space-y-6">
           <div className="space-y-3">
