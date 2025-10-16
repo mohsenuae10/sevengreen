@@ -6,6 +6,8 @@ import hairCareBanner from '@/assets/categories/hair-care-banner.jpg';
 import skincareBanner from '@/assets/categories/skincare-banner.jpg';
 import wellnessBanner from '@/assets/categories/wellness-banner.jpg';
 import bodyCareBanner from '@/assets/categories/body-care-banner.jpg';
+import menCareBanner from '@/assets/categories/men-care-banner.jpg';
+import giftsBanner from '@/assets/categories/gifts-banner.jpg';
 
 interface Product {
   id: string;
@@ -24,6 +26,8 @@ const categoryBanners: Record<string, string> = {
   'العناية بالبشرة': skincareBanner,
   'الصحة والعافية': wellnessBanner,
   'العناية بالجسم': bodyCareBanner,
+  'العناية بالرجال': menCareBanner,
+  'الهدايا والمجموعات': giftsBanner,
 };
 
 interface CategorySectionProps {

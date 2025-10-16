@@ -12,6 +12,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const CATEGORIES = [
+  'العناية بالشعر',
+  'العناية بالبشرة',
+  'العناية بالجسم',
+  'الصحة والعافية',
+  'العناية بالرجال',
+  'الهدايا والمجموعات'
+];
 
 export default function AdminProducts() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -258,11 +268,21 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         </div>
         <div className="space-y-2">
           <Label>الفئة</Label>
-          <Input
+          <Select
             value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            required
-          />
+            onValueChange={(value) => setFormData({ ...formData, category: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="اختر الفئة" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

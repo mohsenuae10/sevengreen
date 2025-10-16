@@ -9,7 +9,26 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
-import { Droplets, Sparkles, Wind, Flower2 } from 'lucide-react';
+import { Droplets, Sparkles, Wind, Flower2, UserCircle, Gift } from 'lucide-react';
+
+// Define priority categories and their icons
+const PRIORITY_CATEGORIES = [
+  'العناية بالشعر',
+  'العناية بالبشرة',
+  'العناية بالجسم',
+  'الصحة والعافية',
+  'العناية بالرجال',
+  'الهدايا والمجموعات'
+];
+
+const categoryIcons: Record<string, React.ReactNode> = {
+  'العناية بالشعر': <Droplets className="h-6 w-6 text-primary" />,
+  'العناية بالبشرة': <Sparkles className="h-6 w-6 text-primary" />,
+  'العناية بالجسم': <Wind className="h-6 w-6 text-primary" />,
+  'الصحة والعافية': <Flower2 className="h-6 w-6 text-primary" />,
+  'العناية بالرجال': <UserCircle className="h-6 w-6 text-primary" />,
+  'الهدايا والمجموعات': <Gift className="h-6 w-6 text-primary" />,
+};
 
 export default function Home() {
   const { data: products, isLoading } = useQuery({
@@ -29,8 +48,13 @@ export default function Home() {
   // Get featured product (most recent)
   const featuredProduct = products?.[0];
 
-  // Get unique categories
-  const categories = products ? [...new Set(products.map(p => p.category))] : [];
+  // Filter available categories based on priority and products
+  const availableCategories = PRIORITY_CATEGORIES.filter(cat => 
+    products?.some(p => p.category === cat)
+  );
+  
+  // Show all priority categories (including empty ones)
+  const displayCategories = PRIORITY_CATEGORIES;
 
   return (
     <div className="min-h-screen">
@@ -76,25 +100,16 @@ export default function Home() {
             </div>
           ) : products && products.length > 0 ? (
             <div className="space-y-20">
-              {categories.map((category, index) => {
-                const icons = [
-                  <Droplets className="h-6 w-6 text-primary" />,
-                  <Sparkles className="h-6 w-6 text-primary" />,
-                  <Wind className="h-6 w-6 text-primary" />,
-                  <Flower2 className="h-6 w-6 text-primary" />,
-                ];
-                
-                return (
-                  <CategorySection
-                    key={category}
-                    title={category}
-                    category={category}
-                    products={products}
-                    icon={icons[index % icons.length]}
-                    delay={`${index * 0.1}s`}
-                  />
-                );
-              })}
+              {displayCategories.map((category, index) => (
+                <CategorySection
+                  key={category}
+                  title={category}
+                  category={category}
+                  products={products}
+                  icon={categoryIcons[category]}
+                  delay={`${index * 0.1}s`}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-12">

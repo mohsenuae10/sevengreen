@@ -27,7 +27,14 @@ export default function Products() {
     },
   });
 
-  const categories = ['صابون', 'شامبو', 'عناية'];
+  const categories = [
+    'العناية بالشعر',
+    'العناية بالبشرة',
+    'العناية بالجسم',
+    'الصحة والعافية',
+    'العناية بالرجال',
+    'الهدايا والمجموعات'
+  ];
 
   const seoTitle = selectedCategory 
     ? `منتجات ${selectedCategory}` 
