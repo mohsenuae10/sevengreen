@@ -33,19 +33,24 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener - NO ASYNC to avoid deadlock
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        // Only synchronous updates
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
         
+        // Defer admin check with setTimeout to avoid deadlock
         if (session?.user) {
-          const adminStatus = await checkAdminRole(session.user.id);
-          setIsAdmin(adminStatus);
+          setTimeout(() => {
+            checkAdminRole(session.user.id).then(adminStatus => {
+              setIsAdmin(adminStatus);
+            });
+          }, 0);
         } else {
           setIsAdmin(false);
         }
-        setLoading(false);
       }
     );
 
