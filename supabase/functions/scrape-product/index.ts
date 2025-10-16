@@ -264,8 +264,8 @@ function extractAmazonData(html: string): Partial<ProductData> {
       }
     }
 
-    // استخراج الصور - محاولات متعددة
-    // طريقة 1: colorImages
+    // استخراج الصور - محاولات متعددة محسنة
+    // طريقة 1: colorImages (أفضل جودة)
     const colorImagesMatch = html.match(/["']colorImages["']\s*:\s*\{[^}]*["']initial["']\s*:\s*\[([^\]]+)\]/);
     if (colorImagesMatch) {
       const imageUrls = colorImagesMatch[1].matchAll(/["']hiRes["']\s*:\s*["']([^"']+)["']/g);
@@ -274,31 +274,95 @@ function extractAmazonData(html: string): Partial<ProductData> {
           data.images?.push(match[1]);
         }
       }
+      // محاولة large أيضاً إذا لم نجد hiRes
+      if (!data.images || data.images.length === 0) {
+        const largeUrls = colorImagesMatch[1].matchAll(/["']large["']\s*:\s*["']([^"']+)["']/g);
+        for (const match of largeUrls) {
+          if (match[1] && match[1] !== 'null') {
+            data.images?.push(match[1]);
+          }
+        }
+      }
     }
 
-    // طريقة 2: imageGalleryData
-    if (!data.images || data.images.length === 0) {
+    // طريقة 2: landingAsinColor
+    if (!data.images || data.images.length < 3) {
+      const landingMatch = html.match(/["']landingAsinColor["']\s*:\s*["']([^"']+)["']/);
+      if (landingMatch) {
+        const colorImagesFullMatch = html.match(/["']colorImages["']\s*:\s*\{([^}]+)\}/);
+        if (colorImagesFullMatch) {
+          const allImages = colorImagesFullMatch[1].matchAll(/["']hiRes["']\s*:\s*["']([^"']+)["']/g);
+          for (const match of allImages) {
+            if (match[1] && match[1] !== 'null' && !data.images?.includes(match[1])) {
+              data.images?.push(match[1]);
+            }
+          }
+        }
+      }
+    }
+
+    // طريقة 3: imageGalleryData
+    if (!data.images || data.images.length < 3) {
       const galleryMatch = html.match(/["']imageGalleryData["']\s*:\s*\[([^\]]+)\]/);
       if (galleryMatch) {
         const imageUrls = galleryMatch[1].matchAll(/["']mainUrl["']\s*:\s*["']([^"']+)["']/g);
         for (const match of imageUrls) {
-          if (match[1]) data.images?.push(match[1]);
+          if (match[1] && !data.images?.includes(match[1])) {
+            data.images?.push(match[1]);
+          }
         }
       }
     }
 
-    // طريقة 3: صور مباشرة من img tags
-    if (!data.images || data.images.length === 0) {
+    // طريقة 4: altImages
+    if (!data.images || data.images.length < 3) {
+      const altImagesMatch = html.match(/["']altImages["']\s*:\s*\[([^\]]+)\]/);
+      if (altImagesMatch) {
+        const imageUrls = altImagesMatch[1].matchAll(/["']hiRes["']\s*:\s*["']([^"']+)["']/g);
+        for (const match of imageUrls) {
+          if (match[1] && match[1] !== 'null' && !data.images?.includes(match[1])) {
+            data.images?.push(match[1]);
+          }
+        }
+      }
+    }
+
+    // طريقة 5: data-a-dynamic-image
+    if (!data.images || data.images.length < 3) {
+      const dynImageMatches = html.matchAll(/data-a-dynamic-image=["']({[^"']+})["']/gi);
+      for (const match of dynImageMatches) {
+        try {
+          const imageObj = JSON.parse(match[1].replace(/&quot;/g, '"'));
+          for (const url of Object.keys(imageObj)) {
+            if (url.startsWith('http') && !data.images?.includes(url)) {
+              data.images?.push(url);
+              if (data.images && data.images.length >= 10) break;
+            }
+          }
+        } catch (e) {
+          // تجاهل أخطاء JSON
+        }
+      }
+    }
+
+    // طريقة 6: صور مباشرة من img tags (كـ fallback)
+    if (!data.images || data.images.length < 3) {
       const imgMatches = html.matchAll(/<img[^>]*src=["']([^"']*images-amazon[^"']+)["']/gi);
       const uniqueImages = new Set<string>();
       for (const match of imgMatches) {
         const url = match[1];
-        // تجنب الصور الصغيرة
-        if (url.includes('._AC_') || url.includes('_SL') || url.includes('_SS')) {
+        // تجنب الصور الصغيرة والأيقونات
+        if ((url.includes('._AC_') || url.includes('_SL') || url.includes('_SS')) && 
+            !url.includes('._AC_US40_') && !url.includes('._AC_UL16_')) {
           uniqueImages.add(url);
         }
       }
-      data.images = Array.from(uniqueImages).slice(0, 8);
+      const currentImages = data.images || [];
+      for (const img of uniqueImages) {
+        if (!currentImages.includes(img)) {
+          data.images?.push(img);
+        }
+      }
     }
 
     // استخراج الوصف
@@ -327,7 +391,107 @@ function extractAmazonData(html: string): Partial<ProductData> {
   return data;
 }
 
-// دالة Fallback لاستخراج بيانات عامة
+// دالة لإزالة الصور المكررة والفلترة الذكية
+function deduplicateAndFilterImages(images: string[]): string[] {
+  const seen = new Set<string>();
+  const filtered: string[] = [];
+  
+  for (const url of images) {
+    // استخراج URL بدون query parameters
+    const baseUrl = url.split('?')[0];
+    
+    // تجنب الصور الصغيرة جداً والأيقونات
+    if (url.includes('logo') || url.includes('icon') || url.includes('favicon') ||
+        url.includes('_50x50') || url.includes('_40x40') || url.includes('thumbnail') ||
+        url.includes('sprite')) {
+      continue;
+    }
+    
+    // إضافة فقط إذا لم نرها من قبل
+    if (!seen.has(baseUrl)) {
+      seen.add(baseUrl);
+      filtered.push(url);
+    }
+  }
+  
+  return filtered;
+}
+
+// دالة لاستخراج lazy-loaded images
+function extractLazyImages(html: string): string[] {
+  const images: string[] = [];
+  
+  const lazyPatterns = [
+    /data-src=["']([^"']+)["']/gi,
+    /data-lazy=["']([^"']+)["']/gi,
+    /data-original=["']([^"']+)["']/gi,
+    /data-srcset=["']([^"']+)["']/gi,
+  ];
+  
+  for (const pattern of lazyPatterns) {
+    const matches = html.matchAll(pattern);
+    for (const match of matches) {
+      const url = match[1].split(',')[0].split(' ')[0].trim();
+      if (url.startsWith('http')) {
+        images.push(url);
+      }
+    }
+  }
+  
+  return images;
+}
+
+// دالة لاستخراج بيانات من Shopify stores
+function extractShopifyData(html: string): Partial<ProductData> {
+  const data: Partial<ProductData> = {
+    images: [],
+  };
+  
+  try {
+    // Shopify يضع بيانات المنتج في ProductJSON
+    const productJsonMatch = html.match(/<script[^>]*type=["']application\/json["'][^>]*data-product-json[^>]*>([^<]+)<\/script>/i);
+    if (productJsonMatch) {
+      try {
+        const product = JSON.parse(productJsonMatch[1]);
+        if (product.title) data.name = product.title;
+        if (product.description) data.description = product.description;
+        if (product.price) data.price = parseFloat(product.price) / 100; // Shopify يخزن السعر بالسنتات
+        if (product.variants && product.variants[0]?.price) {
+          data.price = parseFloat(product.variants[0].price) / 100;
+        }
+        if (product.images) {
+          data.images = product.images.map((img: any) => 
+            typeof img === 'string' ? img : img.src
+          ).filter((url: string) => url.startsWith('http'));
+        }
+        if (product.featured_image) {
+          data.images?.unshift(product.featured_image);
+        }
+      } catch (e) {
+        console.error('Error parsing Shopify product JSON:', e);
+      }
+    }
+    
+    // محاولة استخراج من gallery structure
+    if (!data.images || data.images.length === 0) {
+      const galleryMatches = html.matchAll(/<div[^>]*class=["'][^"']*product-gallery[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi);
+      for (const match of galleryMatches) {
+        const imgUrls = match[1].matchAll(/<img[^>]*src=["']([^"']+)["']/gi);
+        for (const imgMatch of imgUrls) {
+          if (imgMatch[1].startsWith('http')) {
+            data.images?.push(imgMatch[1]);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error in extractShopifyData:', e);
+  }
+  
+  return data;
+}
+
+// دالة Fallback محسنة لاستخراج بيانات عامة
 function extractFallbackData(html: string): Partial<ProductData> {
   const data: Partial<ProductData> = {
     images: [],
@@ -367,6 +531,8 @@ function extractFallbackData(html: string): Partial<ProductData> {
         /\$\s*(\d+(?:\.\d{2})?)/,
         /(\d+(?:\.\d{2})?)\s*USD/i,
         /price["\s:]+(\d+(?:\.\d{2})?)/i,
+        /(\d+(?:\.\d{2})?)\s*ريال/,
+        /(\d+(?:\.\d{2})?)\s*SR/i,
       ];
 
       for (const pattern of pricePatterns) {
@@ -381,21 +547,49 @@ function extractFallbackData(html: string): Partial<ProductData> {
       }
     }
 
-    // استخراج أي صور كبيرة من الصفحة
+    // استخراج صور - محسّن لجلب حتى 15 صورة
     if (!data.images || data.images.length === 0) {
-      const imgMatches = html.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/gi);
-      const uniqueImages = new Set<string>();
+      const allImages: string[] = [];
       
+      // 1. صور من img tags عادية
+      const imgMatches = html.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/gi);
       for (const match of imgMatches) {
         const url = match[1];
-        // فقط HTTPS images و تجنب الأيقونات الصغيرة
-        if (url.startsWith('https://') && !url.includes('logo') && !url.includes('icon')) {
-          uniqueImages.add(url);
-          if (uniqueImages.size >= 5) break;
+        if (url.startsWith('https://') || url.startsWith('http://')) {
+          allImages.push(url);
         }
       }
       
-      data.images = Array.from(uniqueImages);
+      // 2. صور من lazy loading
+      const lazyImages = extractLazyImages(html);
+      allImages.push(...lazyImages);
+      
+      // 3. صور من picture tags
+      const pictureMatches = html.matchAll(/<source[^>]*srcset=["']([^"']+)["']/gi);
+      for (const match of pictureMatches) {
+        const url = match[1].split(',')[0].split(' ')[0].trim();
+        if (url.startsWith('http')) {
+          allImages.push(url);
+        }
+      }
+      
+      // 4. صور من JSON structures
+      const jsonScripts = html.matchAll(/<script[^>]*type=["']application\/(?:ld\+)?json["'][^>]*>([^<]+)<\/script>/gi);
+      for (const match of jsonScripts) {
+        try {
+          const json = JSON.parse(match[1]);
+          if (json.image) {
+            const images = Array.isArray(json.image) ? json.image : [json.image];
+            allImages.push(...images.filter((img: string) => typeof img === 'string' && img.startsWith('http')));
+          }
+        } catch (e) {
+          // تجاهل أخطاء JSON
+        }
+      }
+      
+      // فلترة وإزالة المكررات
+      const filtered = deduplicateAndFilterImages(allImages);
+      data.images = filtered.slice(0, 15);
     }
 
     // وضع علامة incomplete إذا كانت البيانات ناقصة
@@ -502,6 +696,9 @@ Deno.serve(async (req) => {
     } else if (hostname.includes('amazon')) {
       console.log('Detected Amazon');
       productData = extractAmazonData(html);
+    } else if (hostname.includes('myshopify') || html.includes('Shopify.theme') || html.includes('cdn.shopify')) {
+      console.log('Detected Shopify store');
+      productData = extractShopifyData(html);
     }
 
     // استخراج البيانات العامة من meta tags
@@ -510,6 +707,11 @@ Deno.serve(async (req) => {
       ...metaData,
       ...productData,
     };
+    
+    // إزالة الصور المكررة وتنظيفها
+    if (productData.images && productData.images.length > 0) {
+      productData.images = deduplicateAndFilterImages(productData.images);
+    }
 
     // محاولة Fallback إذا لم نحصل على بيانات كافية
     if (!productData.name || !productData.price || !productData.images || productData.images.length === 0) {
