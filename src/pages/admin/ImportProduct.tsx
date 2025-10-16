@@ -18,6 +18,7 @@ interface ScrapedProduct {
   images: string[];
   brand?: string;
   category?: string;
+  incomplete?: boolean;
 }
 
 const CATEGORIES = [
@@ -66,7 +67,32 @@ export default function ImportProduct() {
       if (error) throw error;
 
       if (!data.success) {
-        throw new Error(data.error || 'فشل في جلب بيانات المنتج');
+        // عرض رسالة خطأ مفصلة
+        const errorMsg = data.message || data.error || 'فشل في جلب بيانات المنتج';
+        const suggestion = data.suggestion || '';
+        
+        toast({
+          title: 'فشل في جلب البيانات',
+          description: (
+            <div className="space-y-2">
+              <p>{errorMsg}</p>
+              {suggestion && <p className="text-sm opacity-80">{suggestion}</p>}
+              {data.url && (
+                <a 
+                  href={data.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm underline block mt-2"
+                >
+                  فتح الرابط في نافذة جديدة
+                </a>
+              )}
+            </div>
+          ),
+          variant: 'destructive',
+          duration: 8000,
+        });
+        return;
       }
 
       const product = data.data as ScrapedProduct;
@@ -84,16 +110,32 @@ export default function ImportProduct() {
         made_in: product.brand || '',
       });
 
+      // عرض رسالة نجاح مع تحذيرات إن وجدت
+      const warnings = data.warnings || [];
       toast({
-        title: 'نجح',
-        description: 'تم جلب بيانات المنتج بنجاح',
+        title: product.incomplete ? 'تم جلب البيانات (جزئياً)' : 'نجح',
+        description: (
+          <div className="space-y-1">
+            <p>تم جلب بيانات المنتج</p>
+            {warnings.map((warning: string, idx: number) => (
+              <p key={idx} className="text-sm opacity-80">⚠️ {warning}</p>
+            ))}
+          </div>
+        ),
+        variant: product.incomplete ? 'default' : 'default',
       });
     } catch (error: any) {
       console.error('Error fetching product:', error);
       toast({
         title: 'خطأ',
-        description: error.message || 'فشل في جلب بيانات المنتج',
+        description: (
+          <div className="space-y-2">
+            <p>{error.message || 'فشل في جلب بيانات المنتج'}</p>
+            <p className="text-sm opacity-80">تأكد من الاتصال بالإنترنت وصحة الرابط</p>
+          </div>
+        ),
         variant: 'destructive',
+        duration: 6000,
       });
     } finally {
       setIsLoading(false);
@@ -251,14 +293,31 @@ export default function ImportProduct() {
             </div>
 
             {scrapedData && (
-              <div className="rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800 p-4">
-                <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+              <div className={`rounded-lg border p-4 ${
+                scrapedData.incomplete 
+                  ? 'border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800'
+                  : 'border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800'
+              }`}>
+                <div className={`flex items-center gap-2 ${
+                  scrapedData.incomplete 
+                    ? 'text-yellow-800 dark:text-yellow-200'
+                    : 'text-green-800 dark:text-green-200'
+                }`}>
                   <Check className="h-5 w-5" />
-                  <span className="font-medium">تم جلب البيانات بنجاح</span>
+                  <span className="font-medium">
+                    {scrapedData.incomplete ? 'تم جلب البيانات (مراجعة مطلوبة)' : 'تم جلب البيانات بنجاح'}
+                  </span>
                 </div>
-                <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                  تم العثور على {scrapedData.images.length} صورة
-                </p>
+                <div className={`text-sm mt-1 space-y-1 ${
+                  scrapedData.incomplete 
+                    ? 'text-yellow-600 dark:text-yellow-400'
+                    : 'text-green-600 dark:text-green-400'
+                }`}>
+                  <p>تم العثور على {scrapedData.images.length} صورة</p>
+                  {scrapedData.incomplete && (
+                    <p className="font-medium">⚠️ يرجى مراجعة البيانات وتعديلها حسب الحاجة</p>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
