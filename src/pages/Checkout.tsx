@@ -263,12 +263,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
                 <h4 className="text-sm font-bold text-foreground">طرق الدفع الآمنة</h4>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-4">
-                {/* Mada */}
-                <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
-                  <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-24 w-auto object-contain" />
-                </div>
-                
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-4">
                 {/* Visa */}
                 <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
                   <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-24 w-auto object-contain" />
@@ -723,12 +718,7 @@ export default function Checkout() {
                         <p className="text-xs font-medium text-muted-foreground">طرق الدفع المتاحة</p>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                        {/* Mada */}
-                        <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
-                          <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-20 w-auto object-contain" />
-                        </div>
-                        
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                         {/* Visa */}
                         <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
                           <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-20 w-auto object-contain" />
