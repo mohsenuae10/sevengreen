@@ -68,19 +68,17 @@ serve(async (req) => {
     // Generate payment link if available
     const paymentLinkHtml = order.stripe_payment_id 
       ? `
-        <div style="text-align: center; margin: 30px 0;">
+        <div style="text-align: center; margin: 25px 0;">
           <a href="${storeUrl}/checkout?order_id=${order.id}" 
-             style="background: linear-gradient(135deg, #2d5016 0%, #3a6b1d 100%); 
-                    color: white; padding: 16px 48px; text-decoration: none; 
-                    border-radius: 8px; font-weight: bold; display: inline-block; 
-                    font-size: 18px; box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
-                    transition: transform 0.2s;">
-            💳 إتمام الدفع الآن
+             style="background-color: #2d5016; color: #ffffff; padding: 14px 40px; 
+                    text-decoration: none; border-radius: 6px; font-weight: 600; 
+                    display: inline-block; font-size: 16px;">
+            إتمام الدفع
           </a>
-          <p style="margin-top: 15px; font-size: 13px; color: #666;">
-            الرابط آمن ومشفّر بالكامل 🔒
-          </p>
         </div>
+        <p style="text-align: center; font-size: 13px; color: #888; margin: 15px 0;">
+          جميع المعاملات آمنة ومشفّرة
+        </p>
       `
       : '';
 
@@ -91,14 +89,16 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `Seven Green - سفن جرين <noreply@sevengreenstore.com>`,
-        reply_to: 'order@sevengreenstore.com',
+        from: `Seven Green Store <noreply@sevengreenstore.com>`,
+        reply_to: 'support@sevengreenstore.com',
         to: [order.customer_email],
-        subject: `🔔 طلبك ${order.order_number} بانتظار إتمام الدفع`,
+        subject: `طلبك ${order.order_number} - إتمام عملية الدفع`,
         headers: {
-          'List-Unsubscribe': `<${storeUrl}/unsubscribe>`,
+          'List-Unsubscribe': `<mailto:unsubscribe@sevengreenstore.com>`,
           'X-Priority': '3',
-          'X-Mailer': 'Seven Green Store',
+          'X-Entity-Ref-ID': order.order_number,
+          'Precedence': 'bulk',
+          'X-Auto-Response-Suppress': 'OOF, AutoReply',
         },
         html: `
         <!DOCTYPE html>
@@ -109,31 +109,29 @@ serve(async (req) => {
         </head>
         <body style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-          <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #2d5016;">
-            <h1 style="color: #2d5016; margin: 0; font-size: 32px; font-weight: bold;">Seven Green</h1>
-            <p style="color: #d4a85c; margin: 8px 0 0 0; font-size: 15px; font-weight: 500;">سفن جرين - منتجات العناية الطبيعية</p>
+          <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0;">
+            <h1 style="color: #2d5016; margin: 0; font-size: 28px; font-weight: 600;">Seven Green Store</h1>
+            <p style="color: #666; margin: 8px 0 0 0; font-size: 14px;">منتجات العناية الطبيعية</p>
           </div>
             
-            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%); border-right: 4px solid #2196F3; padding: 25px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);">
-              <h2 style="color: #1976D2; margin: 0 0 12px 0; font-size: 22px; font-weight: bold;">مرحباً ${order.customer_name} 👋</h2>
-              <p style="color: #1565C0; margin: 0; font-size: 17px; line-height: 1.6;">
-                شكراً لاختيارك Seven Green! طلبك <strong style="color: #0d47a1;">${order.order_number}</strong> جاهز للمعالجة
-              </p>
-              <p style="color: #1976D2; margin: 12px 0 0 0; font-size: 15px;">
-                ⏱️ يرجى إتمام عملية الدفع لبدء تجهيز وشحن طلبك
-              </p>
-            </div>
+            <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+              مرحباً <strong>${order.customer_name}</strong>،
+            </p>
             
-            <p style="color: #333; line-height: 1.8; margin: 25px 0; font-size: 16px;">
-              لمعالجة طلبك وشحنه في أقرب وقت ممكن، يرجى إتمام عملية الدفع الآن.
+            <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0;">
+              شكراً لطلبك من Seven Green. نود إعلامك بأن طلبك رقم <strong>${order.order_number}</strong> ما زال في انتظار إتمام عملية الدفع.
+            </p>
+            
+            <p style="color: #555; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
+              لمعالجة طلبك وشحنه، يرجى إكمال الدفع من خلال الرابط أدناه.
             </p>
             
             ${paymentLinkHtml}
 
-            <div style="background-color: #fafafa; padding: 20px; border-radius: 5px; margin: 20px 0;">
-              <h3 style="color: #2d5016; margin: 0 0 15px 0; font-size: 18px;">تفاصيل الطلب</h3>
-              <p style="margin: 5px 0; color: #555;"><strong>رقم الطلب:</strong> ${order.order_number}</p>
-              <p style="margin: 5px 0; color: #555;"><strong>التاريخ:</strong> ${new Date(order.created_at).toLocaleDateString('ar-SA')}</p>
+            <div style="background-color: #f9f9f9; padding: 18px; border-radius: 6px; margin: 25px 0; border: 1px solid #e0e0e0;">
+              <h3 style="color: #333; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">ملخص الطلب</h3>
+              <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>رقم الطلب:</strong> ${order.order_number}</p>
+              <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>تاريخ الطلب:</strong> ${new Date(order.created_at).toLocaleDateString('ar-SA')}</p>
             </div>
 
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
@@ -155,13 +153,14 @@ serve(async (req) => {
               <p style="margin: 15px 0 0 0; font-size: 18px; color: #2d5016; font-weight: bold;">الإجمالي: ${order.total_amount.toFixed(2)} ريال</p>
             </div>
 
-            <p style="color: #666; text-align: center; font-size: 14px; margin: 30px 0;">
-              لديك أسئلة؟ نحن هنا للمساعدة
+            <p style="color: #777; text-align: center; font-size: 14px; margin: 25px 0; line-height: 1.6;">
+              إذا كانت لديك أي أسئلة، يمكنك الرد على هذه الرسالة وسنكون سعداء بمساعدتك.
             </p>
             
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 12px;">
-              <p style="margin: 5px 0;">Seven Green - سفن جرين</p>
-              <p style="margin: 5px 0;">© 2025 جميع الحقوق محفوظة</p>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+              <p style="margin: 5px 0; color: #888; font-size: 13px;">Seven Green Store</p>
+              <p style="margin: 5px 0; color: #999; font-size: 12px;">متجر سفن جرين للعناية الطبيعية</p>
+              <p style="margin: 10px 0 5px 0; color: #999; font-size: 12px;">© 2025 جميع الحقوق محفوظة</p>
             </div>
           </div>
         </body>
@@ -170,19 +169,25 @@ serve(async (req) => {
         text: `
 مرحباً ${order.customer_name}،
 
-طلبك ${order.order_number} بانتظار إتمام الدفع.
+شكراً لطلبك من Seven Green Store.
+
+طلبك رقم ${order.order_number} ما زال في انتظار إتمام عملية الدفع.
 
 تفاصيل الطلب:
 - رقم الطلب: ${order.order_number}
-- التاريخ: ${new Date(order.created_at).toLocaleDateString('ar-SA')}
+- تاريخ الطلب: ${new Date(order.created_at).toLocaleDateString('ar-SA')}
 - المبلغ الإجمالي: ${order.total_amount.toFixed(2)} ريال
 
-${order.stripe_payment_id ? `لإتمام الدفع، يرجى زيارة: ${storeUrl}/checkout?order_id=${order.id}` : ''}
+${order.stripe_payment_id ? `لإتمام عملية الدفع، يرجى زيارة الرابط التالي:\n${storeUrl}/checkout?order_id=${order.id}` : ''}
 
-شكراً لاختيارك Seven Green
+لمعالجة طلبك وشحنه، يرجى إكمال الدفع في أقرب وقت ممكن.
 
-Seven Green - سفن جرين
-© 2025 جميع الحقوق محفوظة
+إذا كانت لديك أي أسئلة، نحن هنا لمساعدتك.
+
+مع تحيات فريق Seven Green Store
+متجر سفن جرين للعناية الطبيعية
+
+© 2025 Seven Green Store - جميع الحقوق محفوظة
         `,
       }),
     });
