@@ -258,37 +258,6 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
             
             {/* شعارات طرق الدفع */}
             <div className="mb-6">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                <h4 className="text-sm font-bold text-foreground">طرق الدفع الآمنة</h4>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-4">
-                {/* Visa */}
-                <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
-                  <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-24 w-auto object-contain" />
-                </div>
-                
-                {/* Mastercard */}
-                <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
-                  <img src="/images/payment-icons/mastercard.svg" alt="Mastercard" className="h-24 w-auto object-contain" />
-                </div>
-                
-                {/* Mada */}
-                <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
-                  <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-24 w-auto object-contain" />
-                </div>
-                
-                {/* Apple Pay */}
-                <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
-                  <img src="/images/payment-icons/apple-pay.svg" alt="Apple Pay" className="h-24 w-auto object-contain dark:brightness-0 dark:invert" />
-                </div>
-                
-                {/* Google Pay */}
-                <div className="bg-white dark:bg-white rounded-2xl p-8 flex items-center justify-center hover:shadow-xl hover:scale-105 transition-transform h-40">
-                  <img src="/images/payment-icons/google-pay.svg" alt="Google Pay" className="h-24 w-auto object-contain" />
-                </div>
-              </div>
               
               <div className="flex items-center justify-center gap-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/50 rounded-xl">
                 <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
@@ -716,40 +685,6 @@ export default function Checkout() {
                       )}
                     </Button>
 
-                    {/* أيقونات طرق الدفع */}
-                    <div className="mt-6">
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        <ShieldCheck className="h-4 w-4 text-primary" />
-                        <p className="text-xs font-medium text-muted-foreground">طرق الدفع المتاحة</p>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
-                        {/* Visa */}
-                        <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
-                          <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-20 w-auto object-contain" />
-                        </div>
-                        
-                        {/* Mastercard */}
-                        <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
-                          <img src="/images/payment-icons/mastercard.svg" alt="Mastercard" className="h-20 w-auto object-contain" />
-                        </div>
-                        
-                        {/* Mada */}
-                        <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
-                          <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-20 w-auto object-contain" />
-                        </div>
-                        
-                        {/* Apple Pay */}
-                        <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
-                          <img src="/images/payment-icons/apple-pay.svg" alt="Apple Pay" className="h-20 w-auto object-contain dark:brightness-0 dark:invert" />
-                        </div>
-                        
-                        {/* Google Pay */}
-                        <div className="bg-white dark:bg-white rounded-2xl p-6 flex items-center justify-center h-32 hover:shadow-xl hover:scale-105 transition-transform">
-                          <img src="/images/payment-icons/google-pay.svg" alt="Google Pay" className="h-20 w-auto object-contain" />
-                        </div>
-                      </div>
-                    </div>
                   </form>
                 </div>
               </div>
