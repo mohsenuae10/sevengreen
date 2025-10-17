@@ -70,11 +70,16 @@ serve(async (req) => {
       ? `
         <div style="text-align: center; margin: 30px 0;">
           <a href="${storeUrl}/checkout?order_id=${order.id}" 
-             style="background-color: #2d5016; color: white; padding: 15px 40px; 
-                    text-decoration: none; border-radius: 8px; font-weight: bold; 
-                    display: inline-block; font-size: 16px;">
-            إكمال الدفع الآن
+             style="background: linear-gradient(135deg, #2d5016 0%, #3a6b1d 100%); 
+                    color: white; padding: 16px 48px; text-decoration: none; 
+                    border-radius: 8px; font-weight: bold; display: inline-block; 
+                    font-size: 18px; box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+                    transition: transform 0.2s;">
+            💳 إتمام الدفع الآن
           </a>
+          <p style="margin-top: 15px; font-size: 13px; color: #666;">
+            الرابط آمن ومشفّر بالكامل 🔒
+          </p>
         </div>
       `
       : '';
@@ -86,11 +91,14 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `Seven Green - سفن جرين <order@sevengreenstore.com>`,
+        from: `Seven Green - سفن جرين <noreply@sevengreenstore.com>`,
+        reply_to: 'order@sevengreenstore.com',
         to: [order.customer_email],
         subject: `🔔 طلبك ${order.order_number} بانتظار إتمام الدفع`,
         headers: {
           'List-Unsubscribe': `<${storeUrl}/unsubscribe>`,
+          'X-Priority': '3',
+          'X-Mailer': 'Seven Green Store',
         },
         html: `
         <!DOCTYPE html>
@@ -101,18 +109,23 @@ serve(async (req) => {
         </head>
         <body style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #2d5016; margin: 0; font-size: 28px;">Seven Green</h1>
-              <p style="color: #666; margin: 10px 0; font-size: 14px;">منتجات العناية الطبيعية</p>
+          <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #2d5016;">
+            <h1 style="color: #2d5016; margin: 0; font-size: 32px; font-weight: bold;">Seven Green</h1>
+            <p style="color: #d4a85c; margin: 8px 0 0 0; font-size: 15px; font-weight: 500;">سفن جرين - منتجات العناية الطبيعية</p>
+          </div>
+            
+            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%); border-right: 4px solid #2196F3; padding: 25px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);">
+              <h2 style="color: #1976D2; margin: 0 0 12px 0; font-size: 22px; font-weight: bold;">مرحباً ${order.customer_name} 👋</h2>
+              <p style="color: #1565C0; margin: 0; font-size: 17px; line-height: 1.6;">
+                شكراً لاختيارك Seven Green! طلبك <strong style="color: #0d47a1;">${order.order_number}</strong> جاهز للمعالجة
+              </p>
+              <p style="color: #1976D2; margin: 12px 0 0 0; font-size: 15px;">
+                ⏱️ يرجى إتمام عملية الدفع لبدء تجهيز وشحن طلبك
+              </p>
             </div>
             
-            <div style="background-color: #e3f2fd; border-right: 4px solid #2196F3; padding: 20px; margin: 20px 0; border-radius: 5px;">
-              <h2 style="color: #1976D2; margin: 0 0 10px 0; font-size: 20px;">مرحباً ${order.customer_name}</h2>
-              <p style="color: #1565C0; margin: 0; font-size: 16px;">طلبك <strong>${order.order_number}</strong> بانتظار إتمام الدفع</p>
-            </div>
-            
-            <p style="color: #333; line-height: 1.6; margin: 20px 0;">
-              نشكرك على اختيارك Seven Green. لمعالجة طلبك وشحنه في أقرب وقت، يرجى إتمام عملية الدفع.
+            <p style="color: #333; line-height: 1.8; margin: 25px 0; font-size: 16px;">
+              لمعالجة طلبك وشحنه في أقرب وقت ممكن، يرجى إتمام عملية الدفع الآن.
             </p>
             
             ${paymentLinkHtml}
