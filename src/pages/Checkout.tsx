@@ -589,7 +589,8 @@ export default function Checkout() {
                       </Label>
                       <div className="relative">
                         <div className="absolute left-0 top-0 h-12 px-4 bg-muted/50 rounded-l-xl border-2 border-r-0 border-border flex items-center gap-2">
-                          <span className="text-sm font-medium text-muted-foreground">{selectedCountry.dialCode}</span>
+                          <span className="text-sm font-medium text-muted-foreground">+</span>
+                          <span className="text-sm font-medium text-muted-foreground">{selectedCountry.dialCode.replace('+', '')}</span>
                           <span className="text-xl">{selectedCountry.flag}</span>
                         </div>
                         <Input
