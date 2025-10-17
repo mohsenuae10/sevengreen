@@ -61,7 +61,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${storeName} <onboarding@resend.dev>`,
+        from: `${storeName} <order@sevengreenstore.com>`,
         to: [order.customer_email],
         subject: `تأكيد طلبك - ${order.order_number}`,
         html: `
