@@ -24,7 +24,19 @@ serve(async (req) => {
     let systemPrompt = '';
     let userPrompt = '';
 
-    if (type === 'description') {
+    if (type === 'all_fields') {
+      systemPrompt = 'أنت خبير في منتجات التجميل والعناية. تكتب محتوى احترافي شامل بالعربية الفصحى.';
+      userPrompt = `للمنتج "${productName}" من فئة "${category}"${brand ? ` من علامة ${brand}` : ''}، قدم التالي بصيغة JSON:
+
+{
+  "description": "وصف تسويقي جذاب (100-150 كلمة) يشرح فوائد المنتج",
+  "ingredients": "قائمة بأهم المكونات النشطة مع شرح مختصر لكل مكون (50-80 كلمة)",
+  "benefits": "قائمة بالفوائد الرئيسية للمنتج (4-6 نقاط، كل نقطة 10-15 كلمة)",
+  "howToUse": "خطوات الاستخدام بشكل واضح ومرتب (3-5 خطوات)"
+}
+
+قدم JSON فقط بدون أي نص إضافي.`;
+    } else if (type === 'description') {
       systemPrompt = 'أنت كاتب محتوى تسويقي متخصص في منتجات التجميل والعناية. تكتب نصوصاً احترافية وجذابة بالعربية الفصحى.';
       userPrompt = `اكتب وصفاً تسويقياً احترافياً بالعربية لمنتج "${productName}" من فئة "${category}"${brand ? ` من علامة ${brand}` : ''}.
 
@@ -36,6 +48,21 @@ serve(async (req) => {
 - لا يحتوي على أي رموز أو علامات markdown
 
 قدم الوصف مباشرة بدون أي مقدمات.`;
+    } else if (type === 'ingredients') {
+      systemPrompt = 'أنت خبير في مكونات منتجات التجميل. تشرح المكونات بطريقة علمية واضحة باللغة العربية.';
+      userPrompt = `للمنتج "${productName}" من فئة "${category}"${brand ? ` من علامة ${brand}` : ''}, قدم قائمة بأهم المكونات النشطة المتوقعة مع شرح مختصر لفائدة كل مكون.
+
+اكتب بطول 50-80 كلمة بصيغة نقاط أو فقرة واحدة. قدم المحتوى مباشرة بدون مقدمات.`;
+    } else if (type === 'benefits') {
+      systemPrompt = 'أنت خبير في فوائد منتجات التجميل. تكتب فوائد واضحة ومقنعة باللغة العربية.';
+      userPrompt = `للمنتج "${productName}" من فئة "${category}"${brand ? ` من علامة ${brand}` : ''}, قدم قائمة بالفوائد الرئيسية (4-6 نقاط).
+
+كل نقطة يجب أن تكون 10-15 كلمة. اكتب بصيغة نقاط واضحة. قدم المحتوى مباشرة بدون مقدمات.`;
+    } else if (type === 'how_to_use') {
+      systemPrompt = 'أنت خبير في طرق استخدام منتجات التجميل. تشرح الخطوات بوضوح باللغة العربية.';
+      userPrompt = `للمنتج "${productName}" من فئة "${category}"${brand ? ` من علامة ${brand}` : ''}, قدم خطوات الاستخدام الصحيحة.
+
+اكتب 3-5 خطوات واضحة ومرتبة. كل خطوة يجب أن تكون واضحة ومختصرة. قدم المحتوى مباشرة بدون مقدمات.`;
     } else if (type === 'seo') {
       systemPrompt = 'أنت خبير SEO متخصص في التجارة الإلكترونية العربية. تقدم محتوى محسّن لمحركات البحث باللغة العربية.';
       userPrompt = `للمنتج "${productName}" من فئة "${category}"${brand ? ` من علامة ${brand}` : ''}${existingDescription ? `\n\nوصف المنتج: ${existingDescription}` : ''}, قدم التالي:
@@ -92,9 +119,32 @@ serve(async (req) => {
 
     console.log('Generated content:', generatedText.substring(0, 200));
 
-    if (type === 'description') {
+    if (type === 'all_fields') {
+      let fieldsData;
+      try {
+        const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          fieldsData = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found');
+        }
+      } catch (e) {
+        console.error('Failed to parse all_fields data:', e);
+        fieldsData = {
+          description: generatedText.substring(0, 500),
+          ingredients: '',
+          benefits: '',
+          howToUse: ''
+        };
+      }
+
       return new Response(
-        JSON.stringify({ description: generatedText.trim() }),
+        JSON.stringify(fieldsData),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } else if (type === 'description' || type === 'ingredients' || type === 'benefits' || type === 'how_to_use') {
+      return new Response(
+        JSON.stringify({ content: generatedText.trim() }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } else if (type === 'seo') {

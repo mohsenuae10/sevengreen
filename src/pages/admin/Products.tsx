@@ -200,6 +200,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const [existingImages, setExistingImages] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingField, setIsGeneratingField] = useState<string | null>(null);
   const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -277,7 +278,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     }
   };
 
-  const handleGenerateDescription = async () => {
+  const handleGenerateAllFields = async () => {
     if (!formData.name_ar) {
       toast({
         title: 'تنبيه',
@@ -291,7 +292,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     try {
       const { data, error } = await supabase.functions.invoke('generate-product-content', {
         body: {
-          type: 'description',
+          type: 'all_fields',
           productName: formData.name_ar,
           category: formData.category,
           brand: formData.made_in,
@@ -300,18 +301,65 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
 
       if (error) throw error;
       
-      setFormData({ ...formData, description_ar: data.description });
-      toast({ title: '✨ تم توليد الوصف بنجاح' });
+      setFormData({ 
+        ...formData, 
+        description_ar: data.description,
+        ingredients_ar: data.ingredients,
+        benefits_ar: data.benefits,
+        how_to_use_ar: data.howToUse
+      });
+      toast({ title: '✨ تم توليد جميع الحقول بنجاح' });
     } catch (error: any) {
-      console.error('Generate description error:', error);
+      console.error('Generate all fields error:', error);
       toast({
         title: 'خطأ',
-        description: error.message || 'فشل توليد الوصف',
+        description: error.message || 'فشل توليد المحتوى',
         variant: 'destructive'
       });
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleGenerateField = async (fieldType: string, fieldName: string) => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGeneratingField(fieldType);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: fieldType,
+          productName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ ...formData, [fieldName]: data.content });
+      toast({ title: `✨ تم توليد ${fieldType === 'description' ? 'الوصف' : fieldType === 'ingredients' ? 'المكونات' : fieldType === 'benefits' ? 'الفوائد' : 'طريقة الاستخدام'} بنجاح` });
+    } catch (error: any) {
+      console.error('Generate field error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل توليد المحتوى',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGeneratingField(null);
+    }
+  };
+
+  const handleGenerateDescription = async () => {
+    await handleGenerateField('description', 'description_ar');
   };
 
   const handleGenerateSEO = async () => {
@@ -549,6 +597,31 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">محتوى المنتج</h3>
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            onClick={handleGenerateAllFields}
+            disabled={!formData.name_ar || isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                جاري التوليد...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 ml-2" />
+                توليد كل الحقول بالذكاء الاصطناعي
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
           <Label>الوصف</Label>
           <Button
@@ -556,9 +629,9 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
             variant="outline"
             size="sm"
             onClick={handleGenerateDescription}
-            disabled={!formData.name_ar || isGenerating}
+            disabled={!formData.name_ar || isGeneratingField === 'description'}
           >
-            {isGenerating ? (
+            {isGeneratingField === 'description' ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin ml-2" />
                 جاري التوليد...
@@ -579,7 +652,28 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="space-y-2">
-        <Label>المكونات</Label>
+        <div className="flex items-center justify-between mb-2">
+          <Label>المكونات</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleGenerateField('ingredients', 'ingredients_ar')}
+            disabled={!formData.name_ar || isGeneratingField === 'ingredients'}
+          >
+            {isGeneratingField === 'ingredients' ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                جاري التوليد...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 ml-2" />
+                توليد بالذكاء الاصطناعي
+              </>
+            )}
+          </Button>
+        </div>
         <Textarea
           value={formData.ingredients_ar}
           onChange={(e) => setFormData({ ...formData, ingredients_ar: e.target.value })}
@@ -589,7 +683,28 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="space-y-2">
-        <Label>طريقة الاستخدام</Label>
+        <div className="flex items-center justify-between mb-2">
+          <Label>طريقة الاستخدام</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleGenerateField('how_to_use', 'how_to_use_ar')}
+            disabled={!formData.name_ar || isGeneratingField === 'how_to_use'}
+          >
+            {isGeneratingField === 'how_to_use' ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                جاري التوليد...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 ml-2" />
+                توليد بالذكاء الاصطناعي
+              </>
+            )}
+          </Button>
+        </div>
         <Textarea
           value={formData.how_to_use_ar}
           onChange={(e) => setFormData({ ...formData, how_to_use_ar: e.target.value })}
@@ -599,7 +714,38 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="space-y-2">
-        <Label>الفوائد</Label>
+        <div className="flex items-center justify-between mb-2">
+          <Label>الفوائد</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleGenerateField('benefits', 'benefits_ar')}
+            disabled={!formData.name_ar || isGeneratingField === 'benefits'}
+          >
+            {isGeneratingField === 'benefits' ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                جاري التوليد...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 ml-2" />
+                توليد بالذكاء الاصطناعي
+              </>
+            )}
+          </Button>
+        </div>
+        <Textarea
+          value={formData.benefits_ar}
+          onChange={(e) => setFormData({ ...formData, benefits_ar: e.target.value })}
+          placeholder="فوائد المنتج..."
+          rows={2}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>التحذيرات (اختياري)</Label>
         <Textarea
           value={formData.benefits_ar}
           onChange={(e) => setFormData({ ...formData, benefits_ar: e.target.value })}

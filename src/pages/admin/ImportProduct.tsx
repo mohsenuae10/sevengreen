@@ -36,6 +36,7 @@ export default function ImportProduct() {
   const [isSaving, setIsSaving] = useState(false);
   const [scrapedData, setScrapedData] = useState<ScrapedProduct | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingField, setIsGeneratingField] = useState<string | null>(null);
   const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
   
   // بيانات النموذج القابلة للتعديل
@@ -46,6 +47,9 @@ export default function ImportProduct() {
     category: '',
     stock_quantity: 0,
     made_in: '',
+    ingredients_ar: '',
+    benefits_ar: '',
+    how_to_use_ar: '',
     seo_title: '',
     seo_description: '',
     seo_keywords: '',
@@ -113,6 +117,9 @@ export default function ImportProduct() {
         category: product.category || '',
         stock_quantity: 10,
         made_in: product.brand || '',
+        ingredients_ar: '',
+        benefits_ar: '',
+        how_to_use_ar: '',
         seo_title: '',
         seo_description: '',
         seo_keywords: '',
@@ -150,7 +157,7 @@ export default function ImportProduct() {
     }
   };
 
-  const handleGenerateDescription = async () => {
+  const handleGenerateAllFields = async () => {
     if (!formData.name_ar) {
       toast({
         title: 'تنبيه',
@@ -164,7 +171,7 @@ export default function ImportProduct() {
     try {
       const { data, error } = await supabase.functions.invoke('generate-product-content', {
         body: {
-          type: 'description',
+          type: 'all_fields',
           productName: formData.name_ar,
           category: formData.category,
           brand: formData.made_in,
@@ -173,18 +180,65 @@ export default function ImportProduct() {
 
       if (error) throw error;
       
-      setFormData({ ...formData, description_ar: data.description });
-      toast({ title: '✨ تم توليد الوصف بنجاح' });
+      setFormData({ 
+        ...formData, 
+        description_ar: data.description,
+        ingredients_ar: data.ingredients,
+        benefits_ar: data.benefits,
+        how_to_use_ar: data.howToUse
+      });
+      toast({ title: '✨ تم توليد جميع الحقول بنجاح' });
     } catch (error: any) {
-      console.error('Generate description error:', error);
+      console.error('Generate all fields error:', error);
       toast({
         title: 'خطأ',
-        description: error.message || 'فشل توليد الوصف',
+        description: error.message || 'فشل توليد المحتوى',
         variant: 'destructive'
       });
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleGenerateField = async (fieldType: string, fieldName: string) => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGeneratingField(fieldType);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: fieldType,
+          productName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ ...formData, [fieldName]: data.content });
+      toast({ title: `✨ تم توليد ${fieldType === 'description' ? 'الوصف' : fieldType === 'ingredients' ? 'المكونات' : fieldType === 'benefits' ? 'الفوائد' : 'طريقة الاستخدام'} بنجاح` });
+    } catch (error: any) {
+      console.error('Generate field error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل توليد المحتوى',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGeneratingField(null);
+    }
+  };
+
+  const handleGenerateDescription = async () => {
+    await handleGenerateField('description', 'description_ar');
   };
 
   const handleGenerateSEO = async () => {
@@ -252,6 +306,9 @@ export default function ImportProduct() {
           category: formData.category,
           stock_quantity: formData.stock_quantity,
           made_in: formData.made_in,
+          ingredients_ar: formData.ingredients_ar,
+          benefits_ar: formData.benefits_ar,
+          how_to_use_ar: formData.how_to_use_ar,
           seo_title: formData.seo_title,
           seo_description: formData.seo_description,
           seo_keywords: formData.seo_keywords,
@@ -322,6 +379,9 @@ export default function ImportProduct() {
         category: '',
         stock_quantity: 0,
         made_in: '',
+        ingredients_ar: '',
+        benefits_ar: '',
+        how_to_use_ar: '',
         seo_title: '',
         seo_description: '',
         seo_keywords: '',
@@ -424,6 +484,26 @@ export default function ImportProduct() {
               <CardDescription>
                 راجع وعدل البيانات المستوردة قبل الحفظ
               </CardDescription>
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={handleGenerateAllFields}
+                disabled={!formData.name_ar || isGenerating}
+                className="mt-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                    جاري التوليد...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 ml-2" />
+                    توليد كل الحقول بالذكاء الاصطناعي
+                  </>
+                )}
+              </Button>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* معاينة الصور */}
@@ -469,9 +549,33 @@ export default function ImportProduct() {
                       variant="outline"
                       size="sm"
                       onClick={handleGenerateDescription}
-                      disabled={!formData.name_ar || isGenerating}
+                      disabled={!formData.name_ar || isGeneratingField === 'description'}
                     >
-                      {isGenerating ? (
+                      {isGeneratingField === 'description' ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                          جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 ml-2" />
+                          توليد بالذكاء الاصطناعي
+                        </>
+                      )}
+                    </Button>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="ingredients">المكونات</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateField('ingredients', 'ingredients_ar')}
+                      disabled={!formData.name_ar || isGeneratingField === 'ingredients'}
+                    >
+                      {isGeneratingField === 'ingredients' ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin ml-2" />
                           جاري التوليد...
@@ -484,6 +588,78 @@ export default function ImportProduct() {
                       )}
                     </Button>
                   </div>
+                  <Textarea
+                    id="ingredients"
+                    value={formData.ingredients_ar}
+                    onChange={(e) => setFormData({ ...formData, ingredients_ar: e.target.value })}
+                    placeholder="مكونات المنتج..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="benefits">الفوائد</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateField('benefits', 'benefits_ar')}
+                      disabled={!formData.name_ar || isGeneratingField === 'benefits'}
+                    >
+                      {isGeneratingField === 'benefits' ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                          جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 ml-2" />
+                          توليد بالذكاء الاصطناعي
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <Textarea
+                    id="benefits"
+                    value={formData.benefits_ar}
+                    onChange={(e) => setFormData({ ...formData, benefits_ar: e.target.value })}
+                    placeholder="فوائد المنتج..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="how_to_use">طريقة الاستخدام</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateField('how_to_use', 'how_to_use_ar')}
+                      disabled={!formData.name_ar || isGeneratingField === 'how_to_use'}
+                    >
+                      {isGeneratingField === 'how_to_use' ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                          جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 ml-2" />
+                          توليد بالذكاء الاصطناعي
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <Textarea
+                    id="how_to_use"
+                    value={formData.how_to_use_ar}
+                    onChange={(e) => setFormData({ ...formData, how_to_use_ar: e.target.value })}
+                    placeholder="طريقة استخدام المنتج..."
+                    rows={3}
+                  />
+                </div>
                   <Textarea
                     id="description"
                     value={formData.description_ar}
@@ -647,6 +823,9 @@ export default function ImportProduct() {
                       category: '',
                       stock_quantity: 0,
                       made_in: '',
+                      ingredients_ar: '',
+                      benefits_ar: '',
+                      how_to_use_ar: '',
                       seo_title: '',
                       seo_description: '',
                       seo_keywords: '',
