@@ -803,6 +803,28 @@ export default function Checkout() {
                         <span className="text-2xl font-bold text-primary">{totalPrice.toFixed(2)} ريال</span>
                       </div>
                     </div>
+
+                    {/* شعارات طرق الدفع */}
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-xs text-muted-foreground mb-3 text-center font-medium">طرق الدفع المقبولة</p>
+                      <div className="flex gap-2 justify-center flex-wrap">
+                        {[
+                          { name: 'Visa', file: 'visa.svg' },
+                          { name: 'Mastercard', file: 'mastercard.svg' },
+                          { name: 'Apple Pay', file: 'apple-pay.svg' },
+                          { name: 'Google Pay', file: 'google-pay.svg' },
+                          { name: 'American Express', file: 'american-express.svg' },
+                        ].map((payment) => (
+                          <div key={payment.name} className="bg-background dark:bg-muted/30 p-2 rounded-lg border border-border/50 h-10 flex items-center justify-center min-w-[60px]">
+                            <img
+                              src={`/images/payment-icons/${payment.file}`}
+                              alt={payment.name}
+                              className="h-6 w-auto object-contain"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
