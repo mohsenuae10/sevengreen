@@ -86,50 +86,49 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${storeName} <order@sevengreenstore.com>`,
+        from: `Seven Green - سفن جرين <order@sevengreenstore.com>`,
         to: [order.customer_email],
-        subject: `تذكير: إكمال دفع طلبك - ${order.order_number}`,
+        subject: `🔔 طلبك ${order.order_number} بانتظار إتمام الدفع`,
+        headers: {
+          'List-Unsubscribe': `<${storeUrl}/unsubscribe>`,
+        },
         html: `
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
         <head>
           <meta charset="utf-8">
-          <style>
-            body { font-family: 'Tajawal', Arial, sans-serif; }
-          </style>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="margin: 0; padding: 20px; background-color: #f5f5f5;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <body style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #2d5016; margin: 0;">${storeName}</h1>
-              <p style="color: #d4a85c; margin: 5px 0;">
-                <a href="${storeUrl}" style="color: #d4a85c; text-decoration: none;">${storeUrl.replace('https://', '')}</a>
-              </p>
+              <h1 style="color: #2d5016; margin: 0; font-size: 28px;">Seven Green</h1>
+              <p style="color: #666; margin: 10px 0; font-size: 14px;">منتجات العناية الطبيعية</p>
             </div>
             
-            <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-              <h2 style="color: #856404; margin-top: 0;">⏰ تذكير بإكمال الدفع</h2>
-              <p style="color: #856404; font-size: 16px; margin: 0;">نلاحظ أن طلبك لم يكتمل بعد</p>
+            <div style="background-color: #e3f2fd; border-right: 4px solid #2196F3; padding: 20px; margin: 20px 0; border-radius: 5px;">
+              <h2 style="color: #1976D2; margin: 0 0 10px 0; font-size: 20px;">مرحباً ${order.customer_name}</h2>
+              <p style="color: #1565C0; margin: 0; font-size: 16px;">طلبك <strong>${order.order_number}</strong> بانتظار إتمام الدفع</p>
             </div>
             
-            <p>عزيزي/عزيزتي ${order.customer_name}،</p>
-            <p>نود تذكيرك بأن طلبك رقم <strong>${order.order_number}</strong> ما زال في انتظار إتمام عملية الدفع.</p>
-            <p>لضمان معالجة طلبك وشحنه في أقرب وقت ممكن، يرجى إكمال الدفع الآن.</p>
+            <p style="color: #333; line-height: 1.6; margin: 20px 0;">
+              نشكرك على اختيارك Seven Green. لمعالجة طلبك وشحنه في أقرب وقت، يرجى إتمام عملية الدفع.
+            </p>
             
             ${paymentLinkHtml}
 
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #2d5016; margin-top: 0;">ملخص الطلب</h3>
-              <p><strong>رقم الطلب:</strong> ${order.order_number}</p>
-              <p><strong>تاريخ الطلب:</strong> ${new Date(order.created_at).toLocaleString('ar-SA')}</p>
+            <div style="background-color: #fafafa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+              <h3 style="color: #2d5016; margin: 0 0 15px 0; font-size: 18px;">تفاصيل الطلب</h3>
+              <p style="margin: 5px 0; color: #555;"><strong>رقم الطلب:</strong> ${order.order_number}</p>
+              <p style="margin: 5px 0; color: #555;"><strong>التاريخ:</strong> ${new Date(order.created_at).toLocaleDateString('ar-SA')}</p>
             </div>
 
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
               <thead>
-                <tr style="background-color: #2d5016; color: white;">
-                  <th style="padding: 10px; text-align: right;">المنتج</th>
-                  <th style="padding: 10px; text-align: center;">الكمية</th>
-                  <th style="padding: 10px; text-align: right;">الإجمالي</th>
+                <tr style="background-color: #f5f5f5;">
+                  <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd; color: #333;">المنتج</th>
+                  <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd; color: #333;">الكمية</th>
+                  <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd; color: #333;">السعر</th>
                 </tr>
               </thead>
               <tbody>
@@ -137,33 +136,40 @@ serve(async (req) => {
               </tbody>
             </table>
 
-            <div style="text-align: left; margin-top: 20px; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
-              <p style="margin: 5px 0;"><strong>المجموع الفرعي:</strong> ${(order.total_amount - order.shipping_fee).toFixed(2)} ريال</p>
-              <p style="margin: 5px 0;"><strong>رسوم الشحن:</strong> ${order.shipping_fee.toFixed(2)} ريال</p>
-              <p style="margin: 10px 0 0 0; font-size: 20px; color: #2d5016;"><strong>المبلغ الإجمالي:</strong> ${order.total_amount.toFixed(2)} ريال</p>
+            <div style="text-align: left; margin: 20px 0; padding: 15px; background-color: #fafafa; border-radius: 5px;">
+              <p style="margin: 5px 0; color: #555;">المجموع الفرعي: ${(order.total_amount - order.shipping_fee).toFixed(2)} ريال</p>
+              <p style="margin: 5px 0; color: #555;">الشحن: ${order.shipping_fee.toFixed(2)} ريال</p>
+              <p style="margin: 15px 0 0 0; font-size: 18px; color: #2d5016; font-weight: bold;">الإجمالي: ${order.total_amount.toFixed(2)} ريال</p>
             </div>
 
-            <div style="background-color: #e8f5e9; border-right: 4px solid #2d5016; padding: 15px; margin: 20px 0;">
-              <h4 style="color: #2d5016; margin-top: 0;">💡 لماذا يجب إكمال الدفع؟</h4>
-              <ul style="color: #2d5016; margin: 10px 0; padding-right: 20px;">
-                <li>ضمان توفر المنتجات المطلوبة</li>
-                <li>معالجة وشحن طلبك بأسرع وقت</li>
-                <li>تجنب إلغاء الطلب تلقائياً</li>
-              </ul>
-            </div>
-
-            <p style="color: #666; margin-top: 30px; text-align: center; font-size: 14px;">
-              إذا كانت لديك أي استفسارات أو تحتاج إلى مساعدة، لا تتردد في التواصل معنا.
+            <p style="color: #666; text-align: center; font-size: 14px; margin: 30px 0;">
+              لديك أسئلة؟ نحن هنا للمساعدة
             </p>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 12px;">
-              <p>${storeName} - منتجات العناية الطبيعية</p>
-              <p><a href="${storeUrl}" style="color: #999; text-decoration: none;">${storeUrl.replace('https://', '')}</a></p>
-              <p>© 2025 جميع الحقوق محفوظة</p>
+              <p style="margin: 5px 0;">Seven Green - سفن جرين</p>
+              <p style="margin: 5px 0;">© 2025 جميع الحقوق محفوظة</p>
             </div>
           </div>
         </body>
         </html>
+        `,
+        text: `
+مرحباً ${order.customer_name}،
+
+طلبك ${order.order_number} بانتظار إتمام الدفع.
+
+تفاصيل الطلب:
+- رقم الطلب: ${order.order_number}
+- التاريخ: ${new Date(order.created_at).toLocaleDateString('ar-SA')}
+- المبلغ الإجمالي: ${order.total_amount.toFixed(2)} ريال
+
+${order.stripe_payment_id ? `لإتمام الدفع، يرجى زيارة: ${storeUrl}/checkout?order_id=${order.id}` : ''}
+
+شكراً لاختيارك Seven Green
+
+Seven Green - سفن جرين
+© 2025 جميع الحقوق محفوظة
         `,
       }),
     });
