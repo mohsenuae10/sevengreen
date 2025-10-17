@@ -44,9 +44,25 @@ export default function AdminOrderDetail() {
         .eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['admin-order', id] });
       toast({ title: 'تم تحديث الطلب بنجاح' });
+      
+      // إرسال إيميل الشحن تلقائياً عند تغيير الحالة إلى "تم الشحن"
+      if (status === 'shipped' && trackingNumber) {
+        const { error } = await supabase.functions.invoke('send-tracking-email', {
+          body: { order_id: id, tracking_number: trackingNumber },
+        });
+        if (error) {
+          toast({ 
+            title: 'تم تحديث الطلب لكن فشل إرسال البريد', 
+            description: 'يمكنك إرسال البريد يدوياً',
+            variant: 'destructive' 
+          });
+        } else {
+          toast({ title: 'تم إرسال إشعار الشحن للعميل' });
+        }
+      }
     },
   });
 
