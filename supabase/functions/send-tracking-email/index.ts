@@ -59,9 +59,9 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${storeName} <order@sevengreenstore.com>`,
+        from: `Seven Green - سفن جرين <order@sevengreenstore.com>`,
         to: [order.customer_email],
-        subject: `تم شحن طلبك - ${order.order_number}`,
+        subject: `🚚 شحنة في الطريق إليك! - رقم التتبع: ${tracking_number}`,
         html: `
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
