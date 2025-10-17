@@ -26,7 +26,7 @@ export default function FAQ() {
     },
     {
       question: 'ما هي طرق الدفع المتاحة؟',
-      answer: 'نقبل الدفع عبر بطاقات الائتمان (Visa, Mastercard, Mada) وApple Pay. جميع المدفوعات آمنة ومشفرة.'
+      answer: 'نقبل الدفع عبر بطاقات الائتمان والخصم (Visa, Mastercard) و Apple Pay و Google Pay و American Express. جميع المدفوعات آمنة ومشفرة بالكامل.'
     },
     {
       question: 'هل يمكنني إرجاع أو استبدال المنتج؟',
