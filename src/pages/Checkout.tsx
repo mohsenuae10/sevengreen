@@ -265,45 +265,41 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
               
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {/* Apple Pay */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-colors h-20">
-                  <svg viewBox="0 0 48 20" className="h-8" fill="currentColor">
-                    <path d="M8.4 3.8c.5-.6 1-1.5.8-2.4-.8 0-1.8.5-2.4 1.2-.5.6-.9 1.5-.8 2.3.9.1 1.8-.4 2.4-1.1zm.9 1.3c-1.3-.1-2.4.7-3 .7s-1.6-.7-2.6-.7c-1.3 0-2.6.8-3.3 2-.1.2-.2.4-.2.6-.4 1.1-.7 3.2.6 5.5.6.9 1.3 2 2.3 2 1 0 1.3-.6 2.5-.6 1.2 0 1.5.6 2.5.6 1 0 1.6-1 2.3-2 .4-.6.7-1.2.9-1.8-1.3-.6-2.2-1.9-2.2-3.4 0-1.3.6-2.4 1.7-3.1-.5-.7-1.4-1.2-2.5-1.2zM22.3 3.8c1.5 0 2.5 1 2.7 2.5h-1.4c-.2-.8-.8-1.3-1.6-1.3-1 0-1.7.8-1.7 2v2c0 1.2.7 2 1.7 2 .8 0 1.4-.5 1.6-1.3H25c-.2 1.5-1.2 2.5-2.7 2.5-1.7 0-2.9-1.2-2.9-3.1v-2c0-1.9 1.2-3.1 2.9-3.1zM27.3 4v1.6h1.3V7h-1.3v3.8c0 .6.2.9.8.9.2 0 .3 0 .5-.1V13c-.2 0-.5.1-.9.1-1.3 0-1.8-.5-1.8-1.7V7h-1v-1.3h1V4h1.4zm1.9 1.6h1.3v1c.3-.7 1-1.2 1.9-1.2h.4v1.4h-.5c-1 0-1.6.6-1.6 1.6V13h-1.4V5.6zm9.8 7.5V4h1.4v9.1h-1.4zm5.4-7.5h1.3v1c.3-.7 1-1.2 1.9-1.2h.4v1.4h-.5c-1 0-1.6.6-1.6 1.6V13h-1.4V5.6zm3.9 3.6c0-1.8 1-2.9 2.6-2.9s2.6 1.1 2.6 2.9c0 1.8-1 2.9-2.6 2.9s-2.6-1.1-2.6-2.9zm3.8 0c0-1.2-.5-1.9-1.2-1.9s-1.2.7-1.2 1.9c0 1.2.5 1.9 1.2 1.9s1.2-.7 1.2-1.9z"/>
-                  </svg>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <span className="text-3xl font-bold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                      <span style={{ color: '#000' }} className="dark:invert"> Pay</span>
+                    </span>
+                  </div>
                 </div>
                 
                 {/* Mastercard */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-colors h-20">
-                  <svg viewBox="0 0 48 32" className="h-10">
-                    <circle cx="16" cy="16" r="12" fill="#EB001B"/>
-                    <circle cx="32" cy="16" r="12" fill="#F79E1B" fillOpacity="0.8"/>
-                    <path d="M24 8c-2.2 1.8-3.6 4.5-3.6 7.5s1.4 5.7 3.6 7.5c2.2-1.8 3.6-4.5 3.6-7.5S26.2 9.8 24 8z" fill="#FF5F00"/>
-                  </svg>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <div className="relative w-16 h-16 flex items-center justify-center">
+                    <div className="absolute right-2 w-10 h-10 rounded-full bg-[#EB001B]"></div>
+                    <div className="absolute left-2 w-10 h-10 rounded-full bg-[#F79E1B] opacity-90"></div>
+                  </div>
                 </div>
                 
                 {/* Visa */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-colors h-20">
-                  <svg viewBox="0 0 48 16" className="h-6" fill="#1434CB">
-                    <path d="M18.5 0l-6.2 16h3.5l1.2-3.2h4.5l.4 3.2h3.1L22.3 0h-3.8zm.2 5.1l1.1 5.1h-2.8l1.7-5.1zm11.9-5.1l-4.3 16h3.3l4.3-16h-3.3zm-8.9 0L17.6 16h3.4l1.5-6.2c.6-2.4 1-4 1-4s.2-.8.2-1.1c0-.2-.1-.4-.2-.5s-.4-.2-.8-.2h-1.4L21 0h-3.3zm18.5 0c-1.5 0-2.8.5-3.7 1.4s-1.4 2.1-1.4 3.6c0 2.4 1.2 4.2 2.9 5.4l.2.1c.9.6 1.4.9 1.4 1.5 0 .8-.6 1.2-1.9 1.2-1.3 0-2.6-.5-3.6-1.2l-.5 2.9c1.2.6 2.6 1 4.1 1 1.6 0 2.9-.5 3.9-1.4 1-.9 1.5-2.2 1.5-3.7 0-1.3-.4-2.3-1.1-3.1-.7-.8-1.6-1.4-2.7-2-.8-.5-1.3-.8-1.5-1.1-.2-.2-.3-.5-.3-.8 0-.7.6-1.1 1.7-1.1 1.1 0 2.1.3 3 .9L44 1.2C43 .5 41.7 0 40.2 0z"/>
-                  </svg>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <span className="text-4xl font-bold tracking-wider" style={{ color: '#1434CB' }}>VISA</span>
                 </div>
                 
                 {/* PayPal */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-colors h-20">
-                  <svg viewBox="0 0 48 32" className="h-8">
-                    <path d="M17.7 8.2c.8-5.1-1.5-8.2-7-8.2H3.4C2.7 0 2 .5 1.9 1.2L0 17.5c-.1.4.2.8.6.8h4.5l1.1-7.2v.2c.1-.7.8-1.2 1.5-1.2h3.1c6.1 0 10.9-2.5 12.3-9.6.1-.2.1-.4.2-.6-.3-.1-.3-.1 0 0z" fill="#003087"/>
-                    <path d="M17.7 8.2c.8-5.1-1.5-8.2-7-8.2H3.4C2.7 0 2 .5 1.9 1.2L0 17.5c-.1.4.2.8.6.8h4.5l1.1-7.2v.2c.1-.7.8-1.2 1.5-1.2h3.1c6.1 0 10.9-2.5 12.3-9.6.1-.2.1-.4.2-.6-.3-.1-.3-.1 0 0z" fill="#0070E0" fillOpacity="0.7"/>
-                  </svg>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <div className="flex items-center gap-1">
+                    <span className="text-2xl font-bold" style={{ color: '#003087' }}>Pay</span>
+                    <span className="text-2xl font-bold" style={{ color: '#009CDE' }}>Pal</span>
+                  </div>
                 </div>
                 
                 {/* Google Pay */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-colors h-20 col-span-2">
-                  <svg viewBox="0 0 73 30" className="h-7">
-                    <path fill="#5F6368" d="M36.7 13.6v5.9h-2.1v-14h5.6c1.4 0 2.6.5 3.5 1.4.9.9 1.4 2.1 1.4 3.4 0 1.4-.5 2.5-1.4 3.4-.9.9-2.1 1.4-3.5 1.4h-3.5zm0-7.4v5.3h3.5c.8 0 1.5-.3 2.1-.9.6-.6.9-1.3.9-2.1 0-.8-.3-1.5-.9-2.1-.6-.6-1.3-.9-2.1-.9h-3.5zM52.1 10.9c1.6 0 2.9.5 3.8 1.4.9.9 1.4 2.2 1.4 3.7v7.5h-2v-1.7h-.1c-.9 1.4-2.1 2.1-3.6 2.1-1.3 0-2.4-.4-3.3-1.2-.9-.8-1.3-1.8-1.3-3 0-1.3.5-2.3 1.4-3.1s2.1-1.2 3.5-1.2c1.2 0 2.2.2 3 .7v-.5c0-.8-.3-1.5-.9-2.1-.6-.6-1.3-.9-2.1-.9-1.2 0-2.2.5-2.9 1.5l-1.8-1.1c1.1-1.5 2.7-2.3 4.9-2.3zm-2.5 8.8c0 .6.3 1.1.8 1.5.5.4 1.1.6 1.7.6 1 0 1.9-.4 2.6-1.1.7-.7 1.1-1.6 1.1-2.6-.7-.6-1.6-.9-2.7-.9-1 0-1.8.3-2.4.8-.6.5-.9 1.1-.9 1.7zM66.1 24c-1.1 0-2.3-.2-3.5-.7l.9-1.9c.9.4 1.8.6 2.6.6 1.6 0 2.4-.7 2.4-2.2v-.7h-.1c-.7.9-1.7 1.4-3 1.4-1.4 0-2.6-.5-3.5-1.5-.9-1-1.4-2.2-1.4-3.7 0-1.5.5-2.7 1.4-3.7.9-1 2.1-1.5 3.5-1.5 1.3 0 2.3.5 3 1.5h.1v-1.2h2v9.2c0 1.6-.5 2.8-1.4 3.7-.9.9-2.1 1.4-3.6 1.4zm.2-6.3c.8 0 1.5-.3 2.1-1 .6-.6.9-1.4.9-2.4s-.3-1.8-.9-2.4c-.6-.6-1.3-1-2.1-1-.8 0-1.5.3-2.1 1-.6.6-.9 1.4-.9 2.4s.3 1.8.9 2.4c.6.6 1.3 1 2.1 1zM73 11.2h-2.1v7.8c0 .8.2 1.4.5 1.8.3.4.8.6 1.4.6.4 0 .8-.1 1.2-.3l.6 1.8c-.6.3-1.3.4-2 .4-1.2 0-2.1-.4-2.8-1.1-.7-.7-1-1.7-1-3v-8h-1.8v-1.9h1.8V7.2h2.1v2.1H73v1.9z"/>
-                    <path fill="#4285F4" d="M25.6 12.2c0-.7-.1-1.4-.2-2h-9.8v3.8h5.6c-.2 1.2-.9 2.2-1.9 2.9v2.5h3.1c1.8-1.7 2.8-4.1 2.8-7z"/>
-                    <path fill="#34A853" d="M15.6 24.6c2.6 0 4.7-.9 6.3-2.3l-3.1-2.4c-.9.6-2 .9-3.2.9-2.5 0-4.6-1.7-5.3-3.9H7.1v2.5c1.6 3.1 4.8 5.2 8.5 5.2z"/>
-                    <path fill="#FBBC04" d="M10.3 16.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V10.6H7.1c-.6 1.2-1 2.6-1 4s.3 2.8 1 4l3.2-2.5z"/>
-                    <path fill="#EA4335" d="M15.6 8.1c1.4 0 2.7.5 3.6 1.4l2.7-2.7C20.3 5.3 18.2 4.4 15.6 4.4c-3.7 0-6.9 2.1-8.5 5.2l3.2 2.5c.7-2.2 2.8-3.9 5.3-3.9z"/>
-                  </svg>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20 col-span-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold" style={{ color: '#5F6368' }}>G</span>
+                    <span className="text-2xl font-bold" style={{ color: '#5F6368' }}>Pay</span>
+                  </div>
                 </div>
               </div>
               
