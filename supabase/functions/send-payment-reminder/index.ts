@@ -89,10 +89,10 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `Seven Green Store <noreply@sevengreenstore.com>`,
+        from: `سفن جرين <noreply@sevengreenstore.com>`,
         reply_to: 'support@sevengreenstore.com',
         to: [order.customer_email],
-        subject: `طلبك ${order.order_number} - إتمام عملية الدفع`,
+        subject: `${order.customer_name}، طلبك ${order.order_number} بحاجة لإتمام الدفع`,
         headers: {
           'List-Unsubscribe': `<mailto:unsubscribe@sevengreenstore.com>`,
           'X-Priority': '3',
