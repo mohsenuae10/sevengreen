@@ -61,9 +61,17 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${storeName} <order@sevengreenstore.com>`,
+        from: `متجر سفن جرين <noreply@sevengreenstore.com>`,
+        reply_to: 'support@sevengreenstore.com',
         to: [order.customer_email],
-        subject: `تأكيد طلبك - ${order.order_number}`,
+        subject: `${order.customer_name}، تم تأكيد طلبك ${order.order_number} بنجاح ✅`,
+        headers: {
+          'List-Unsubscribe': `<mailto:unsubscribe@sevengreenstore.com>`,
+          'X-Priority': '3',
+          'X-Entity-Ref-ID': order.order_number,
+          'Precedence': 'bulk',
+          'X-Auto-Response-Suppress': 'OOF, AutoReply',
+        },
         html: `
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
