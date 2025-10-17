@@ -302,7 +302,6 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
                 </button>
               </div>
             </div>
-            </div>
             
             <div className="bg-muted/30 backdrop-blur-sm rounded-xl p-5 border border-border/50">
               <PaymentElement 
