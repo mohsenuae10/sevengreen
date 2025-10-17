@@ -89,7 +89,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `سفن جرين <noreply@sevengreenstore.com>`,
+        from: `متجر سفن جرين <noreply@sevengreenstore.com>`,
         reply_to: 'support@sevengreenstore.com',
         to: [order.customer_email],
         subject: `${order.customer_name}، طلبك ${order.order_number} بحاجة لإتمام الدفع`,
