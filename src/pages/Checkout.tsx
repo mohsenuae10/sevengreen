@@ -263,7 +263,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
                   { name: 'Visa', file: 'visa.svg' },
                   { name: 'Mastercard', file: 'mastercard.svg' },
                   { name: 'American Express', file: 'american-express.svg' },
-                  { name: 'Mada', file: 'mada.svg' },
+                  { name: 'مدى', file: 'mada.svg' },
                   { name: 'Apple Pay', file: 'apple-pay.svg' },
                   { name: 'Google Pay', file: 'google-pay.svg' },
                 ].map((payment) => (
