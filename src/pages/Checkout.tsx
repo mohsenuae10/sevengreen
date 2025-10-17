@@ -265,27 +265,27 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
               
               <div className="grid grid-cols-5 gap-5 mb-4">
                 {/* Mada */}
-                <div className="bg-white dark:bg-white rounded-xl border-2 border-border p-6 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-28">
+                <div className="bg-white dark:bg-white rounded-xl p-6 flex items-center justify-center hover:shadow-md transition-all h-28">
                   <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-16 w-auto object-contain" />
                 </div>
                 
                 {/* Visa */}
-                <div className="bg-white dark:bg-white rounded-xl border-2 border-border p-6 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-28">
+                <div className="bg-white dark:bg-white rounded-xl p-6 flex items-center justify-center hover:shadow-md transition-all h-28">
                   <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-16 w-auto object-contain" />
                 </div>
                 
                 {/* Mastercard */}
-                <div className="bg-white dark:bg-white rounded-xl border-2 border-border p-6 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-28">
+                <div className="bg-white dark:bg-white rounded-xl p-6 flex items-center justify-center hover:shadow-md transition-all h-28">
                   <img src="/images/payment-icons/mastercard.svg" alt="Mastercard" className="h-16 w-auto object-contain" />
                 </div>
                 
                 {/* Apple Pay */}
-                <div className="bg-white dark:bg-white rounded-xl border-2 border-border p-6 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-28">
+                <div className="bg-white dark:bg-white rounded-xl p-6 flex items-center justify-center hover:shadow-md transition-all h-28">
                   <img src="/images/payment-icons/apple-pay.svg" alt="Apple Pay" className="h-16 w-auto object-contain dark:brightness-0 dark:invert" />
                 </div>
                 
                 {/* Google Pay */}
-                <div className="bg-white dark:bg-white rounded-xl border-2 border-border p-6 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-28">
+                <div className="bg-white dark:bg-white rounded-xl p-6 flex items-center justify-center hover:shadow-md transition-all h-28">
                   <img src="/images/payment-icons/google-pay.svg" alt="Google Pay" className="h-16 w-auto object-contain" />
                 </div>
               </div>
@@ -725,27 +725,27 @@ export default function Checkout() {
                       
                       <div className="grid grid-cols-5 gap-4">
                         {/* Mada */}
-                        <div className="bg-white dark:bg-white rounded-lg border-2 border-border p-4 flex items-center justify-center h-20">
+                        <div className="bg-white dark:bg-white rounded-lg p-4 flex items-center justify-center h-20 hover:shadow-md transition-all">
                           <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-12 w-auto object-contain" />
                         </div>
                         
                         {/* Visa */}
-                        <div className="bg-white dark:bg-white rounded-lg border-2 border-border p-4 flex items-center justify-center h-20">
+                        <div className="bg-white dark:bg-white rounded-lg p-4 flex items-center justify-center h-20 hover:shadow-md transition-all">
                           <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-12 w-auto object-contain" />
                         </div>
                         
                         {/* Mastercard */}
-                        <div className="bg-white dark:bg-white rounded-lg border-2 border-border p-4 flex items-center justify-center h-20">
+                        <div className="bg-white dark:bg-white rounded-lg p-4 flex items-center justify-center h-20 hover:shadow-md transition-all">
                           <img src="/images/payment-icons/mastercard.svg" alt="Mastercard" className="h-12 w-auto object-contain" />
                         </div>
                         
                         {/* Apple Pay */}
-                        <div className="bg-white dark:bg-white rounded-lg border-2 border-border p-4 flex items-center justify-center h-20">
+                        <div className="bg-white dark:bg-white rounded-lg p-4 flex items-center justify-center h-20 hover:shadow-md transition-all">
                           <img src="/images/payment-icons/apple-pay.svg" alt="Apple Pay" className="h-12 w-auto object-contain dark:brightness-0 dark:invert" />
                         </div>
                         
                         {/* Google Pay */}
-                        <div className="bg-white dark:bg-white rounded-lg border-2 border-border p-4 flex items-center justify-center h-20">
+                        <div className="bg-white dark:bg-white rounded-lg p-4 flex items-center justify-center h-20 hover:shadow-md transition-all">
                           <img src="/images/payment-icons/google-pay.svg" alt="Google Pay" className="h-12 w-auto object-contain" />
                         </div>
                       </div>
