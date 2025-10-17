@@ -588,9 +588,9 @@ export default function Checkout() {
                         رقم الهاتف *
                       </Label>
                       <div className="relative">
-                        <div className="absolute right-0 top-0 h-12 px-4 bg-muted/50 rounded-r-xl border-2 border-l-0 border-border flex items-center gap-2">
-                          <span className="text-xl">{selectedCountry.flag}</span>
+                        <div className="absolute left-0 top-0 h-12 px-4 bg-muted/50 rounded-l-xl border-2 border-r-0 border-border flex items-center gap-2">
                           <span className="text-sm font-medium text-muted-foreground">{selectedCountry.dialCode}</span>
+                          <span className="text-xl">{selectedCountry.flag}</span>
                         </div>
                         <Input
                           id="customer_phone"
@@ -599,7 +599,7 @@ export default function Checkout() {
                           value={formData.customer_phone}
                           onChange={handleInputChange}
                           required
-                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors pr-32"
+                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors pl-32"
                           placeholder="5xxxxxxxx"
                           dir="ltr"
                         />
@@ -636,7 +636,7 @@ export default function Checkout() {
                           onChange={handleInputChange}
                           required
                           className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
-                          placeholder="الرياض، جدة، الدمام..."
+                          placeholder="المدينة"
                         />
                       </div>
 
