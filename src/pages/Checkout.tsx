@@ -259,47 +259,55 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
             {/* شعارات طرق الدفع */}
             <div className="mb-6">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <CreditCard className="h-5 w-5 text-primary" />
-                <h4 className="text-base font-bold text-foreground">ربط الدفع الإلكتروني</h4>
+                <ShieldCheck className="h-5 w-5 text-primary" />
+                <h4 className="text-sm font-bold text-foreground">طرق الدفع الآمنة</h4>
               </div>
               
-              <div className="flex items-center justify-center gap-6 mb-4 px-4">
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {/* Apple Pay */}
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <span className="text-3xl font-bold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                      <span style={{ color: '#000' }} className="dark:invert"> Pay</span>
+                    </span>
+                  </div>
+                </div>
+                
                 {/* Mastercard */}
-                <div className="flex items-center justify-center">
-                  <div className="relative w-14 h-14 flex items-center justify-center">
-                    <div className="absolute right-1 w-9 h-9 rounded-full bg-[#EB001B]"></div>
-                    <div className="absolute left-1 w-9 h-9 rounded-full bg-[#F79E1B] opacity-90"></div>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <div className="relative w-16 h-16 flex items-center justify-center">
+                    <div className="absolute right-2 w-10 h-10 rounded-full bg-[#EB001B]"></div>
+                    <div className="absolute left-2 w-10 h-10 rounded-full bg-[#F79E1B] opacity-90"></div>
                   </div>
                 </div>
                 
                 {/* Visa */}
-                <div className="flex items-center justify-center">
-                  <span className="text-3xl font-bold tracking-wider" style={{ color: '#1434CB', fontFamily: 'sans-serif' }}>VISA</span>
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <span className="text-4xl font-bold tracking-wider" style={{ color: '#1434CB' }}>VISA</span>
                 </div>
                 
-                {/* Mada */}
-                <div className="flex items-center justify-center">
-                  <svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="60" height="40" rx="4" fill="white"/>
-                    <rect x="0" y="0" width="60" height="8" fill="#00A9E0"/>
-                    <rect x="0" y="32" width="60" height="8" fill="#8CC63F"/>
-                    <text x="30" y="20" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#00A9E0" textAnchor="middle" dominantBaseline="middle">مدى</text>
-                    <text x="30" y="28" fontFamily="Arial, sans-serif" fontSize="7" fill="#8CC63F" textAnchor="middle" dominantBaseline="middle">mada</text>
-                  </svg>
+                {/* PayPal */}
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
+                  <div className="flex items-center gap-1">
+                    <span className="text-2xl font-bold" style={{ color: '#003087' }}>Pay</span>
+                    <span className="text-2xl font-bold" style={{ color: '#009CDE' }}>Pal</span>
+                  </div>
                 </div>
                 
-                {/* Apple Pay */}
-                <div className="flex items-center justify-center px-3 py-2 bg-black rounded-lg">
-                  <span className="text-2xl font-semibold text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-                     Pay
-                  </span>
+                {/* Google Pay */}
+                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20 col-span-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold" style={{ color: '#5F6368' }}>G</span>
+                    <span className="text-2xl font-bold" style={{ color: '#5F6368' }}>Pay</span>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex justify-center">
-                <button type="button" className="px-8 py-2 border-2 border-red-500 rounded-lg text-foreground font-semibold hover:bg-red-50 dark:hover:bg-red-950/20 transition-all">
-                  تفعيل
-                </button>
+              <div className="flex items-center justify-center gap-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/50 rounded-xl">
+                <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <span className="text-xs font-medium text-green-800 dark:text-green-200">
+                  SSL مشفر • حماية كاملة للبيانات
+                </span>
               </div>
             </div>
             
