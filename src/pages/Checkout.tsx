@@ -256,28 +256,6 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
             </div>
           </div>
             
-            {/* شعارات طرق الدفع المقبولة */}
-            <div className="mb-4">
-              <p className="text-xs text-muted-foreground mb-3 text-center">طرق الدفع المقبولة</p>
-              <div className="flex gap-2 justify-center flex-wrap">
-                {[
-                  { name: 'مدى', file: 'mada.svg' },
-                  { name: 'Visa', file: 'visa.svg' },
-                  { name: 'Mastercard', file: 'mastercard.svg' },
-                  { name: 'Apple Pay', file: 'apple-pay.svg' },
-                  { name: 'Google Pay', file: 'google-pay.svg' },
-                  { name: 'American Express', file: 'american-express.svg' },
-                ].map((payment) => (
-                  <div key={payment.name} className="bg-background dark:bg-muted/30 p-2 rounded-lg border border-border/50 h-10 flex items-center justify-center min-w-[60px]">
-                    <img
-                      src={`/images/payment-icons/${payment.file}`}
-                      alt={payment.name}
-                      className="h-6 w-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
             
             <div className="bg-muted/30 backdrop-blur-sm rounded-xl p-5 border border-border/50">
               <PaymentElement
