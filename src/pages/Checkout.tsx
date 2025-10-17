@@ -263,43 +263,51 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
                 <h4 className="text-sm font-bold text-foreground">طرق الدفع الآمنة</h4>
               </div>
               
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                {/* Apple Pay */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <span className="text-3xl font-bold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-                      <span style={{ color: '#000' }} className="dark:invert"> Pay</span>
-                    </span>
-                  </div>
+              <div className="grid grid-cols-5 gap-3 mb-4">
+                {/* Visa */}
+                <div className="bg-background rounded-xl border-2 border-border p-3 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-16">
+                  <svg viewBox="0 0 48 16" className="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.756 1.394l-5.906 13.211h-3.82L8.15 4.22c-.167-.647-.312-.885-.82-1.159C6.645 2.687 5.447 2.341 4.4 2.09l.073-.333h6.276c.8 0 1.52.533 1.702 1.454l1.555 8.26 3.84-9.714h3.91l.01-.363zM36.01 10.552c.015-3.494-4.833-3.688-4.8-5.248.01-.474.463-0.98 1.453-1.108.49-.064 1.843-.113 3.378.593l.601-2.807c-.825-.3-1.887-.588-3.208-.588-3.384 0-5.763 1.8-5.785 4.377-.022 1.905 1.7 2.968 2.997 3.602 1.332.65 1.78 1.066 1.774 1.647-.009.89-1.066 1.283-2.053 1.298-1.724.028-2.726-.465-3.524-.838l-.622 2.903c.801.368 2.282.688 3.817.705 3.599 0 5.954-1.778 5.972-4.536zM45.804 14.605h3.376L46.598 1.394h-3.116c-.7 0-1.291.406-1.552 1.031l-5.473 12.18h3.597l.715-1.977h4.392l.414 1.977h.23zm-3.827-4.689l1.8-4.96 1.036 4.96h-2.836zm-9.394-8.522l-2.83 13.211h-3.422l2.829-13.211h3.423z" fill="#1434CB"/>
+                  </svg>
                 </div>
                 
                 {/* Mastercard */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
-                  <div className="relative w-16 h-16 flex items-center justify-center">
-                    <div className="absolute right-2 w-10 h-10 rounded-full bg-[#EB001B]"></div>
-                    <div className="absolute left-2 w-10 h-10 rounded-full bg-[#F79E1B] opacity-90"></div>
-                  </div>
+                <div className="bg-background rounded-xl border-2 border-border p-3 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-16">
+                  <svg viewBox="0 0 48 32" className="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="18" cy="16" r="12" fill="#EB001B"/>
+                    <circle cx="30" cy="16" r="12" fill="#F79E1B"/>
+                    <path d="M24 6.545c2.133 1.746 3.5 4.425 3.5 7.455s-1.367 5.709-3.5 7.455c-2.133-1.746-3.5-4.425-3.5-7.455s1.367-5.709 3.5-7.455z" fill="#FF5F00"/>
+                  </svg>
                 </div>
                 
-                {/* Visa */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
-                  <span className="text-4xl font-bold tracking-wider" style={{ color: '#1434CB' }}>VISA</span>
+                {/* Apple Pay */}
+                <div className="bg-background rounded-xl border-2 border-border p-3 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-16">
+                  <svg viewBox="0 0 48 20" className="w-full h-auto dark:invert" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.977 3.819c.562-.692 1.003-1.658.89-2.619-.862.035-1.914.574-2.534 1.297-.532.622-1.002 1.626-.875 2.584.925.072 1.866-.471 2.519-1.262z" fill="#000"/>
+                    <path d="M11.46 7.063c-1.405 0-2.006.671-2.987.671-.999 0-1.755-.665-2.967-.665-1.565 0-3.192 1.277-3.192 3.686 0 2.371 1.86 5.032 3.381 5.032 1.062 0 1.461-.696 2.756-.696 1.278 0 1.541.69 2.95.69 1.216 0 2.121-1.412 2.916-2.804.895-1.583 1.192-3.129 1.207-3.204-.08-.023-2.332-.923-2.332-3.453 0-2.112 1.694-3.032 1.774-3.083-.965-1.431-2.469-1.585-3.006-1.606-.001.001-1.095-.107-2.5.432z" fill="#000"/>
+                    <path d="M19.548 4.068h2.527c1.3 0 2.204.705 2.204 1.733 0 1.027-.904 1.733-2.204 1.733h-1.41v2.187h-1.117V4.068zm1.117 2.755h1.185c.84 0 1.314-.437 1.314-1.022 0-.586-.474-1.022-1.314-1.022h-1.185v2.044zm6.527.866c0 1.02-.772 1.671-1.95 1.671-.745 0-1.35-.316-1.65-.847l.923-.532c.172.294.496.493.788.493.511 0 .826-.257.826-.71v-.383c-.248.232-.623.383-1.092.383-.904 0-1.643-.678-1.643-1.529 0-.852.739-1.53 1.643-1.53.469 0 .844.152 1.092.384v-.316h1.063v2.916zm-1.063-1.155c0-.453-.373-.786-.88-.786s-.88.333-.88.786c0 .452.373.786.88.786s.88-.334.88-.786zm2.01 2.186l1.555-3.98h1.1l-2.076 5.062c-.382.93-.964 1.266-1.828 1.266-.172 0-.447-.024-.61-.064v-.898c.158.04.344.056.474.056.344 0 .548-.128.683-.472l.084-.208-1.966-4.742h1.125l1.459 3.98z" fill="#000"/>
+                  </svg>
+                </div>
+                
+                {/* Mada */}
+                <div className="bg-background rounded-xl border-2 border-border p-3 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-16">
+                  <svg viewBox="0 0 48 24" className="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="8" fill="#0066B2"/>
+                    <rect y="16" width="48" height="8" fill="#00A651"/>
+                    <text x="24" y="14" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#000">مدى</text>
+                  </svg>
                 </div>
                 
                 {/* PayPal */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20">
-                  <div className="flex items-center gap-1">
-                    <span className="text-2xl font-bold" style={{ color: '#003087' }}>Pay</span>
-                    <span className="text-2xl font-bold" style={{ color: '#009CDE' }}>Pal</span>
-                  </div>
-                </div>
-                
-                {/* Google Pay */}
-                <div className="bg-background rounded-xl border-2 border-border p-4 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-20 col-span-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold" style={{ color: '#5F6368' }}>G</span>
-                    <span className="text-2xl font-bold" style={{ color: '#5F6368' }}>Pay</span>
-                  </div>
+                <div className="bg-background rounded-xl border-2 border-border p-3 flex items-center justify-center hover:border-primary/50 transition-all hover:shadow-md h-16">
+                  <svg viewBox="0 0 48 13" className="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.102 1.5H3.278c-.197 0-.365.143-.396.337L1.502 10.96c-.023.147.09.28.238.28h1.381c.197 0 .365-.144.396-.338l.359-2.278c.031-.194.199-.337.396-.337h.914c1.902 0 3-.92 3.287-2.744.13-.796.005-1.422-.37-1.861-.412-.482-1.142-.731-2.11-.731l.009-.001zm.335 2.709c-.158.983-.738 1.043-1.333 1.043h-.339l.238-1.507c.014-.09.091-.156.183-.156h.154c.402 0 .782 0 .978.229.118.137.153.34.119.591z" fill="#003087"/>
+                    <path d="M14.848 4.176h-1.385c-.092 0-.169.067-.183.157l-.047.298-.074-.107c-.23-.334-.743-.446-1.255-.446-1.174 0-2.177.889-2.371 2.135-.101.622.043 1.217.394 1.632.323.382.784.541 1.333.541.943 0 1.466-.606 1.466-.606l-.048.296c-.023.148.09.281.238.281h1.248c.197 0 .365-.143.396-.337l.747-4.729c-.023-.147-.09-.28-.238-.28l-.221-.035zm-1.923 2.698c-.102.604-.589 1.01-1.211 1.01-.311 0-.56-.1-.72-.29-.158-.188-.218-.456-.167-.755.095-.598.59-.997 1.201-.997.305 0 .553.101.716.293.165.194.23.465.181.739z" fill="#003087"/>
+                    <path d="M21.402 4.176h-1.393c-.104 0-.201.051-.26.137l-1.502 2.212-.637-2.126c-.04-.132-.16-.223-.3-.223h-1.368c-.166 0-.284.164-.229.318l1.202 3.529-1.13 1.595c-.114.16.002.381.199.381h1.392c.103 0 .2-.05.259-.135l3.62-5.226c.112-.162-.003-.384-.2-.384l.347-.078z" fill="#003087"/>
+                    <path d="M28.102 1.5h-2.824c-.197 0-.365.143-.396.337l-1.38 8.123c-.023.147.09.28.238.28h1.448c.138 0 .255-.1.276-.236l.378-2.379c.031-.194.199-.337.396-.337h.914c1.902 0 3-.92 3.287-2.744.13-.796.005-1.422-.37-1.861-.412-.482-1.142-.731-2.11-.731l.143-.452zm.335 2.709c-.158.983-.738 1.043-1.333 1.043h-.339l.238-1.507c.014-.09.091-.156.183-.156h.154c.402 0 .782 0 .978.229.118.137.153.34.119.591z" fill="#009CDE"/>
+                    <path d="M36.848 4.176h-1.385c-.092 0-.169.067-.183.157l-.047.298-.074-.107c-.23-.334-.743-.446-1.255-.446-1.174 0-2.177.889-2.371 2.135-.101.622.043 1.217.394 1.632.323.382.784.541 1.333.541.943 0 1.466-.606 1.466-.606l-.048.296c-.023.148.09.281.238.281h1.248c.197 0 .365-.143.396-.337l.747-4.729c-.023-.147-.09-.28-.238-.28l-.221-.035zm-1.923 2.698c-.102.604-.589 1.01-1.211 1.01-.311 0-.56-.1-.72-.29-.158-.188-.218-.456-.167-.755.095-.598.59-.997 1.201-.997.305 0 .553.101.716.293.165.194.23.465.181.739z" fill="#009CDE"/>
+                    <path d="M39.93 1.698l-1.401 8.522c-.023.148.09.281.238.281h1.191c.197 0 .365-.143.396-.337l1.38-8.124c.023-.147-.09-.28-.238-.28h-1.328c-.092 0-.169.067-.183.157l-.055.781z" fill="#009CDE"/>
+                  </svg>
                 </div>
               </div>
               
