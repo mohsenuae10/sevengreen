@@ -183,18 +183,24 @@ export const Footer = () => {
 
             <div>
               <h4 className="text-sm font-semibold mb-3 text-primary">طرق الدفع</h4>
-              <div className="flex gap-2 flex-wrap">
-                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
-                  mada
+              <div className="flex gap-2 flex-wrap items-center">
+                <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
+                  <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-8 w-auto object-contain" />
                 </div>
-                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
-                  VISA
+                <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
+                  <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-8 w-auto object-contain" />
                 </div>
-                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
-                  Mastercard
+                <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
+                  <img src="/images/payment-icons/mastercard.svg" alt="Mastercard" className="h-8 w-auto object-contain" />
                 </div>
-                <div className="px-3 py-2 bg-background border rounded-md text-xs font-medium">
-                   Pay
+                <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
+                  <img src="/images/payment-icons/apple-pay.svg" alt="Apple Pay" className="h-8 w-auto object-contain" />
+                </div>
+                <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
+                  <img src="/images/payment-icons/google-pay.svg" alt="Google Pay" className="h-8 w-auto object-contain" />
+                </div>
+                <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
+                  <img src="/images/payment-icons/american-express.svg" alt="American Express" className="h-8 w-auto object-contain" />
                 </div>
               </div>
             </div>
