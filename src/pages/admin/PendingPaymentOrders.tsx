@@ -5,8 +5,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, Clock } from 'lucide-react';
+import { Eye, Clock, MapPin, Phone, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const COUNTRIES: Record<string, string> = {
+  'SA': 'السعودية 🇸🇦',
+  'AE': 'الإمارات 🇦🇪',
+  'KW': 'الكويت 🇰🇼',
+  'QA': 'قطر 🇶🇦',
+  'BH': 'البحرين 🇧🇭',
+  'OM': 'عمان 🇴🇲',
+  'JO': 'الأردن 🇯🇴',
+  'LB': 'لبنان 🇱🇧',
+  'EG': 'مصر 🇪🇬',
+  'IQ': 'العراق 🇮🇶',
+  'SY': 'سوريا 🇸🇾',
+  'YE': 'اليمن 🇾🇪',
+  'MA': 'المغرب 🇲🇦',
+  'DZ': 'الجزائر 🇩🇿',
+  'TN': 'تونس 🇹🇳',
+  'LY': 'ليبيا 🇱🇾',
+  'SD': 'السودان 🇸🇩',
+  'PS': 'فلسطين 🇵🇸',
+};
 
 export default function PendingPaymentOrders() {
   const navigate = useNavigate();
@@ -50,47 +71,104 @@ export default function PendingPaymentOrders() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : orders && orders.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>رقم الطلب</TableHead>
-                    <TableHead>اسم العميل</TableHead>
-                    <TableHead>البريد الإلكتروني</TableHead>
-                    <TableHead>المبلغ</TableHead>
-                    <TableHead>حالة الطلب</TableHead>
-                    <TableHead>التاريخ</TableHead>
-                    <TableHead>الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">{order.order_number}</TableCell>
-                      <TableCell>{order.customer_name}</TableCell>
-                      <TableCell>{order.customer_email}</TableCell>
-                      <TableCell>{order.total_amount} ريال</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-                          {order.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(order.created_at).toLocaleDateString('ar-SA')}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/admin/orders/${order.id}`)}
-                        >
-                          <Eye className="h-4 w-4 ml-2" />
-                          عرض
-                        </Button>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[120px]">رقم الطلب</TableHead>
+                      <TableHead className="min-w-[150px]">معلومات العميل</TableHead>
+                      <TableHead className="min-w-[200px]">معلومات الشحن</TableHead>
+                      <TableHead className="min-w-[100px]">المبلغ</TableHead>
+                      <TableHead className="min-w-[120px]">حالة الطلب</TableHead>
+                      <TableHead className="min-w-[100px]">التاريخ</TableHead>
+                      <TableHead className="min-w-[100px]">الإجراءات</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {orders.map((order) => (
+                      <TableRow key={order.id} className="hover:bg-muted/50">
+                        <TableCell className="font-mono text-sm font-medium">
+                          {order.order_number}
+                        </TableCell>
+                        
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="font-medium">{order.customer_name}</div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Mail className="h-3 w-3" />
+                              <span className="truncate max-w-[150px]">{order.customer_email}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Phone className="h-3 w-3" />
+                              <span>{order.customer_phone}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-sm">
+                              <MapPin className="h-3 w-3 text-primary" />
+                              <span className="font-medium">
+                                {COUNTRIES[order.country_code] || order.country_code}
+                              </span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              <div>{order.city}</div>
+                              <div className="truncate max-w-[180px]">{order.shipping_address}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <div className="font-bold text-primary">
+                            {order.total_amount.toFixed(2)} ریال
+                          </div>
+                          {order.shipping_fee > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                              شحن: {order.shipping_fee.toFixed(2)} ريال
+                            </div>
+                          )}
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                            {order.status === 'pending' ? 'قيد الانتظار' :
+                             order.status === 'processing' ? 'قيد المعالجة' :
+                             order.status === 'shipped' ? 'تم الشحن' :
+                             order.status === 'delivered' ? 'تم التوصيل' :
+                             order.status === 'cancelled' ? 'ملغي' : order.status}
+                          </Badge>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <div className="text-sm">
+                            {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(order.created_at).toLocaleTimeString('ar-SA', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </div>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/admin/orders/${order.id}`)}
+                            className="w-full"
+                          >
+                            <Eye className="h-4 w-4 ml-2" />
+                            عرض
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="text-center p-8 text-muted-foreground">
                 لا توجد طلبات قيد انتظار الدفع

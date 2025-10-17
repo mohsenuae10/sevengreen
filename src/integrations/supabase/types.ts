@@ -62,6 +62,7 @@ export type Database = {
       orders: {
         Row: {
           city: string
+          country_code: string
           created_at: string | null
           customer_email: string
           customer_name: string
@@ -80,6 +81,7 @@ export type Database = {
         }
         Insert: {
           city: string
+          country_code?: string
           created_at?: string | null
           customer_email: string
           customer_name: string
@@ -98,6 +100,7 @@ export type Database = {
         }
         Update: {
           city?: string
+          country_code?: string
           created_at?: string | null
           customer_email?: string
           customer_name?: string

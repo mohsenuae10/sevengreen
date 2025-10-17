@@ -454,6 +454,7 @@ export default function Checkout() {
           customer_name: formData.customer_name,
           customer_email: formData.customer_email,
           customer_phone: `${selectedCountry.dialCode}${formData.customer_phone}`,
+          country_code: formData.country_code,
           city: formData.city,
           shipping_address: formData.shipping_address,
           notes: formData.notes,
