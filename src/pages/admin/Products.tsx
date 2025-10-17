@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Sparkles, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from '@/components/product/ImageUploader';
@@ -199,6 +199,8 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -272,6 +274,86 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     } catch (error: any) {
       console.error('Image upload exception:', error);
       return null;
+    }
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: 'description',
+          productName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ ...formData, description_ar: data.description });
+      toast({ title: '✨ تم توليد الوصف بنجاح' });
+    } catch (error: any) {
+      console.error('Generate description error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل توليد الوصف',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateSEO = async () => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGeneratingSEO(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: 'seo',
+          productName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+          existingDescription: formData.description_ar,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ 
+        ...formData, 
+        seo_title: data.seoTitle,
+        seo_description: data.seoDescription,
+        seo_keywords: data.seoKeywords
+      });
+      toast({ title: '🎯 تم توليد بيانات SEO بنجاح' });
+    } catch (error: any) {
+      console.error('Generate SEO error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل توليد SEO',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGeneratingSEO(false);
     }
   };
 
@@ -467,7 +549,28 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="space-y-2">
-        <Label>الوصف</Label>
+        <div className="flex items-center justify-between mb-2">
+          <Label>الوصف</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateDescription}
+            disabled={!formData.name_ar || isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                جاري التوليد...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 ml-2" />
+                توليد بالذكاء الاصطناعي
+              </>
+            )}
+          </Button>
+        </div>
         <Textarea
           value={formData.description_ar}
           onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
@@ -596,27 +699,59 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       </div>
 
       <div className="border-t pt-4 space-y-4">
-        <h3 className="font-semibold">إعدادات SEO</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold">إعدادات SEO</h3>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateSEO}
+            disabled={!formData.name_ar || isGeneratingSEO}
+          >
+            {isGeneratingSEO ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                جاري التوليد...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 ml-2" />
+                توليد SEO تلقائياً
+              </>
+            )}
+          </Button>
+        </div>
         <div className="space-y-2">
           <Label>عنوان SEO</Label>
           <Input
             value={formData.seo_title}
             onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+            placeholder="عنوان محسّن لمحركات البحث (50-60 حرف)"
+            maxLength={60}
           />
+          <p className="text-xs text-muted-foreground">
+            {formData.seo_title.length}/60 حرف
+          </p>
         </div>
         <div className="space-y-2">
           <Label>وصف SEO</Label>
           <Textarea
             value={formData.seo_description}
             onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+            placeholder="وصف محسّن لمحركات البحث (150-160 حرف)"
             rows={2}
+            maxLength={160}
           />
+          <p className="text-xs text-muted-foreground">
+            {formData.seo_description.length}/160 حرف
+          </p>
         </div>
         <div className="space-y-2">
           <Label>كلمات مفتاحية</Label>
           <Input
             value={formData.seo_keywords}
             onChange={(e) => setFormData({ ...formData, seo_keywords: e.target.value })}
+            placeholder="كلمة1, كلمة2, كلمة3"
           />
         </div>
       </div>

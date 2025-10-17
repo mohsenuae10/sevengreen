@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Link as LinkIcon, Download, Check } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Download, Check, Sparkles } from 'lucide-react';
 
 interface ScrapedProduct {
   name: string;
@@ -35,6 +35,8 @@ export default function ImportProduct() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [scrapedData, setScrapedData] = useState<ScrapedProduct | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -44,6 +46,9 @@ export default function ImportProduct() {
     category: '',
     stock_quantity: 0,
     made_in: '',
+    seo_title: '',
+    seo_description: '',
+    seo_keywords: '',
   });
 
   const { toast } = useToast();
@@ -108,6 +113,9 @@ export default function ImportProduct() {
         category: product.category || '',
         stock_quantity: 10,
         made_in: product.brand || '',
+        seo_title: '',
+        seo_description: '',
+        seo_keywords: '',
       });
 
       // عرض رسالة نجاح مع تحذيرات إن وجدت
@@ -142,6 +150,86 @@ export default function ImportProduct() {
     }
   };
 
+  const handleGenerateDescription = async () => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: 'description',
+          productName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ ...formData, description_ar: data.description });
+      toast({ title: '✨ تم توليد الوصف بنجاح' });
+    } catch (error: any) {
+      console.error('Generate description error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل توليد الوصف',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateSEO = async () => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGeneratingSEO(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: 'seo',
+          productName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+          existingDescription: formData.description_ar,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ 
+        ...formData, 
+        seo_title: data.seoTitle,
+        seo_description: data.seoDescription,
+        seo_keywords: data.seoKeywords
+      });
+      toast({ title: '🎯 تم توليد بيانات SEO بنجاح' });
+    } catch (error: any) {
+      console.error('Generate SEO error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل توليد SEO',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGeneratingSEO(false);
+    }
+  };
+
   const handleSaveProduct = async () => {
     if (!formData.name_ar || !formData.category) {
       toast({
@@ -164,6 +252,9 @@ export default function ImportProduct() {
           category: formData.category,
           stock_quantity: formData.stock_quantity,
           made_in: formData.made_in,
+          seo_title: formData.seo_title,
+          seo_description: formData.seo_description,
+          seo_keywords: formData.seo_keywords,
           is_active: true,
         })
         .select()
@@ -231,6 +322,9 @@ export default function ImportProduct() {
         category: '',
         stock_quantity: 0,
         made_in: '',
+        seo_title: '',
+        seo_description: '',
+        seo_keywords: '',
       });
     } catch (error: any) {
       console.error('Error saving product:', error);
@@ -368,7 +462,28 @@ export default function ImportProduct() {
                 </div>
 
                 <div>
-                  <Label htmlFor="description">الوصف</Label>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="description">الوصف</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateDescription}
+                      disabled={!formData.name_ar || isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                          جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 ml-2" />
+                          توليد بالذكاء الاصطناعي
+                        </>
+                      )}
+                    </Button>
+                  </div>
                   <Textarea
                     id="description"
                     value={formData.description_ar}
@@ -440,6 +555,71 @@ export default function ImportProduct() {
                 </div>
               </div>
 
+              {/* قسم SEO */}
+              <div className="border-t pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">تحسين محركات البحث (SEO)</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateSEO}
+                    disabled={!formData.name_ar || isGeneratingSEO}
+                  >
+                    {isGeneratingSEO ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                        جاري التوليد...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 ml-2" />
+                        توليد SEO تلقائياً
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div>
+                  <Label htmlFor="seo_title">عنوان SEO</Label>
+                  <Input
+                    id="seo_title"
+                    value={formData.seo_title}
+                    onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+                    placeholder="عنوان محسّن لمحركات البحث (50-60 حرف)"
+                    maxLength={60}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formData.seo_title.length}/60 حرف
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="seo_description">وصف SEO</Label>
+                  <Textarea
+                    id="seo_description"
+                    value={formData.seo_description}
+                    onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+                    placeholder="وصف محسّن لمحركات البحث (150-160 حرف)"
+                    rows={3}
+                    maxLength={160}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formData.seo_description.length}/160 حرف
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="seo_keywords">الكلمات المفتاحية</Label>
+                  <Input
+                    id="seo_keywords"
+                    value={formData.seo_keywords}
+                    onChange={(e) => setFormData({ ...formData, seo_keywords: e.target.value })}
+                    placeholder="كلمة1, كلمة2, كلمة3"
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-3">
                 <Button
                   onClick={handleSaveProduct}
@@ -467,6 +647,9 @@ export default function ImportProduct() {
                       category: '',
                       stock_quantity: 0,
                       made_in: '',
+                      seo_title: '',
+                      seo_description: '',
+                      seo_keywords: '',
                     });
                   }}
                   disabled={isSaving}
