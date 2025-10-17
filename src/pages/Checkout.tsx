@@ -715,6 +715,41 @@ export default function Checkout() {
                         </>
                       )}
                     </Button>
+
+                    {/* أيقونات طرق الدفع */}
+                    <div className="mt-6">
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        <p className="text-xs font-medium text-muted-foreground">طرق الدفع المتاحة</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-5 gap-2">
+                        {/* Visa */}
+                        <div className="bg-white dark:bg-white rounded-lg border border-border p-2 flex items-center justify-center h-14">
+                          <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-7 w-auto object-contain" />
+                        </div>
+                        
+                        {/* Mastercard */}
+                        <div className="bg-white dark:bg-white rounded-lg border border-border p-2 flex items-center justify-center h-14">
+                          <img src="/images/payment-icons/mastercard.svg" alt="Mastercard" className="h-7 w-auto object-contain" />
+                        </div>
+                        
+                        {/* Apple Pay */}
+                        <div className="bg-white dark:bg-white rounded-lg border border-border p-2 flex items-center justify-center h-14">
+                          <img src="/images/payment-icons/apple-pay.svg" alt="Apple Pay" className="h-7 w-auto object-contain dark:brightness-0 dark:invert" />
+                        </div>
+                        
+                        {/* Google Pay */}
+                        <div className="bg-white dark:bg-white rounded-lg border border-border p-2 flex items-center justify-center h-14">
+                          <img src="/images/payment-icons/google-pay.svg" alt="Google Pay" className="h-7 w-auto object-contain" />
+                        </div>
+                        
+                        {/* Mada */}
+                        <div className="bg-white dark:bg-white rounded-lg border border-border p-2 flex items-center justify-center h-14">
+                          <img src="/images/payment-icons/mada.svg" alt="مدى" className="h-7 w-auto object-contain" />
+                        </div>
+                      </div>
+                    </div>
                   </form>
                 </div>
               </div>
