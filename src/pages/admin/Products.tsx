@@ -747,16 +747,6 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       <div className="space-y-2">
         <Label>التحذيرات (اختياري)</Label>
         <Textarea
-          value={formData.benefits_ar}
-          onChange={(e) => setFormData({ ...formData, benefits_ar: e.target.value })}
-          placeholder="فوائد المنتج..."
-          rows={2}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>التحذيرات (اختياري)</Label>
-        <Textarea
           value={formData.warnings_ar}
           onChange={(e) => setFormData({ ...formData, warnings_ar: e.target.value })}
           placeholder="تحذيرات الاستخدام..."
