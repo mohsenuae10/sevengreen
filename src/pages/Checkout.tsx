@@ -257,7 +257,25 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
             </div>
             
             {/* شعارات طرق الدفع */}
-            <div className="mb-6">
+            <div className="mb-6 space-y-4">
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {[
+                  { name: 'Visa', file: 'visa.svg' },
+                  { name: 'Mastercard', file: 'mastercard.svg' },
+                  { name: 'American Express', file: 'american-express.svg' },
+                  { name: 'Mada', file: 'mada.svg' },
+                  { name: 'Apple Pay', file: 'apple-pay.svg' },
+                  { name: 'Google Pay', file: 'google-pay.svg' },
+                ].map((payment) => (
+                  <div key={payment.name} className="bg-background dark:bg-muted/30 p-3 rounded-lg border border-border hover:border-primary dark:hover:border-primary transition-all duration-200 hover:shadow-md">
+                    <img
+                      src={`/images/payment-icons/${payment.file}`}
+                      alt={payment.name}
+                      className="w-full h-8 object-contain"
+                    />
+                  </div>
+                ))}
+              </div>
               
               <div className="flex items-center justify-center gap-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/50 rounded-xl">
                 <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
