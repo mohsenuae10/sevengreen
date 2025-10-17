@@ -6,13 +6,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, Mail, Phone, User, FileText } from 'lucide-react';
+import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, Mail, Phone, User, FileText, Globe } from 'lucide-react';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+
+// قائمة الدول العربية ودول الخليج
+const ARAB_COUNTRIES = [
+  { code: 'SA', name: 'السعودية', dialCode: '+966', flag: '🇸🇦' },
+  { code: 'AE', name: 'الإمارات', dialCode: '+971', flag: '🇦🇪' },
+  { code: 'KW', name: 'الكويت', dialCode: '+965', flag: '🇰🇼' },
+  { code: 'QA', name: 'قطر', dialCode: '+974', flag: '🇶🇦' },
+  { code: 'BH', name: 'البحرين', dialCode: '+973', flag: '🇧🇭' },
+  { code: 'OM', name: 'عمان', dialCode: '+968', flag: '🇴🇲' },
+  { code: 'JO', name: 'الأردن', dialCode: '+962', flag: '🇯🇴' },
+  { code: 'LB', name: 'لبنان', dialCode: '+961', flag: '🇱🇧' },
+  { code: 'EG', name: 'مصر', dialCode: '+20', flag: '🇪🇬' },
+  { code: 'IQ', name: 'العراق', dialCode: '+964', flag: '🇮🇶' },
+  { code: 'SY', name: 'سوريا', dialCode: '+963', flag: '🇸🇾' },
+  { code: 'YE', name: 'اليمن', dialCode: '+967', flag: '🇾🇪' },
+  { code: 'MA', name: 'المغرب', dialCode: '+212', flag: '🇲🇦' },
+  { code: 'DZ', name: 'الجزائر', dialCode: '+213', flag: '🇩🇿' },
+  { code: 'TN', name: 'تونس', dialCode: '+216', flag: '🇹🇳' },
+  { code: 'LY', name: 'ليبيا', dialCode: '+218', flag: '🇱🇾' },
+  { code: 'SD', name: 'السودان', dialCode: '+249', flag: '🇸🇩' },
+  { code: 'PS', name: 'فلسطين', dialCode: '+970', flag: '🇵🇸' },
+];
 
 // Production domain for Stripe
 const PRODUCTION_DOMAIN = 'https://sevengreenstore.com';
@@ -311,10 +334,13 @@ export default function Checkout() {
     customer_name: '',
     customer_email: '',
     customer_phone: '',
+    country_code: 'SA',
     city: '',
     shipping_address: '',
     notes: '',
   });
+
+  const selectedCountry = ARAB_COUNTRIES.find(c => c.code === formData.country_code) || ARAB_COUNTRIES[0];
 
   // Check for Stripe redirect with payment_intent
   useEffect(() => {
@@ -421,7 +447,12 @@ export default function Checkout() {
     try {
       const { data, error } = await supabase.functions.invoke('create-order', {
         body: {
-          ...formData,
+          customer_name: formData.customer_name,
+          customer_email: formData.customer_email,
+          customer_phone: `${selectedCountry.dialCode}${formData.customer_phone}`,
+          city: formData.city,
+          shipping_address: formData.shipping_address,
+          notes: formData.notes,
           items: items.map(item => ({
             id: item.id,
             name_ar: item.name_ar,
@@ -516,10 +547,51 @@ export default function Checkout() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="customer_phone" className="flex items-center gap-2 text-sm font-medium">
-                          <Phone className="h-4 w-4 text-primary" />
-                          رقم الهاتف *
+                        <Label htmlFor="country_code" className="flex items-center gap-2 text-sm font-medium">
+                          <Globe className="h-4 w-4 text-primary" />
+                          الدولة *
                         </Label>
+                        <Select
+                          value={formData.country_code}
+                          onValueChange={(value) => setFormData({ ...formData, country_code: value })}
+                        >
+                          <SelectTrigger className="h-12 rounded-xl border-2 focus:border-primary transition-colors bg-background">
+                            <SelectValue>
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{selectedCountry.flag}</span>
+                                <span>{selectedCountry.name}</span>
+                              </div>
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border-2 max-h-[300px] z-[100]">
+                            {ARAB_COUNTRIES.map((country) => (
+                              <SelectItem 
+                                key={country.code} 
+                                value={country.code}
+                                className="cursor-pointer hover:bg-accent focus:bg-accent"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl">{country.flag}</span>
+                                  <span className="font-medium">{country.name}</span>
+                                  <span className="text-muted-foreground text-sm">({country.dialCode})</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_phone" className="flex items-center gap-2 text-sm font-medium">
+                        <Phone className="h-4 w-4 text-primary" />
+                        رقم الهاتف *
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute right-0 top-0 h-12 px-4 bg-muted/50 rounded-r-xl border-2 border-l-0 border-border flex items-center gap-2">
+                          <span className="text-xl">{selectedCountry.flag}</span>
+                          <span className="text-sm font-medium text-muted-foreground">{selectedCountry.dialCode}</span>
+                        </div>
                         <Input
                           id="customer_phone"
                           name="customer_phone"
@@ -527,8 +599,9 @@ export default function Checkout() {
                           value={formData.customer_phone}
                           onChange={handleInputChange}
                           required
-                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
-                          placeholder="05xxxxxxxx"
+                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors pr-32"
+                          placeholder="5xxxxxxxx"
+                          dir="ltr"
                         />
                       </div>
                     </div>
@@ -550,37 +623,38 @@ export default function Checkout() {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="city" className="flex items-center gap-2 text-sm font-medium">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        المدينة *
-                      </Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        required
-                        className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
-                        placeholder="الرياض، جدة، الدمام..."
-                      />
-                    </div>
+                    <div className="grid md:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="city" className="flex items-center gap-2 text-sm font-medium">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          المدينة *
+                        </Label>
+                        <Input
+                          id="city"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleInputChange}
+                          required
+                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
+                          placeholder="الرياض، جدة، الدمام..."
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="shipping_address" className="flex items-center gap-2 text-sm font-medium">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        العنوان الكامل *
-                      </Label>
-                      <Textarea
-                        id="shipping_address"
-                        name="shipping_address"
-                        value={formData.shipping_address}
-                        onChange={handleInputChange}
-                        rows={3}
-                        required
-                        className="rounded-xl border-2 focus:border-primary transition-colors resize-none"
-                        placeholder="الحي، الشارع، رقم المبنى..."
-                      />
+                      <div className="space-y-2">
+                        <Label htmlFor="shipping_address" className="flex items-center gap-2 text-sm font-medium">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          الحي *
+                        </Label>
+                        <Input
+                          id="shipping_address"
+                          name="shipping_address"
+                          value={formData.shipping_address}
+                          onChange={handleInputChange}
+                          required
+                          className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
+                          placeholder="اسم الحي أو المنطقة"
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-2">
