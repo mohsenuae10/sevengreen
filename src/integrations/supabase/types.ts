@@ -288,7 +288,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           offer_description: string
-          product_id: string
+          product_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -298,7 +298,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           offer_description: string
-          product_id: string
+          product_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -308,7 +308,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           offer_description?: string
-          product_id?: string
+          product_id?: string | null
           updated_at?: string | null
         }
         Relationships: [

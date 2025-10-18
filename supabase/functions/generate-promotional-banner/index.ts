@@ -12,34 +12,42 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, productImage, offerDescription } = await req.json();
+    const { bannerDescription, productInfo } = await req.json();
 
-    console.log('Generating promotional banner:', { productName, offerDescription });
+    console.log('Generating promotional banner:', { bannerDescription, productInfo });
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Generate banner using Lovable AI
-    const prompt = `Create a professional, eye-catching promotional banner for an Arabic e-commerce store called "Seven Green | سفن جرين" (natural cosmetics).
+    // Build the prompt based on user's detailed description
+    let prompt = `Create a professional, eye-catching promotional banner for an Arabic e-commerce store called "Seven Green | سفن جرين" (natural cosmetics).
 
-Product: ${productName}
-Offer: ${offerDescription}
+Banner Description (follow this exactly): ${bannerDescription}
 
 Design requirements:
-- Size: 1536x512 pixels (wide banner format)
-- Include the product name in Arabic
-- Display the offer/discount prominently in Arabic
-- Use elegant, modern design with natural/green color scheme
-- Add "Seven Green | سفن جرين" branding subtly
-- Include decorative elements related to the occasion (if mentioned in offer)
-- Make it suitable for top of homepage
+- Size: 1536x512 pixels (wide banner format - landscape orientation)
+- The banner MUST be 1536 pixels wide and 512 pixels tall
+- All text must be in Arabic with clear, readable fonts
+- Include "Seven Green | سفن جرين" branding
 - Professional, clean, and attractive design
-- Text should be easily readable
-- Ultra high resolution
+- High contrast for readability
+- Modern, elegant aesthetic matching a natural cosmetics brand
+- Ultra high resolution`;
 
-The banner should be festive if it's for a celebration/holiday, elegant for general promotions.`;
+    if (productInfo) {
+      prompt += `\n\nProduct to feature (if relevant to description): ${productInfo.name}
+Use natural, organic color schemes that complement the product.`;
+    }
+
+    prompt += `\n\nIMPORTANT: 
+- Follow the user's description precisely
+- Maintain aspect ratio: WIDE banner (1536x512)
+- Ensure all Arabic text is clear and prominent
+- Make it visually stunning and professional`;
+
+    console.log('AI Prompt:', prompt);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

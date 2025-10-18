@@ -90,14 +90,22 @@ export default function PromotionalBanners() {
   // Generate banner mutation
   const generateBannerMutation = useMutation({
     mutationFn: async () => {
-      const product = products?.find(p => p.id === selectedProductId);
-      if (!product) throw new Error('المنتج غير موجود');
+      let productInfo = null;
+      
+      if (selectedProductId) {
+        const product = products?.find(p => p.id === selectedProductId);
+        if (product) {
+          productInfo = {
+            name: product.name_ar,
+            image: product.image_url
+          };
+        }
+      }
 
       const { data, error } = await supabase.functions.invoke('generate-promotional-banner', {
         body: {
-          productName: product.name_ar,
-          productImage: product.image_url,
-          offerDescription,
+          bannerDescription: offerDescription,
+          productInfo: productInfo
         }
       });
 
@@ -117,12 +125,12 @@ export default function PromotionalBanners() {
   // Save banner mutation
   const saveBannerMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedProductId || !offerDescription || !bannerUrl) {
-        throw new Error('يرجى ملء جميع الحقول');
+      if (!offerDescription || !bannerUrl) {
+        throw new Error('يرجى ملء الحقول المطلوبة');
       }
 
       const bannerData = {
-        product_id: selectedProductId,
+        product_id: selectedProductId || null,
         offer_description: offerDescription,
         banner_image_url: bannerUrl,
         is_active: isActive,
@@ -204,7 +212,7 @@ export default function PromotionalBanners() {
 
   const handleEdit = (banner: Banner) => {
     setEditingBanner(banner);
-    setSelectedProductId(banner.product_id);
+    setSelectedProductId(banner.product_id || "");
     setOfferDescription(banner.offer_description);
     setBannerUrl(banner.banner_image_url || "");
     setIsActive(banner.is_active);
@@ -213,8 +221,8 @@ export default function PromotionalBanners() {
   };
 
   const handleGenerateBanner = async () => {
-    if (!selectedProductId || !offerDescription) {
-      toast.error('يرجى اختيار المنتج وكتابة وصف العرض');
+    if (!offerDescription || offerDescription.trim().length < 20) {
+      toast.error('يرجى كتابة وصف تفصيلي للبنر (على الأقل 20 حرف)');
       return;
     }
     setIsGenerating(true);
@@ -287,12 +295,13 @@ export default function PromotionalBanners() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>المنتج</Label>
+              <Label>المنتج (اختياري)</Label>
               <Select value={selectedProductId} onValueChange={setSelectedProductId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر المنتج" />
+                  <SelectValue placeholder="اختر المنتج (اختياري)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">بدون منتج</SelectItem>
                   {products?.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
                       {product.name_ar}
@@ -300,16 +309,23 @@ export default function PromotionalBanners() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-sm text-muted-foreground">
+                اختر منتج لربط البنر به، أو اترك الحقل فارغاً لبنر عام
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label>وصف العرض</Label>
+              <Label>وصف كامل للبنر المطلوب *</Label>
               <Textarea
-                placeholder="مثال: عرض خاص بمناسبة العيد - خصم 30%"
+                placeholder="مثال: بنر ترويجي بمناسبة اليوم الوطني السعودي، يحتوي على العلم السعودي، خصم 50%، ألوان أخضر وأبيض، نص بالعربية بخط كبير وواضح، صورة منتج الشامبو الطبيعي على اليسار"
                 value={offerDescription}
                 onChange={(e) => setOfferDescription(e.target.value)}
-                rows={3}
+                rows={5}
+                className="resize-none"
               />
+              <p className="text-sm text-muted-foreground">
+                اكتب وصفاً تفصيلياً للبنر: المناسبة، العرض، الألوان، النصوص، الصور، أي عناصر تريد إضافتها
+              </p>
             </div>
 
             <Tabs value={uploadMethod} onValueChange={(v) => setUploadMethod(v as "generate" | "upload")} className="w-full">
@@ -321,7 +337,7 @@ export default function PromotionalBanners() {
               <TabsContent value="generate" className="space-y-4">
                 <Button 
                   onClick={handleGenerateBanner} 
-                  disabled={isGenerating || !selectedProductId || !offerDescription}
+                  disabled={isGenerating || !offerDescription || offerDescription.trim().length < 20}
                   className="w-full"
                 >
                   {isGenerating ? (
