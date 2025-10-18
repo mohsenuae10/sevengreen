@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { HeroBanner } from '@/components/home/HeroBanner';
+import { MainHeroBanner } from '@/components/home/MainHeroBanner';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
 import { SpecialOffers } from '@/components/home/SpecialOffers';
 import { CategorySection } from '@/components/home/CategorySection';
@@ -78,17 +78,12 @@ export default function Home() {
       />
       <OrganizationSchema />
       
-      {/* Products by Category - في الأعلى */}
+      {/* Main Hero Banner */}
+      <MainHeroBanner />
+      
+      {/* Products by Category */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              المنتجات المتوفرة
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              منتجات طبيعية 100% للعناية بالشعر والجسم
-            </p>
-          </div>
 
           {error ? (
             <div className="text-center py-12">
