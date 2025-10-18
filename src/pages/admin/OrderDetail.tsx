@@ -228,30 +228,6 @@ export default function AdminOrderDetail() {
           )}
         </div>
 
-        {/* Timeline */}
-        <Card>
-          <CardContent className="pt-6">
-            <OrderTimeline
-              currentStatus={order?.status as OrderStatus}
-              createdAt={order?.created_at}
-              packedAt={order?.packed_at}
-              shippedAt={order?.shipped_at}
-              deliveredAt={order?.delivered_at}
-              updatedAt={order?.updated_at}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        {order?.status !== 'delivered' && order?.status !== 'cancelled' && (
-          <QuickActionsPanel
-            currentStatus={order?.status as OrderStatus}
-            orderNumber={order?.order_number}
-            onStatusChange={handleStatusChange}
-            onShipOrder={handleShipOrder}
-          />
-        )}
-
         {/* معلومات العميل والشحن */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* معلومات العميل */}
