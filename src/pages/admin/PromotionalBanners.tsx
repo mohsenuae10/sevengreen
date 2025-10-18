@@ -48,6 +48,7 @@ export default function PromotionalBanners() {
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [selectedProductId, setSelectedProductId] = useState("");
   const [offerDescription, setOfferDescription] = useState("");
+  const [textOverlay, setTextOverlay] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [isActive, setIsActive] = useState(false);
   const [displayOrder, setDisplayOrder] = useState(0);
@@ -132,6 +133,7 @@ export default function PromotionalBanners() {
       const bannerData = {
         product_id: selectedProductId || null,
         offer_description: offerDescription,
+        text_overlay: textOverlay,
         banner_image_url: bannerUrl,
         is_active: isActive,
         display_order: displayOrder,
@@ -205,6 +207,7 @@ export default function PromotionalBanners() {
     setEditingBanner(null);
     setSelectedProductId("");
     setOfferDescription("");
+    setTextOverlay("");
     setBannerUrl("");
     setIsActive(false);
     setDisplayOrder(0);
@@ -214,6 +217,7 @@ export default function PromotionalBanners() {
     setEditingBanner(banner);
     setSelectedProductId(banner.product_id || "");
     setOfferDescription(banner.offer_description);
+    setTextOverlay((banner as any).text_overlay || "");
     setBannerUrl(banner.banner_image_url || "");
     setIsActive(banner.is_active);
     setDisplayOrder(banner.display_order);
@@ -318,16 +322,30 @@ export default function PromotionalBanners() {
             </div>
 
             <div className="space-y-2">
-              <Label>وصف كامل للبنر المطلوب *</Label>
+              <Label>وصف الصورة (بدون نصوص) *</Label>
               <Textarea
-                placeholder="مثال: بنر ترويجي بمناسبة اليوم الوطني السعودي، يحتوي على العلم السعودي، خصم 50%، ألوان أخضر وأبيض، نص بالعربية بخط كبير وواضح، صورة منتج الشامبو الطبيعي على اليسار"
+                placeholder="مثال: صورة خلفية بمناسبة اليوم الوطني السعودي، العلم السعودي، ألوان أخضر وأبيض، تصميم احترافي وجذاب، صورة منتج الشامبو الطبيعي على اليسار"
                 value={offerDescription}
                 onChange={(e) => setOfferDescription(e.target.value)}
-                rows={5}
+                rows={4}
                 className="resize-none"
               />
               <p className="text-sm text-muted-foreground">
-                اكتب وصفاً تفصيلياً للبنر: المناسبة، العرض، الألوان، النصوص، الصور، أي عناصر تريد إضافتها
+                اكتب وصفاً للصورة فقط بدون ذكر أي نصوص أو عروض
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>النصوص التي ستضاف على البنر</Label>
+              <Textarea
+                placeholder="مثال: خصم 80% بمناسبة اليوم الوطني"
+                value={textOverlay}
+                onChange={(e) => setTextOverlay(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+              <p className="text-sm text-muted-foreground">
+                النصوص التي ستظهر على البنر (سيتم إضافتها برمجياً)
               </p>
             </div>
 

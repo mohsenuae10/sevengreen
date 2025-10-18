@@ -22,15 +22,16 @@ serve(async (req) => {
     }
 
     // Build the prompt based on user's detailed description
-    let prompt = `Create a professional, eye-catching promotional banner for an Arabic e-commerce store called "Seven Green | سفن جرين" (natural cosmetics).
+    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for an Arabic e-commerce store called "Seven Green | سفن جرين" (natural cosmetics).
 
 Banner Description (follow this exactly): ${bannerDescription}
 
 Design requirements:
 - Size: 1536x512 pixels (wide banner format - landscape orientation)
 - The banner MUST be 1536 pixels wide and 512 pixels tall
-- All text must be in Arabic with clear, readable fonts
-- Include "Seven Green | سفن جرين" branding
+- DO NOT include any text, words, numbers, or letters in the image
+- NO TEXT AT ALL - only visual elements, colors, and graphics
+- Leave space in the design for text to be added later programmatically
 - Professional, clean, and attractive design
 - High contrast for readability
 - Modern, elegant aesthetic matching a natural cosmetics brand
@@ -44,7 +45,8 @@ Use natural, organic color schemes that complement the product.`;
     prompt += `\n\nIMPORTANT: 
 - Follow the user's description precisely
 - Maintain aspect ratio: WIDE banner (1536x512)
-- Ensure all Arabic text is clear and prominent
+- DO NOT add any text, numbers, or Arabic/English letters to the image
+- The image should be a clean background/design ready for text overlay
 - Make it visually stunning and professional`;
 
     console.log('AI Prompt:', prompt);
