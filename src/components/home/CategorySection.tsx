@@ -93,9 +93,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s' 
         }}
         plugins={[
           Autoplay({
-            delay: 3000,
-            stopOnInteraction: false,
-            stopOnMouseEnter: true,
+            delay: 5000,
           }),
         ]}
         className="w-full"
