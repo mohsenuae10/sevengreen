@@ -182,10 +182,9 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           <Button
             onClick={handleBuyNow}
             size="sm"
-            className="flex-[2] h-8 rounded-lg"
+            className="flex-[2] h-8 rounded-lg font-bold"
             disabled={stock_quantity <= 0}
           >
-            <Zap className="ml-1 h-3.5 w-3.5" />
             اشتر الآن
           </Button>
         </div>
