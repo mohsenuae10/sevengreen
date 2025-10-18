@@ -22,6 +22,7 @@ export default function AdminOrderDetail() {
   const [status, setStatus] = useState<OrderStatus>('pending');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [shippingCompany, setShippingCompany] = useState('');
+  const [trackingUrl, setTrackingUrl] = useState('');
   const [isSendingReminder, setIsSendingReminder] = useState(false);
   const [isSavingTracking, setIsSavingTracking] = useState(false);
   const [showShippingModal, setShowShippingModal] = useState(false);
@@ -155,17 +156,6 @@ export default function AdminOrderDetail() {
     }
   };
 
-  const getTrackingUrl = (company: string, trackingNum: string) => {
-    const urls: { [key: string]: string } = {
-      'SMSA': `https://www.smsaexpress.com/track/?tracknumbers=${trackingNum}`,
-      'أرامكس': `https://www.aramex.com/ae/en/track/results?shipment_number=${trackingNum}`,
-      'DHL': `https://www.dhl.com/sa-en/home/tracking/tracking-express.html?submit=1&tracking-id=${trackingNum}`,
-      'UPS': `https://www.ups.com/track?tracknum=${trackingNum}`,
-      'FedEx': `https://www.fedex.com/fedextrack/?tracknumbers=${trackingNum}`,
-    };
-    return urls[company] || `https://www.google.com/search?q=${encodeURIComponent(company + ' tracking ' + trackingNum)}`;
-  };
-
   if (isLoading) {
     return (
       <AdminLayout>
@@ -294,15 +284,26 @@ export default function AdminOrderDetail() {
                     />
                   </div>
 
-                  {trackingNumber && shippingCompany && (
+                  <div className="space-y-2">
+                    <Label htmlFor="trackingUrl">رابط تتبع الشحنة</Label>
+                    <Input
+                      id="trackingUrl"
+                      value={trackingUrl}
+                      onChange={(e) => setTrackingUrl(e.target.value)}
+                      placeholder="https://..."
+                      type="url"
+                    />
+                  </div>
+
+                  {trackingUrl && (
                     <a 
-                      href={getTrackingUrl(shippingCompany, trackingNumber)}
+                      href={trackingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-primary hover:underline"
                     >
                       <ExternalLink className="w-4 h-4" />
-                      تتبع الشحنة على موقع {shippingCompany}
+                      فتح رابط التتبع
                     </a>
                   )}
 
