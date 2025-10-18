@@ -29,14 +29,20 @@ export default function Products() {
     refetchOnMount: true,
   });
 
-  const categories = [
-    'العناية بالشعر',
-    'العناية بالبشرة',
-    'العناية بالجسم',
-    'الصحة والعافية',
-    'العناية بالرجال',
-    'الهدايا والمجموعات'
-  ];
+  // Fetch categories from database
+  const { data: categories } = useQuery({
+    queryKey: ['products-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('name_ar, slug')
+        .eq('is_active', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const seoTitle = selectedCategory 
     ? `منتجات ${selectedCategory}` 
@@ -71,13 +77,13 @@ export default function Products() {
           >
             الكل
           </Button>
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <Button
-              key={category}
-              variant={selectedCategory === category ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory(category)}
+              key={category.slug}
+              variant={selectedCategory === category.slug ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory(category.slug)}
             >
-              {category}
+              {category.name_ar}
             </Button>
           ))}
         </div>
