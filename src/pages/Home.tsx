@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PromoBanner } from '@/components/home/PromoBanner';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
-import { SpecialOffers } from '@/components/home/SpecialOffers';
 import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
@@ -120,9 +119,6 @@ export default function Home() {
 
       {/* Featured Products Carousel */}
       <FeaturedProductsCarousel />
-
-      {/* Special Offers */}
-      <SpecialOffers />
 
       {/* Features Section */}
       <FeaturesSection />
