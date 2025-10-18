@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
@@ -107,8 +108,97 @@ export default function AdminOrders() {
   };
 
   const OrdersTable = ({ orders }: { orders: any[] }) => (
-    <div className="overflow-x-auto">
-      <Table>
+    <>
+      {/* Mobile View - Cards */}
+      <div className="lg:hidden space-y-4">
+        {orders?.map((order) => {
+          const StatusIcon = statusIcons[order.status] || Package;
+          const progress = getProgressPercentage(order.status);
+          const delayed = isDelayed(order.created_at, order.status);
+          
+          return (
+            <Card key={order.id} className="hover:shadow-lg transition-all">
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4 text-primary" />
+                      <span className="font-mono text-sm font-bold">{order.order_number}</span>
+                    </div>
+                    {delayed && (
+                      <Badge variant="outline" className="text-yellow-700 border-yellow-300 text-xs">
+                        ⚠️ متأخر
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <div className="font-semibold text-base">{order.customer_name}</div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                      <Phone className="h-3 w-3" />
+                      <span>{order.customer_phone}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-sm">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span>{COUNTRIES[order.country_code] || order.country_code}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="font-bold text-lg text-primary">
+                      {order.total_amount.toFixed(2)} ريال
+                    </div>
+                    <Badge className={paymentStatusColors[order.payment_status]} variant="outline">
+                      {order.payment_status === 'pending' ? 'معلق' :
+                       order.payment_status === 'completed' ? 'مكتمل' :
+                       order.payment_status === 'failed' ? 'فشل' : order.payment_status}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge className={statusColors[order.status]}>
+                        {statusLabels[order.status]}
+                      </Badge>
+                    </div>
+                    <div className="w-full bg-border rounded-full h-2 overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          order.status === 'cancelled' 
+                            ? 'bg-red-500' 
+                            : 'bg-gradient-to-r from-primary to-primary-light'
+                        }`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(order.created_at), { 
+                      addSuffix: true, 
+                      locale: ar 
+                    })}
+                  </div>
+
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`/admin/orders/${order.id}`)}
+                    className="w-full"
+                  >
+                    <Eye className="h-4 w-4 ml-2" />
+                    عرض التفاصيل
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Desktop View - Table */}
+      <div className="hidden lg:block overflow-x-auto">
+        <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="min-w-[120px] font-bold">رقم الطلب</TableHead>
@@ -262,27 +352,28 @@ export default function AdminOrders() {
           })}
         </TableBody>
       </Table>
-    </div>
+      </div>
+    </>
   );
 
   return (
     <AdminLayout>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6 lg:space-y-8 animate-fade-in">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+          <h1 className="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
             إدارة الطلبات
           </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
+          <p className="text-muted-foreground mt-2 text-sm lg:text-lg">
             عرض وإدارة جميع الطلبات مع معلومات الشحن الكاملة
           </p>
         </div>
 
         <Card className="group relative overflow-hidden border-r-4 border-primary bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-2xl transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-2xl">
+            <CardTitle className="flex items-center justify-between text-lg lg:text-2xl">
               <span>قائمة الطلبات</span>
               {orders && (
-                <Badge variant="outline" className="text-lg px-4 py-2">
+                <Badge variant="outline" className="text-sm lg:text-lg px-3 lg:px-4 py-1 lg:py-2">
                   {orders.length} طلب
                 </Badge>
               )}
@@ -301,36 +392,39 @@ export default function AdminOrders() {
               </div>
             ) : (
               <Tabs defaultValue="all" className="w-full">
-                <TabsList className="grid w-full grid-cols-7 h-12">
-                  <TabsTrigger value="all" className="gap-2">
-                    <Package className="w-4 h-4" />
-                    الكل
-                  </TabsTrigger>
-                  <TabsTrigger value="pending" className="gap-2">
-                    <Clock className="w-4 h-4" />
-                    معلق
-                  </TabsTrigger>
-                  <TabsTrigger value="processing" className="gap-2">
-                    <Package className="w-4 h-4" />
-                    قيد المعالجة
-                  </TabsTrigger>
-                  <TabsTrigger value="packed" className="gap-2">
-                    <Box className="w-4 h-4" />
-                    مُجهز
-                  </TabsTrigger>
-                  <TabsTrigger value="shipped" className="gap-2">
-                    <Truck className="w-4 h-4" />
-                    مشحون
-                  </TabsTrigger>
-                  <TabsTrigger value="delivered" className="gap-2">
-                    <CheckCircle className="w-4 h-4" />
-                    تم التوصيل
-                  </TabsTrigger>
-                  <TabsTrigger value="cancelled" className="gap-2">
-                    <XCircle className="w-4 h-4" />
-                    ملغي
-                  </TabsTrigger>
-                </TabsList>
+                <ScrollArea className="w-full whitespace-nowrap lg:whitespace-normal">
+                  <TabsList className="inline-flex lg:grid w-max lg:w-full lg:grid-cols-7 h-10 lg:h-12">
+                    <TabsTrigger value="all" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <Package className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">الكل</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="pending" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <Clock className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">معلق</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="processing" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <Package className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">المعالجة</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="packed" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <Box className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">مُجهز</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="shipped" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <Truck className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">مشحون</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="delivered" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <CheckCircle className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">التوصيل</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="cancelled" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <XCircle className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline">ملغي</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
                 <TabsContent value="all" className="mt-6">
                   <OrdersTable orders={filterOrders() || []} />
                 </TabsContent>

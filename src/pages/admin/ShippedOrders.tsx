@@ -26,20 +26,20 @@ export default function ShippedOrders() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Truck className="h-8 w-8 text-blue-600" />
+      <div className="space-y-4 lg:space-y-6">
+        <div className="flex items-center gap-2 lg:gap-3">
+          <Truck className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold">الطلبات المشحونة</h1>
-            <p className="text-muted-foreground">الطلبات التي تم شحنها للعملاء</p>
+            <h1 className="text-xl lg:text-3xl font-bold">الطلبات المشحونة</h1>
+            <p className="text-muted-foreground text-sm lg:text-base">الطلبات التي تم شحنها للعملاء</p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between text-base lg:text-lg">
               <span>قائمة الطلبات المشحونة</span>
-              <Badge variant="outline" className="text-lg">
+              <Badge variant="outline" className="text-sm lg:text-lg">
                 {orders?.length || 0} طلب
               </Badge>
             </CardTitle>
@@ -50,7 +50,57 @@ export default function ShippedOrders() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : orders && orders.length > 0 ? (
-              <Table>
+              <>
+                {/* Mobile View - Cards */}
+                <div className="lg:hidden space-y-4">
+                  {orders.map((order) => (
+                    <Card key={order.id} className="hover:shadow-lg transition-all">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-sm font-medium">{order.order_number}</span>
+                            <Badge variant="outline" className="bg-blue-100 text-blue-800 text-xs">
+                              مشحون
+                            </Badge>
+                          </div>
+                          
+                          <div>
+                            <div className="font-medium">{order.customer_name}</div>
+                            <div className="text-xs text-muted-foreground">{order.customer_email}</div>
+                          </div>
+
+                          {order.tracking_number && (
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">رقم التتبع: </span>
+                              <Badge variant="outline" className="text-xs">{order.tracking_number}</Badge>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-primary">{order.total_amount} ريال</span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                            </span>
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/admin/orders/${order.id}`)}
+                            className="w-full"
+                          >
+                            <Eye className="h-4 w-4 ml-2" />
+                            عرض التفاصيل
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Desktop View - Table */}
+                <div className="hidden lg:block">
+                  <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>رقم الطلب</TableHead>
@@ -92,9 +142,11 @@ export default function ShippedOrders() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+                  </Table>
+                </div>
+              </>
             ) : (
-              <div className="text-center p-8 text-muted-foreground">
+              <div className="text-center p-8 text-muted-foreground text-sm lg:text-base">
                 لا توجد طلبات مشحونة
               </div>
             )}

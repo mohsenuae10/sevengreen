@@ -69,17 +69,17 @@ export default function AdminProducts() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">إدارة المنتجات</h1>
+      <div className="space-y-4 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h1 className="text-xl lg:text-3xl font-bold">إدارة المنتجات</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingProduct(null)}>
+              <Button onClick={() => setEditingProduct(null)} className="w-full sm:w-auto">
                 <Plus className="ml-2 h-4 w-4" />
                 إضافة منتج جديد
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-2">
               <DialogHeader>
                 <DialogTitle>
                   {editingProduct ? 'تعديل المنتج' : 'إضافة منتج جديد'}
@@ -98,7 +98,7 @@ export default function AdminProducts() {
 
         <Card>
           <CardHeader>
-            <CardTitle>قائمة المنتجات</CardTitle>
+            <CardTitle className="text-base lg:text-lg">قائمة المنتجات</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -106,7 +106,73 @@ export default function AdminProducts() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : (
-              <Table>
+              <>
+                {/* Mobile View - Cards */}
+                <div className="lg:hidden space-y-4">
+                  {products?.map((product) => (
+                    <Card key={product.id} className="hover:shadow-lg transition-all">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex gap-3">
+                            {product.image_url && (
+                              <img
+                                src={product.image_url}
+                                alt={product.name_ar}
+                                className="w-20 h-20 object-cover rounded flex-shrink-0"
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-sm truncate">{product.name_ar}</h3>
+                              <p className="text-xs text-muted-foreground">{product.category}</p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className="font-bold text-primary">{product.price} ريال</span>
+                                <span className="text-xs text-muted-foreground">كمية: {product.stock_quantity}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={product.is_active}
+                                onCheckedChange={() =>
+                                  toggleActiveMutation.mutate({
+                                    id: product.id,
+                                    isActive: product.is_active,
+                                  })
+                                }
+                              />
+                              <span className="text-xs">{product.is_active ? 'نشط' : 'معطل'}</span>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingProduct(product);
+                                  setIsDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => deleteMutation.mutate(product.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Desktop View - Table */}
+                <div className="hidden lg:block">
+                  <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>الصورة</TableHead>
@@ -169,7 +235,9 @@ export default function AdminProducts() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+                  </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -568,8 +636,8 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
         <div className="space-y-2">
           <Label>اسم المنتج</Label>
           <Input
@@ -776,7 +844,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
         <div className="space-y-2">
           <Label>السعر (ريال)</Label>
           <Input

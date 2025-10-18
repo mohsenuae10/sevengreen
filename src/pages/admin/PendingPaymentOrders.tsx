@@ -47,20 +47,20 @@ export default function PendingPaymentOrders() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Clock className="h-8 w-8 text-yellow-600" />
+      <div className="space-y-4 lg:space-y-6">
+        <div className="flex items-center gap-2 lg:gap-3">
+          <Clock className="h-6 w-6 lg:h-8 lg:w-8 text-yellow-600" />
           <div>
-            <h1 className="text-3xl font-bold">الطلبات قيد انتظار الدفع</h1>
-            <p className="text-muted-foreground">الطلبات التي لم يتم الدفع فيها بعد</p>
+            <h1 className="text-xl lg:text-3xl font-bold">الطلبات قيد انتظار الدفع</h1>
+            <p className="text-muted-foreground text-sm lg:text-base">الطلبات التي لم يتم الدفع فيها بعد</p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between text-base lg:text-lg">
               <span>قائمة الطلبات قيد الانتظار</span>
-              <Badge variant="outline" className="text-lg">
+              <Badge variant="outline" className="text-sm lg:text-lg">
                 {orders?.length || 0} طلب
               </Badge>
             </CardTitle>
@@ -71,8 +71,58 @@ export default function PendingPaymentOrders() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : orders && orders.length > 0 ? (
-              <div className="overflow-x-auto">
-                <Table>
+              <>
+                {/* Mobile View - Cards */}
+                <div className="lg:hidden space-y-4">
+                  {orders.map((order) => (
+                    <Card key={order.id} className="hover:shadow-lg transition-all">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-sm font-medium">{order.order_number}</span>
+                            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 text-xs">
+                              قيد الانتظار
+                            </Badge>
+                          </div>
+                          
+                          <div>
+                            <div className="font-medium">{order.customer_name}</div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                              <Phone className="h-3 w-3" />
+                              <span>{order.customer_phone}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1 text-sm">
+                            <MapPin className="h-4 w-4 text-primary" />
+                            <span>{COUNTRIES[order.country_code] || order.country_code} - {order.city}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-primary">{order.total_amount.toFixed(2)} ریال</span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                            </span>
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/admin/orders/${order.id}`)}
+                            className="w-full"
+                          >
+                            <Eye className="h-4 w-4 ml-2" />
+                            عرض التفاصيل
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Desktop View - Table */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="min-w-[120px]">رقم الطلب</TableHead>
@@ -168,9 +218,10 @@ export default function PendingPaymentOrders() {
                     ))}
                   </TableBody>
                 </Table>
-              </div>
+                </div>
+              </>
             ) : (
-              <div className="text-center p-8 text-muted-foreground">
+              <div className="text-center p-8 text-muted-foreground text-sm lg:text-base">
                 لا توجد طلبات قيد انتظار الدفع
               </div>
             )}
