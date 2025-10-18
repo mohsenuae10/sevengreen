@@ -22,6 +22,7 @@ import ReturnPolicy from '@/pages/ReturnPolicy';
 import ShippingPolicy from '@/pages/ShippingPolicy';
 import AdminLogin from '@/pages/admin/Login';
 import AdminDashboard from '@/pages/admin/Dashboard';
+import AdminCategories from '@/pages/admin/Categories';
 import AdminProducts from '@/pages/admin/Products';
 import AdminImportProduct from '@/pages/admin/ImportProduct';
 import AdminOrders from '@/pages/admin/Orders';
@@ -54,6 +55,7 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
               <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
               <Route path="/admin/import-product" element={<ProtectedRoute><AdminImportProduct /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />

@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Clock, CreditCard, Truck, Download } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Clock, CreditCard, Truck, Download, LayoutGrid } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,7 @@ import {
 
 const navItems = [
   { title: 'لوحة التحكم', url: '/admin/dashboard', icon: LayoutDashboard },
+  { title: 'الأقسام', url: '/admin/categories', icon: LayoutGrid },
   { title: 'المنتجات', url: '/admin/products', icon: Package },
   { title: 'استيراد منتج', url: '/admin/import-product', icon: Download },
   { title: 'جميع الطلبات', url: '/admin/orders', icon: ShoppingCart },
