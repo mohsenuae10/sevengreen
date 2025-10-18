@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     // Fetch all active products
     const { data: products, error } = await supabase
       .from('products')
-      .select('id, updated_at')
+      .select('id, slug, updated_at')
       .eq('is_active', true);
 
     if (error) {
@@ -62,8 +62,10 @@ Deno.serve(async (req) => {
           ? new Date(product.updated_at).toISOString().split('T')[0]
           : currentDate;
         
+        const productUrl = product.slug || product.id;
+        
         sitemap += '  <url>\n';
-        sitemap += '    <loc>' + baseUrl + '/product/' + product.id + '</loc>\n';
+        sitemap += '    <loc>' + baseUrl + '/product/' + productUrl + '</loc>\n';
         sitemap += '    <lastmod>' + lastmod + '</lastmod>\n';
         sitemap += '    <changefreq>weekly</changefreq>\n';
         sitemap += '    <priority>0.8</priority>\n';

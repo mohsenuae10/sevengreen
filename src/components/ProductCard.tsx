@@ -16,9 +16,10 @@ interface ProductCardProps {
   image_url: string | null;
   stock_quantity: number;
   category?: string;
+  slug?: string | null;
 }
 
-export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category }: ProductCardProps) => {
+export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category, slug }: ProductCardProps) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -96,7 +97,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         />
       </button>
 
-      <Link to={`/product/${id}`}>
+      <Link to={`/product/${slug || id}`}>
         {image_url ? (
           <OptimizedImage
             src={image_url}
@@ -113,7 +114,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       
       <CardContent className="p-3 space-y-2">
         {/* اسم المنتج */}
-        <Link to={`/product/${id}`}>
+        <Link to={`/product/${slug || id}`}>
           <h3 className="font-bold text-xs text-center hover:text-primary transition-colors line-clamp-2 min-h-[2.25rem] leading-snug">
             {name_ar}
           </h3>

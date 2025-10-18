@@ -195,6 +195,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     seo_title: product?.seo_title || '',
     seo_description: product?.seo_description || '',
     seo_keywords: product?.seo_keywords || '',
+    slug: product?.slug || '',
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<any[]>([]);
@@ -490,6 +491,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         seo_title: formData.seo_title?.trim() || null,
         seo_description: formData.seo_description?.trim() || null,
         seo_keywords: formData.seo_keywords?.trim() || null,
+        slug: formData.slug?.trim() || null,
       };
 
       console.log('Attempting to save product:', productData);
@@ -832,6 +834,20 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
             </div>
           </div>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="slug">رابط المنتج (Slug) - اختياري</Label>
+        <Input
+          id="slug"
+          value={formData.slug}
+          onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+          placeholder="سيتم توليده تلقائياً من اسم المنتج"
+          dir="rtl"
+        />
+        <p className="text-sm text-muted-foreground">
+          مثال: صابونة-شعر-طبيعية (سيتم توليده تلقائياً إذا تُرك فارغاً)
+        </p>
       </div>
 
       <div className="border-t pt-4 space-y-4">

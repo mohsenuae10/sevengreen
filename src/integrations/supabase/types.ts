@@ -172,6 +172,7 @@ export type Database = {
           seo_keywords: string | null
           seo_title: string | null
           size_info: string | null
+          slug: string | null
           stock_quantity: number
           updated_at: string | null
           warnings_ar: string | null
@@ -193,6 +194,7 @@ export type Database = {
           seo_keywords?: string | null
           seo_title?: string | null
           size_info?: string | null
+          slug?: string | null
           stock_quantity?: number
           updated_at?: string | null
           warnings_ar?: string | null
@@ -214,6 +216,7 @@ export type Database = {
           seo_keywords?: string | null
           seo_title?: string | null
           size_info?: string | null
+          slug?: string | null
           stock_quantity?: number
           updated_at?: string | null
           warnings_ar?: string | null
@@ -345,6 +348,10 @@ export type Database = {
       add_admin_role_by_email: {
         Args: { user_email: string }
         Returns: undefined
+      }
+      generate_slug: {
+        Args: { text_input: string }
+        Returns: string
       }
       has_role: {
         Args: {

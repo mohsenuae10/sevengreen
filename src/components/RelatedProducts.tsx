@@ -13,7 +13,7 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select('id, name_ar, price, image_url, category, slug, stock_quantity, is_active')
         .eq('category', category)
         .eq('is_active', true)
         .neq('id', currentProductId)

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, ArrowRight, Zap } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import ProductRating from '@/components/product/ProductRating';
 import TrustBadges from '@/components/product/TrustBadges';
@@ -35,19 +35,35 @@ export default function ProductDetail() {
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const { data: productData, error: productError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
+      let query;
+      
+      // التحقق إذا كان id هو UUID
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '');
+      
+      if (isUUID) {
+        // جلب بواسطة UUID (للروابط القديمة)
+        query = supabase
+          .from('products')
+          .select('*')
+          .eq('id', id);
+      } else {
+        // جلب بواسطة Slug (الروابط الجديدة)
+        query = supabase
+          .from('products')
+          .select('*')
+          .eq('slug', id);
+      }
+      
+      const { data: productData, error: productError } = await query.maybeSingle();
       
       if (productError) throw productError;
+      if (!productData) throw new Error('المنتج غير موجود');
 
       // جلب الصور المرتبطة
-      const { data: images, error: imagesError } = await supabase
+      const { data: images } = await supabase
         .from('product_images')
         .select('*')
-        .eq('product_id', id)
+        .eq('product_id', productData.id)
         .order('display_order', { ascending: true });
 
       return {
@@ -56,6 +72,13 @@ export default function ProductDetail() {
       };
     },
   });
+
+  // إعادة توجيه من UUID إلى Slug
+  useEffect(() => {
+    if (product && product.slug && id !== product.slug) {
+      navigate(`/product/${product.slug}`, { replace: true });
+    }
+  }, [product, id, navigate]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -158,6 +181,7 @@ export default function ProductDetail() {
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
         category={product.category}
+        slug={product.slug}
       />
       <BreadcrumbSchema
         items={[

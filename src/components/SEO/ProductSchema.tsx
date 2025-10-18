@@ -14,6 +14,7 @@ interface ProductSchemaProps {
   reviewCount?: number;
   gtin?: string;
   mpn?: string;
+  slug?: string | null;
 }
 
 export const ProductSchema = ({
@@ -30,6 +31,7 @@ export const ProductSchema = ({
   reviewCount,
   gtin,
   mpn,
+  slug,
 }: ProductSchemaProps) => {
   const schema = {
     '@context': 'https://schema.org/',
@@ -44,7 +46,7 @@ export const ProductSchema = ({
     },
     offers: {
       '@type': 'Offer',
-      url: `https://sevengreenstore.com${window.location.pathname}`,
+      url: `https://sevengreenstore.com/product/${slug || sku}`,
       priceCurrency: currency,
       price: price.toString(),
       priceValidUntil: '2025-12-31',
