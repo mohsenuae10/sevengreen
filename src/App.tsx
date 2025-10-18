@@ -25,6 +25,7 @@ import AdminDashboard from '@/pages/admin/Dashboard';
 import AdminCategories from '@/pages/admin/Categories';
 import AdminProducts from '@/pages/admin/Products';
 import AdminImportProduct from '@/pages/admin/ImportProduct';
+import AdminPromotionalBanners from '@/pages/admin/PromotionalBanners';
 import AdminOrders from '@/pages/admin/Orders';
 import AdminOrderDetail from '@/pages/admin/OrderDetail';
 import AdminSettings from '@/pages/admin/Settings';
@@ -58,6 +59,7 @@ function App() {
               <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
               <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
               <Route path="/admin/import-product" element={<ProtectedRoute><AdminImportProduct /></ProtectedRoute>} />
+              <Route path="/admin/promotional-banners" element={<ProtectedRoute><AdminPromotionalBanners /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
               <Route path="/admin/orders/pending-payment" element={<ProtectedRoute><PendingPaymentOrders /></ProtectedRoute>} />
               <Route path="/admin/orders/paid" element={<ProtectedRoute><PaidOrders /></ProtectedRoute>} />
