@@ -296,12 +296,15 @@ export default function PromotionalBanners() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>المنتج (اختياري)</Label>
-              <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+              <Select 
+                value={selectedProductId || "none"} 
+                onValueChange={(value) => setSelectedProductId(value === "none" ? "" : value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="اختر المنتج (اختياري)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">بدون منتج</SelectItem>
+                  <SelectItem value="none">بدون منتج</SelectItem>
                   {products?.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
                       {product.name_ar}
