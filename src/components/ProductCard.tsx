@@ -112,10 +112,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         )}
       </Link>
       
-      <CardContent className="p-3 flex flex-col flex-grow space-y-2">
+      <CardContent className="p-2 flex flex-col flex-grow space-y-1">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-xs text-center hover:text-primary transition-colors line-clamp-2 h-9 leading-snug flex items-center justify-center">
+          <h3 className="font-bold text-[10px] text-center hover:text-primary transition-colors line-clamp-2 h-8 leading-tight flex items-center justify-center">
             {name_ar}
           </h3>
         </Link>
@@ -131,30 +131,30 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         </div>
 
         {/* السعر والخصم */}
-        <div className="text-center space-y-1.5 min-h-[4.5rem]">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-baseline gap-1">
-              <p className="text-xl font-bold text-primary">
+        <div className="text-center space-y-0.5 min-h-[3rem]">
+          <div className="flex items-center justify-center gap-1">
+            <div className="flex items-baseline gap-0.5">
+              <p className="text-sm font-bold text-primary">
                 {price.toFixed(2)}
               </p>
-              <p className="text-xs font-semibold text-muted-foreground">
+              <p className="text-[8px] font-semibold text-muted-foreground">
                 ر.س
               </p>
             </div>
             {hasDiscount && (
-              <div className="flex items-baseline gap-1">
-                <p className="text-xs text-muted-foreground line-through">
+              <div className="flex items-baseline gap-0.5">
+                <p className="text-[9px] text-muted-foreground line-through">
                   {oldPrice.toFixed(2)}
                 </p>
-                <p className="text-[10px] text-muted-foreground">ر.س</p>
+                <p className="text-[7px] text-muted-foreground">ر.س</p>
               </div>
             )}
           </div>
           {/* مساحة محجوزة للخصم */}
-          <div className="h-6">
+          <div className="h-4">
             {hasDiscount && (
-              <div className="bg-red-50 dark:bg-red-950/30 rounded-md px-2 py-1 inline-block">
-                <p className="text-[10px] text-red-600 dark:text-red-400 font-bold">
+              <div className="bg-red-50 dark:bg-red-950/30 rounded-sm px-1 py-0.5 inline-block">
+                <p className="text-[8px] text-red-600 dark:text-red-400 font-bold">
                   وفّر {discountPercentage}%
                 </p>
               </div>
@@ -163,26 +163,26 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         </div>
 
         {stock_quantity <= 0 && (
-          <p className="text-[10px] text-destructive text-center font-semibold bg-destructive/10 rounded-md py-1">
+          <p className="text-[8px] text-destructive text-center font-semibold bg-destructive/10 rounded-sm py-0.5">
             غير متوفر
           </p>
         )}
 
         {/* أزرار الشراء */}
-        <div className="flex gap-2 mt-auto">
+        <div className="flex gap-1 mt-auto">
           <Button
             onClick={handleAddToCart}
             variant="outline"
             size="sm"
-            className="flex-1 h-8 rounded-lg"
+            className="flex-1 h-6 rounded-md text-[9px] p-0"
             disabled={stock_quantity <= 0}
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
+            <ShoppingCart className="h-2.5 w-2.5" />
           </Button>
           <Button
             onClick={handleBuyNow}
             size="sm"
-            className="flex-[2] h-8 rounded-lg font-bold"
+            className="flex-[2] h-6 rounded-md text-[9px] font-bold p-1"
             disabled={stock_quantity <= 0}
           >
             اشتر الآن
