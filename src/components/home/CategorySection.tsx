@@ -41,7 +41,7 @@ interface CategorySectionProps {
 }
 
 export const CategorySection = ({ title, category, products, icon, delay = '0s' }: CategorySectionProps) => {
-  const categoryProducts = products.filter(p => p.category?.trim() === category).slice(0, 3);
+  const categoryProducts = products.filter(p => p.category?.trim() === category);
   
   // Get banner image for this category (fallback to first image if not found)
   const bannerImage = categoryBanners[category] || hairCareBanner;
