@@ -77,13 +77,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group relative bg-gradient-to-br from-card to-secondary/30 h-full flex flex-col border-2 border-transparent hover:border-primary/20 rounded-2xl">
-      {/* Decorative corner gradient */}
-      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-card h-full flex flex-col">
       {/* شارة المنتج */}
       {hasBadge && (
-        <Badge className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold text-[8px] px-2 py-0.5 hover:bg-yellow-400 shadow-lg rounded-full">
+        <Badge className="absolute top-1 right-1 z-10 bg-yellow-400 text-black font-bold text-[7px] px-1 py-0 hover:bg-yellow-400">
           {randomBadge}
         </Badge>
       )}
@@ -91,41 +88,34 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       {/* أيقونة المفضلة */}
       <button
         onClick={toggleFavorite}
-        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-full bg-white/95 backdrop-blur-md flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-md"
+        className="absolute top-1 left-1 z-10 w-5 h-5 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
       >
         <Heart
-          className={`h-3.5 w-3.5 transition-all duration-300 ${
-            isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-600'
+          className={`h-2.5 w-2.5 transition-colors ${
+            isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'
           }`}
         />
       </button>
 
-      <Link to={`/product/${slug || id}`} className="relative">
-        {/* Image container with overlay */}
-        <div className="relative overflow-hidden rounded-t-2xl">
-          {image_url ? (
-            <>
-              <OptimizedImage
-                src={image_url}
-                alt={`${name_ar} - منتج طبيعي 100% من سفن جرين${category ? ` | ${category}` : ''}`}
-                className="aspect-square group-hover:scale-110 transition-transform duration-700"
-                aspectRatio="1/1"
-              />
-              {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            </>
-          ) : (
-            <div className="aspect-square bg-gradient-to-br from-secondary to-muted flex items-center justify-center text-muted-foreground text-[8px]">
-              لا توجد صورة
-            </div>
-          )}
-        </div>
+      <Link to={`/product/${slug || id}`}>
+        {image_url ? (
+          <OptimizedImage
+            src={image_url}
+            alt={`${name_ar} - منتج طبيعي 100% من سفن جرين${category ? ` | ${category}` : ''}`}
+            className="aspect-square group-hover:scale-105 transition-transform duration-500"
+            aspectRatio="1/1"
+          />
+        ) : (
+          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
+            لا توجد صورة
+          </div>
+        )}
       </Link>
       
-      <CardContent className="p-3 flex flex-col flex-grow space-y-2">
+      <CardContent className="p-2 flex flex-col flex-grow space-y-1">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-[11px] text-center hover:text-primary transition-colors line-clamp-2 h-9 leading-snug flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+          <h3 className="font-bold text-[10px] text-center hover:text-primary transition-colors line-clamp-2 h-8 leading-tight flex items-center justify-center">
             {name_ar}
           </h3>
         </Link>
@@ -141,30 +131,30 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         </div>
 
         {/* السعر والخصم */}
-        <div className="text-center space-y-1 min-h-[3.5rem]">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-baseline gap-1 bg-primary/5 px-2 py-1 rounded-lg">
-              <p className="text-base font-bold text-primary">
+        <div className="text-center space-y-0.5 min-h-[3rem]">
+          <div className="flex items-center justify-center gap-1">
+            <div className="flex items-baseline gap-0.5">
+              <p className="text-sm font-bold text-primary">
                 {price.toFixed(2)}
               </p>
-              <p className="text-[9px] font-semibold text-muted-foreground">
+              <p className="text-[8px] font-semibold text-muted-foreground">
                 ر.س
               </p>
             </div>
             {hasDiscount && (
               <div className="flex items-baseline gap-0.5">
-                <p className="text-[10px] text-muted-foreground line-through">
+                <p className="text-[9px] text-muted-foreground line-through">
                   {oldPrice.toFixed(2)}
                 </p>
-                <p className="text-[8px] text-muted-foreground">ر.س</p>
+                <p className="text-[7px] text-muted-foreground">ر.س</p>
               </div>
             )}
           </div>
           {/* مساحة محجوزة للخصم */}
-          <div className="h-5">
+          <div className="h-4">
             {hasDiscount && (
-              <div className="bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 rounded-full px-2 py-0.5 inline-block shadow-sm">
-                <p className="text-[9px] text-white font-bold">
+              <div className="bg-red-50 dark:bg-red-950/30 rounded-sm px-1 py-0.5 inline-block">
+                <p className="text-[8px] text-red-600 dark:text-red-400 font-bold">
                   وفّر {discountPercentage}%
                 </p>
               </div>
@@ -173,29 +163,28 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         </div>
 
         {stock_quantity <= 0 && (
-          <p className="text-[9px] text-destructive text-center font-semibold bg-destructive/10 rounded-lg py-1 border border-destructive/20">
+          <p className="text-[8px] text-destructive text-center font-semibold bg-destructive/10 rounded-sm py-0.5">
             غير متوفر
           </p>
         )}
 
         {/* أزرار الشراء */}
-        <div className="flex gap-1.5 mt-auto">
+        <div className="flex gap-1 mt-auto">
           <Button
             onClick={handleAddToCart}
             variant="outline"
             size="sm"
-            className="flex-1 h-7 rounded-lg text-[10px] p-0 border-2 hover:border-primary hover:bg-primary/5 transition-all duration-300"
+            className="flex-1 h-6 rounded-md text-[9px] p-0"
             disabled={stock_quantity <= 0}
           >
-            <ShoppingCart className="h-3 w-3" />
+            <ShoppingCart className="h-2.5 w-2.5" />
           </Button>
           <Button
             onClick={handleBuyNow}
             size="sm"
-            className="flex-[2] h-7 rounded-lg text-[10px] font-bold p-1 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary shadow-md hover:shadow-lg transition-all duration-300"
+            className="flex-[2] h-6 rounded-md text-[9px] font-bold p-1"
             disabled={stock_quantity <= 0}
           >
-            <Zap className="h-3 w-3 ml-1" />
             اشتر الآن
           </Button>
         </div>
