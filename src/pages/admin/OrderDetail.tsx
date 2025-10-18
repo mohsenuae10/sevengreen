@@ -262,7 +262,7 @@ export default function AdminOrderDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               {order?.payment_status === 'completed' ? (
-                <>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="trackingNumber">رقم التتبع</Label>
                     <Input
@@ -334,7 +334,7 @@ export default function AdminOrderDetail() {
                       )}
                     </div>
                   )}
-                </>
+                </div>
               ) : (
                 <div className="p-6 bg-destructive/5 border border-destructive/20 rounded-lg text-center">
                   <p className="text-destructive font-bold text-lg">غير مدفوع</p>
@@ -360,21 +360,21 @@ export default function AdminOrderDetail() {
               {order?.order_items?.map((item: any) => (
                 <div 
                   key={item.id} 
-                  className="flex justify-between items-center py-2 border-b last:border-0"
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 py-3 border-b last:border-0"
                 >
                   <div>
-                    <p className="font-semibold">{item.product_name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-semibold text-sm lg:text-base">{item.product_name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {item.quantity} × {item.unit_price} ريال
                     </p>
                   </div>
-                  <p className="font-bold">{item.total_price} ريال</p>
+                  <p className="font-bold text-base lg:text-lg">{item.total_price} ريال</p>
                 </div>
               ))}
             </div>
             <div className="flex justify-between items-center pt-4 border-t-2">
-              <p className="font-bold text-lg">المجموع الكلي</p>
-              <p className="font-bold text-2xl text-primary">{order?.total_amount} ريال</p>
+              <p className="font-bold text-base lg:text-lg">المجموع الكلي</p>
+              <p className="font-bold text-xl lg:text-2xl text-primary">{order?.total_amount} ريال</p>
             </div>
           </CardContent>
         </Card>
