@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -12,12 +12,13 @@ import { toast } from 'sonner';
 import { OrderTimeline } from '@/components/admin/OrderTimeline';
 import { QuickActionsPanel } from '@/components/admin/QuickActionsPanel';
 import { ShippingModal } from '@/components/admin/ShippingModal';
-import { User, Mail, Phone, MapPin, Package, DollarSign, Calendar, Loader2, Truck, ExternalLink, Save } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Package, DollarSign, Calendar, Loader2, Truck, ExternalLink, Save, ArrowRight } from 'lucide-react';
 
 type OrderStatus = 'pending' | 'processing' | 'packed' | 'shipped' | 'delivered' | 'cancelled';
 
 export default function AdminOrderDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [status, setStatus] = useState<OrderStatus>('pending');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [shippingCompany, setShippingCompany] = useState('');
@@ -186,18 +187,29 @@ export default function AdminOrderDetail() {
       <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
         {/* Header - رقم الطلب والتاريخ */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{order?.order_number}</h1>
-            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              {order?.created_at && new Date(order.created_at).toLocaleDateString('ar-SA', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/admin/orders')}
+              className="gap-2"
+            >
+              <ArrowRight className="w-4 h-4" />
+              رجوع
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">{order?.order_number}</h1>
+              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                {order?.created_at && new Date(order.created_at).toLocaleDateString('ar-SA', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+            </div>
           </div>
           {order?.payment_status === 'pending' && (
             <Button 

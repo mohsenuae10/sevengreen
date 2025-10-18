@@ -37,36 +37,6 @@ export const QuickActionsPanel = ({
   const getQuickActions = () => {
     const actions = [];
 
-    // أزرار حسب الحالة
-    if (currentStatus === 'pending') {
-      actions.push(
-        <Button
-          key="confirm"
-          onClick={() => onStatusChange('processing')}
-          className="flex-1 gap-2"
-          size="lg"
-        >
-          <CheckCircle className="w-5 h-5" />
-          تأكيد الطلب
-        </Button>
-      );
-    }
-
-    if (currentStatus === 'processing') {
-      actions.push(
-        <Button
-          key="pack"
-          onClick={() => onStatusChange('packed')}
-          variant="secondary"
-          className="flex-1 gap-2"
-          size="lg"
-        >
-          <Package className="w-5 h-5" />
-          جهز للشحن
-        </Button>
-      );
-    }
-
     if (currentStatus === 'packed') {
       actions.push(
         <Button
@@ -91,22 +61,6 @@ export const QuickActionsPanel = ({
         >
           <CheckCircle className="w-5 h-5" />
           تأكيد التوصيل
-        </Button>
-      );
-    }
-
-    // الإجراءات المتاحة دائماً
-    if (currentStatus !== 'cancelled' && currentStatus !== 'delivered') {
-      actions.push(
-        <Button
-          key="cancel"
-          onClick={() => onStatusChange('cancelled')}
-          variant="destructive"
-          className="gap-2"
-          size="lg"
-        >
-          <XCircle className="w-5 h-5" />
-          إلغاء الطلب
         </Button>
       );
     }
