@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 
 interface PromotionalBannerProps {
   bannerUrl: string;
-  productSlug: string;
+  productId: string;
   offerDescription: string;
 }
 
-export const PromotionalBanner = ({ bannerUrl, productSlug, offerDescription }: PromotionalBannerProps) => {
+export const PromotionalBanner = ({ bannerUrl, productId, offerDescription }: PromotionalBannerProps) => {
   return (
     <Link 
-      to={`/products/${productSlug}`}
+      to={`/product/${productId}`}
       className="block w-full overflow-hidden group"
     >
       <div className="relative">

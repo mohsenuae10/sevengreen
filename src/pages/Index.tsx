@@ -4,29 +4,36 @@ import { PromotionalBanner } from "@/components/PromotionalBanner";
 import Home from "@/pages/Home";
 
 const Index = () => {
-  const { data: activeBanners } = useQuery({
+  const { data: activeBanners, isLoading } = useQuery({
     queryKey: ['promotional-banners-active'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('promotional_banners')
-        .select('*, products(slug)')
+        .select('id, banner_image_url, offer_description, product_id')
         .eq('is_active', true)
         .order('display_order', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching promotional banners:', error);
+        throw error;
+      }
+      
+      console.log('Promotional banners fetched:', data);
       return data;
     },
   });
 
+  console.log('Active banners:', activeBanners);
+
   return (
     <>
-      {activeBanners && activeBanners.length > 0 && (
+      {!isLoading && activeBanners && activeBanners.length > 0 && (
         <div className="w-full">
           {activeBanners.map((banner) => (
             <PromotionalBanner
               key={banner.id}
               bannerUrl={banner.banner_image_url || ''}
-              productSlug={banner.products?.slug || ''}
+              productId={banner.product_id}
               offerDescription={banner.offer_description}
             />
           ))}
