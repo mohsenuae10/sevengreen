@@ -173,19 +173,20 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           <Button
             onClick={handleAddToCart}
             variant="outline"
-            className="flex-1 text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
+            size="sm"
+            className="flex-1 h-8 rounded-lg"
             disabled={stock_quantity <= 0}
           >
-            <ShoppingCart className="ml-1.5 h-4 w-4" />
-            أضف
+            <ShoppingCart className="h-3.5 w-3.5" />
           </Button>
           <Button
             onClick={handleBuyNow}
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
+            size="sm"
+            className="flex-[2] h-8 rounded-lg"
             disabled={stock_quantity <= 0}
           >
-            <Zap className="ml-1.5 h-4 w-4" />
-            اشتر
+            <Zap className="ml-1 h-3.5 w-3.5" />
+            اشتر الآن
           </Button>
         </div>
       </CardContent>
