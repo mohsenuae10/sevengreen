@@ -12,6 +12,8 @@ interface ProductSchemaProps {
   brand?: string;
   rating?: number;
   reviewCount?: number;
+  gtin?: string;
+  mpn?: string;
 }
 
 export const ProductSchema = ({
@@ -23,9 +25,11 @@ export const ProductSchema = ({
   sku,
   availability,
   category,
-  brand = 'Seven Green',
+  brand = 'متجر سفن جرين',
   rating,
   reviewCount,
+  gtin,
+  mpn,
 }: ProductSchemaProps) => {
   const schema = {
     '@context': 'https://schema.org/',
@@ -43,14 +47,18 @@ export const ProductSchema = ({
       url: `https://sevengreenstore.com${window.location.pathname}`,
       priceCurrency: currency,
       price: price.toString(),
+      priceValidUntil: '2025-12-31',
       availability: `https://schema.org/${availability}`,
+      itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',
-        name: 'Seven Green',
+        name: 'متجر سفن جرين',
       },
     },
     ...(category && { category }),
-    ...(rating && reviewCount && {
+    ...(gtin && { gtin }),
+    ...(mpn && { mpn }),
+    ...(rating && reviewCount && reviewCount > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: rating.toString(),

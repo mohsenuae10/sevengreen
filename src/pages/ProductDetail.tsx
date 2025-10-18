@@ -158,8 +158,6 @@ export default function ProductDetail() {
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
         category={product.category}
-        rating={4.5}
-        reviewCount={0}
       />
       <BreadcrumbSchema
         items={[
