@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Leaf, Menu, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Leaf, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Badge } from './ui/badge';
@@ -23,6 +24,16 @@ const categories = [
 
 export const Header = () => {
   const { totalItems } = useCart();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+
+  const handleMobileNavClick = () => {
+    setMobileMenuOpen(false);
+  };
+
+  const handleDesktopCategoryClick = () => {
+    setDesktopMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,7 +41,7 @@ export const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Mobile Menu */}
           <div className="md:hidden">
-            <Sheet>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
@@ -38,7 +49,11 @@ export const Header = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] bg-background">
                 <nav className="flex flex-col gap-4 mt-8">
-                  <Link to="/" className="text-base font-medium hover:text-primary transition-colors py-2">
+                  <Link 
+                    to="/" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
                     الرئيسية
                   </Link>
                   <div className="border-t pt-2">
@@ -47,19 +62,32 @@ export const Header = () => {
                       <Link
                         key={category.slug}
                         to={`/products?category=${category.slug}`}
+                        onClick={handleMobileNavClick}
                         className="block text-sm hover:text-primary transition-colors py-2 pr-4"
                       >
                         {category.name}
                       </Link>
                     ))}
                   </div>
-                  <Link to="/products" className="text-base font-medium hover:text-primary transition-colors py-2">
+                  <Link 
+                    to="/products" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
                     جميع المنتجات
                   </Link>
-                  <Link to="/about" className="text-base font-medium hover:text-primary transition-colors py-2">
+                  <Link 
+                    to="/about" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
                     من نحن
                   </Link>
-                  <Link to="/contact" className="text-base font-medium hover:text-primary transition-colors py-2">
+                  <Link 
+                    to="/contact" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
                     اتصل بنا
                   </Link>
                 </nav>
@@ -68,20 +96,24 @@ export const Header = () => {
           </div>
 
           {/* Desktop Navigation Menu */}
-          <NavigationMenu className="hidden md:flex">
+          <NavigationMenu className="hidden md:flex" value={desktopMenuOpen ? "categories" : ""}>
             <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent">
+              <NavigationMenuItem value="categories">
+                <NavigationMenuTrigger 
+                  className="bg-transparent"
+                  onClick={() => setDesktopMenuOpen(!desktopMenuOpen)}
+                >
                   الأقسام
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="bg-background">
+                <NavigationMenuContent className="bg-background border shadow-lg">
                   <div className="grid gap-3 p-4 w-[400px]">
                     <div className="grid grid-cols-2 gap-2">
                       {categories.map((category) => (
                         <Link
                           key={category.slug}
                           to={`/products?category=${category.slug}`}
-                          className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          onClick={handleDesktopCategoryClick}
+                          className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground animate-fade-in"
                         >
                           <div className="text-sm font-medium leading-none">{category.name}</div>
                         </Link>
