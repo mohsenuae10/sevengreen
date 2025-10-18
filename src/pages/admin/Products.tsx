@@ -16,15 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ImageUploader } from '@/components/product/ImageUploader';
 import { OptimizedImage } from '@/components/OptimizedImage';
 
-const CATEGORIES = [
-  'العناية بالشعر',
-  'العناية بالبشرة',
-  'العناية بالجسم',
-  'الصحة والعافية',
-  'العناية بالرجال',
-  'الهدايا والمجموعات'
-];
-
 export default function AdminProducts() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -273,6 +264,20 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // جلب الأقسام من قاعدة البيانات
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('name_ar, slug')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // جلب الصور الحالية عند التعديل
   useEffect(() => {
@@ -656,9 +661,9 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
               <SelectValue placeholder="اختر الفئة" />
             </SelectTrigger>
             <SelectContent>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+              {categories?.map((cat) => (
+                <SelectItem key={cat.slug} value={cat.name_ar}>
+                  {cat.name_ar}
                 </SelectItem>
               ))}
             </SelectContent>
