@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { MainHeroBanner } from '@/components/home/MainHeroBanner';
+import { PromoBanner } from '@/components/home/PromoBanner';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
 import { SpecialOffers } from '@/components/home/SpecialOffers';
 import { CategorySection } from '@/components/home/CategorySection';
@@ -78,8 +78,8 @@ export default function Home() {
       />
       <OrganizationSchema />
       
-      {/* Main Hero Banner */}
-      <MainHeroBanner />
+      {/* Promotional Banner */}
+      <PromoBanner />
       
       {/* Products by Category */}
       <section className="py-20 bg-background">

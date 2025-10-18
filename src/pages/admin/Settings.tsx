@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Trash2, GripVertical } from 'lucide-react';
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -48,6 +50,7 @@ export default function AdminSettings() {
     store_url: '',
     currency: 'ريال',
     store_logo_url: '',
+    promo_messages: [] as { text: string; icon: string }[],
   });
 
   const [privateFormData, setPrivateFormData] = useState({
@@ -69,6 +72,7 @@ export default function AdminSettings() {
         store_url: publicSettings.store_url || '',
         currency: publicSettings.currency || 'ريال',
         store_logo_url: publicSettings.store_logo_url || '',
+        promo_messages: (publicSettings.promo_messages as unknown as { text: string; icon: string }[]) || [],
       });
     }
   }, [publicSettings]);
@@ -94,9 +98,39 @@ export default function AdminSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['public-settings-admin'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings-footer'] });
+      queryClient.invalidateQueries({ queryKey: ['public-settings-promo'] });
       toast({ title: 'تم حفظ الإعدادات العامة بنجاح' });
     },
   });
+
+  const availableIcons = [
+    { value: 'tag', label: 'عرض/تاج' },
+    { value: 'truck', label: 'شحن' },
+    { value: 'leaf', label: 'طبيعي' },
+    { value: 'headphones', label: 'دعم فني' },
+    { value: 'sparkles', label: 'جديد' },
+    { value: 'shield-check', label: 'ضمان' },
+    { value: 'gift', label: 'هدية' },
+    { value: 'percent', label: 'نسبة مئوية' },
+  ];
+
+  const addPromoMessage = () => {
+    setPublicFormData({
+      ...publicFormData,
+      promo_messages: [...publicFormData.promo_messages, { text: '', icon: 'tag' }],
+    });
+  };
+
+  const removePromoMessage = (index: number) => {
+    const newMessages = publicFormData.promo_messages.filter((_, i) => i !== index);
+    setPublicFormData({ ...publicFormData, promo_messages: newMessages });
+  };
+
+  const updatePromoMessage = (index: number, field: 'text' | 'icon', value: string) => {
+    const newMessages = [...publicFormData.promo_messages];
+    newMessages[index] = { ...newMessages[index], [field]: value };
+    setPublicFormData({ ...publicFormData, promo_messages: newMessages });
+  };
 
   const updatePrivateMutation = useMutation({
     mutationFn: async () => {
@@ -194,6 +228,68 @@ export default function AdminSettings() {
                 onChange={(e) => setPublicFormData({ ...publicFormData, seo_home_description: e.target.value })}
               />
             </div>
+
+            <div className="space-y-4 border-t pt-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-lg font-semibold">رسائل الشريط الترويجي</Label>
+                <Button
+                  type="button"
+                  onClick={addPromoMessage}
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  إضافة رسالة
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {publicFormData.promo_messages.map((message, index) => (
+                  <div key={index} className="flex gap-2 items-start p-3 bg-muted/50 rounded-lg">
+                    <GripVertical className="h-5 w-5 text-muted-foreground mt-2 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        placeholder="نص الرسالة"
+                        value={message.text}
+                        onChange={(e) => updatePromoMessage(index, 'text', e.target.value)}
+                      />
+                      <Select
+                        value={message.icon}
+                        onValueChange={(value) => updatePromoMessage(index, 'icon', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر الأيقونة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableIcons.map((icon) => (
+                            <SelectItem key={icon.value} value={icon.value}>
+                              {icon.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => removePromoMessage(index)}
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive mt-1"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {publicFormData.promo_messages.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  لا توجد رسائل ترويجية. اضغط "إضافة رسالة" للبدء.
+                </p>
+              )}
+            </div>
+
             <Button 
               onClick={() => updatePublicMutation.mutate()}
               disabled={updatePublicMutation.isPending}

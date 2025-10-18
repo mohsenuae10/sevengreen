@@ -229,6 +229,7 @@ export type Database = {
           facebook_url: string | null
           id: string
           instagram_url: string | null
+          promo_messages: Json | null
           seo_home_description: string | null
           seo_home_title: string | null
           store_domain: string | null
@@ -243,6 +244,7 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
+          promo_messages?: Json | null
           seo_home_description?: string | null
           seo_home_title?: string | null
           store_domain?: string | null
@@ -257,6 +259,7 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
+          promo_messages?: Json | null
           seo_home_description?: string | null
           seo_home_title?: string | null
           store_domain?: string | null
