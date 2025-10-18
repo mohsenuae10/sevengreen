@@ -168,15 +168,26 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           </p>
         )}
 
-        {/* زر اشتر الآن */}
-        <Button
-          onClick={handleBuyNow}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all mt-auto"
-          disabled={stock_quantity <= 0}
-        >
-          <Zap className="ml-1.5 h-4 w-4" />
-          اشتر الآن
-        </Button>
+        {/* أزرار الشراء */}
+        <div className="flex gap-2 mt-auto">
+          <Button
+            onClick={handleAddToCart}
+            variant="outline"
+            className="flex-1 text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
+            disabled={stock_quantity <= 0}
+          >
+            <ShoppingCart className="ml-1.5 h-4 w-4" />
+            أضف
+          </Button>
+          <Button
+            onClick={handleBuyNow}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
+            disabled={stock_quantity <= 0}
+          >
+            <Zap className="ml-1.5 h-4 w-4" />
+            اشتر
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
