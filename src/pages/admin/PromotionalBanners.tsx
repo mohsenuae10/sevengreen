@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Edit, Sparkles } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit, Sparkles, Upload } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -51,6 +52,8 @@ export default function PromotionalBanners() {
   const [isActive, setIsActive] = useState(false);
   const [displayOrder, setDisplayOrder] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<"generate" | "upload">("generate");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
@@ -219,6 +222,50 @@ export default function PromotionalBanners() {
     setIsGenerating(false);
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('يرجى اختيار صورة صالحة');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const fileName = `banner-${Date.now()}-${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('promotional-banners')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('promotional-banners')
+        .getPublicUrl(fileName);
+
+      setBannerUrl(publicUrl);
+      toast.success('تم رفع الصورة بنجاح');
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error('فشل في رفع الصورة');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -265,23 +312,54 @@ export default function PromotionalBanners() {
               />
             </div>
 
-            <Button 
-              onClick={handleGenerateBanner} 
-              disabled={isGenerating || !selectedProductId || !offerDescription}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  جاري التوليد...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="ml-2 h-4 w-4" />
-                  توليد البنر بالذكاء الاصطناعي
-                </>
-              )}
-            </Button>
+            <Tabs value={uploadMethod} onValueChange={(v) => setUploadMethod(v as "generate" | "upload")} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="generate">توليد بالذكاء الاصطناعي</TabsTrigger>
+                <TabsTrigger value="upload">رفع صورة</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="generate" className="space-y-4">
+                <Button 
+                  onClick={handleGenerateBanner} 
+                  disabled={isGenerating || !selectedProductId || !offerDescription}
+                  className="w-full"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      جاري التوليد...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="ml-2 h-4 w-4" />
+                      توليد البنر بالذكاء الاصطناعي
+                    </>
+                  )}
+                </Button>
+              </TabsContent>
+              
+              <TabsContent value="upload" className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="banner-upload">رفع صورة البنر (الحجم الموصى به: 1536x512 بكسل)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="banner-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="flex-1"
+                    />
+                    {uploadingImage && (
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    الحد الأقصى لحجم الملف: 5 ميجابايت. الصيغ المدعومة: JPG, PNG, WEBP
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
 
             {bannerUrl && (
               <div className="space-y-2">

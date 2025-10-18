@@ -99,7 +99,10 @@ export default function Home() {
       />
       <OrganizationSchema />
       
-      {/* Promotional Banners */}
+      {/* Promotional Banner (Rotating Messages) */}
+      <PromoBanner />
+
+      {/* Promotional Banners (AI Generated/Uploaded) */}
       {activeBanners && activeBanners.length > 0 && (
         <div className="w-full">
           {activeBanners.map((banner) => (
@@ -112,9 +115,6 @@ export default function Home() {
           ))}
         </div>
       )}
-
-      {/* Promotional Banner */}
-      <PromoBanner />
       
       {/* Products by Category */}
       <section className="py-20 bg-background">
