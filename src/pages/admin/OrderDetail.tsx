@@ -286,18 +286,12 @@ export default function AdminOrderDetail() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="shippingCompany">شركة الشحن</Label>
-                    <Select value={shippingCompany} onValueChange={setShippingCompany}>
-                      <SelectTrigger id="shippingCompany">
-                        <SelectValue placeholder="اختر شركة الشحن" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SMSA">SMSA</SelectItem>
-                        <SelectItem value="أرامكس">أرامكس</SelectItem>
-                        <SelectItem value="DHL">DHL</SelectItem>
-                        <SelectItem value="UPS">UPS</SelectItem>
-                        <SelectItem value="FedEx">FedEx</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="shippingCompany"
+                      value={shippingCompany}
+                      onChange={(e) => setShippingCompany(e.target.value)}
+                      placeholder="أدخل اسم شركة الشحن..."
+                    />
                   </div>
 
                   {trackingNumber && shippingCompany && (
