@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PromoBanner } from '@/components/home/PromoBanner';
+import { PromotionalBanner } from '@/components/PromotionalBanner';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
 import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
@@ -59,6 +60,26 @@ export default function Home() {
     },
   });
 
+  // Fetch promotional banners
+  const { data: activeBanners } = useQuery({
+    queryKey: ['promotional-banners-active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('promotional_banners')
+        .select('id, banner_image_url, offer_description, product_id')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching promotional banners:', error);
+        return [];
+      }
+      
+      console.log('Promotional banners fetched:', data);
+      return data || [];
+    },
+  });
+
   // Get featured product (most recent)
   const featuredProduct = products?.[0];
 
@@ -78,6 +99,20 @@ export default function Home() {
       />
       <OrganizationSchema />
       
+      {/* Promotional Banners */}
+      {activeBanners && activeBanners.length > 0 && (
+        <div className="w-full">
+          {activeBanners.map((banner) => (
+            <PromotionalBanner
+              key={banner.id}
+              bannerUrl={banner.banner_image_url || ''}
+              productId={banner.product_id}
+              offerDescription={banner.offer_description}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Promotional Banner */}
       <PromoBanner />
       
