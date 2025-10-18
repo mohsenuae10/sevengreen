@@ -67,13 +67,19 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          delivered_at: string | null
+          estimated_delivery_date: string | null
           id: string
           notes: string | null
           order_number: string
+          packed_at: string | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
+          shipped_at: string | null
           shipping_address: string
+          shipping_company: string | null
           shipping_fee: number
           status: Database["public"]["Enums"]["order_status"] | null
+          status_history: Json | null
           stripe_payment_id: string | null
           total_amount: number
           tracking_number: string | null
@@ -86,13 +92,19 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          delivered_at?: string | null
+          estimated_delivery_date?: string | null
           id?: string
           notes?: string | null
           order_number: string
+          packed_at?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          shipped_at?: string | null
           shipping_address: string
+          shipping_company?: string | null
           shipping_fee?: number
           status?: Database["public"]["Enums"]["order_status"] | null
+          status_history?: Json | null
           stripe_payment_id?: string | null
           total_amount: number
           tracking_number?: string | null
@@ -105,13 +117,19 @@ export type Database = {
           customer_email?: string
           customer_name?: string
           customer_phone?: string
+          delivered_at?: string | null
+          estimated_delivery_date?: string | null
           id?: string
           notes?: string | null
           order_number?: string
+          packed_at?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          shipped_at?: string | null
           shipping_address?: string
+          shipping_company?: string | null
           shipping_fee?: number
           status?: Database["public"]["Enums"]["order_status"] | null
+          status_history?: Json | null
           stripe_payment_id?: string | null
           total_amount?: number
           tracking_number?: string | null
@@ -372,6 +390,7 @@ export type Database = {
         | "shipped"
         | "delivered"
         | "cancelled"
+        | "packed"
       payment_status: "pending" | "completed" | "failed"
     }
     CompositeTypes: {
@@ -507,6 +526,7 @@ export const Constants = {
         "shipped",
         "delivered",
         "cancelled",
+        "packed",
       ],
       payment_status: ["pending", "completed", "failed"],
     },

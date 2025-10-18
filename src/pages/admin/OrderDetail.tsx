@@ -8,20 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { Mail, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { OrderTimeline } from '@/components/admin/OrderTimeline';
+import { QuickActionsPanel } from '@/components/admin/QuickActionsPanel';
+import { ShippingModal } from '@/components/admin/ShippingModal';
+import { User, Mail, Phone, MapPin, Package, DollarSign, Calendar, Loader2 } from 'lucide-react';
 
-type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+type OrderStatus = 'pending' | 'processing' | 'packed' | 'shipped' | 'delivered' | 'cancelled';
 
 export default function AdminOrderDetail() {
   const { id } = useParams();
   const [status, setStatus] = useState<OrderStatus>('pending');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [isSendingReminder, setIsSendingReminder] = useState(false);
-  const { toast } = useToast();
+  const [showShippingModal, setShowShippingModal] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: order } = useQuery({
+  const { data: order, isLoading } = useQuery({
     queryKey: ['admin-order', id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -37,44 +40,66 @@ export default function AdminOrderDetail() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (updates: { status?: OrderStatus; tracking_number?: string; shipping_company?: string }) => {
       const { error } = await supabase
         .from('orders')
-        .update({ status, tracking_number: trackingNumber })
+        .update(updates)
         .eq('id', id);
       if (error) throw error;
+      return updates;
     },
-    onSuccess: async () => {
+    onSuccess: async (updates) => {
       queryClient.invalidateQueries({ queryKey: ['admin-order', id] });
-      toast({ title: 'تم تحديث الطلب بنجاح' });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast.success('تم تحديث الطلب بنجاح');
       
       // إرسال إيميل الشحن تلقائياً عند تغيير الحالة إلى "تم الشحن"
-      if (status === 'shipped' && trackingNumber) {
+      if (updates.status === 'shipped' && trackingNumber) {
         const { error } = await supabase.functions.invoke('send-tracking-email', {
           body: { order_id: id, tracking_number: trackingNumber },
         });
         if (error) {
-          toast({ 
-            title: 'تم تحديث الطلب لكن فشل إرسال البريد', 
-            description: 'يمكنك إرسال البريد يدوياً',
-            variant: 'destructive' 
-          });
+          toast.error('تم تحديث الطلب لكن فشل إرسال البريد');
         } else {
-          toast({ title: 'تم إرسال إشعار الشحن للعميل' });
+          toast.success('تم إرسال إشعار الشحن للعميل');
         }
       }
     },
+    onError: () => {
+      toast.error('حدث خطأ أثناء تحديث الطلب');
+    }
   });
 
-  const sendTrackingEmail = async () => {
-    const { error } = await supabase.functions.invoke('send-tracking-email', {
-      body: { order_id: id, tracking_number: trackingNumber },
+  const handleStatusChange = (newStatus: OrderStatus) => {
+    setStatus(newStatus);
+    updateMutation.mutate({ status: newStatus });
+  };
+
+  const handleShipOrder = () => {
+    setShowShippingModal(true);
+  };
+
+  const handleShippingSubmit = async (data: { trackingNumber: string; company: string; sendEmail: boolean }) => {
+    setTrackingNumber(data.trackingNumber);
+    
+    await updateMutation.mutateAsync({ 
+      status: 'shipped',
+      tracking_number: data.trackingNumber,
+      shipping_company: data.company
     });
-    if (error) {
-      toast({ title: 'خطأ في إرسال البريد', variant: 'destructive' });
-    } else {
-      toast({ title: 'تم إرسال رقم التتبع للعميل' });
+
+    if (data.sendEmail) {
+      const { error } = await supabase.functions.invoke('send-tracking-email', {
+        body: { order_id: id, tracking_number: data.trackingNumber },
+      });
+      if (error) {
+        toast.error('تم تحديث الطلب لكن فشل إرسال البريد');
+      } else {
+        toast.success('تم شحن الطلب وإرسال إشعار للعميل');
+      }
     }
+    
+    setShowShippingModal(false);
   };
 
   const sendPaymentReminder = async () => {
@@ -84,49 +109,139 @@ export default function AdminOrderDetail() {
         body: { order_id: id },
       });
       if (error) {
-        toast({ 
-          title: 'خطأ في إرسال التذكير', 
-          description: error.message,
-          variant: 'destructive' 
-        });
+        toast.error('خطأ في إرسال التذكير');
       } else {
-        toast({ 
-          title: 'تم إرسال تذكير الدفع بنجاح',
-          description: 'تم إرسال رسالة تذكير للعميل عبر البريد الإلكتروني' 
-        });
+        toast.success('تم إرسال تذكير الدفع بنجاح');
       }
     } catch (error) {
-      toast({ 
-        title: 'خطأ في إرسال التذكير',
-        variant: 'destructive' 
-      });
+      toast.error('خطأ في إرسال التذكير');
     } finally {
       setIsSendingReminder(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="relative w-24 h-24 mx-auto">
+              <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+            </div>
+            <p className="text-muted-foreground">جاري تحميل تفاصيل الطلب...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">تفاصيل الطلب: {order?.order_number}</h1>
+      <div className="space-y-8 animate-fade-in">
+        {/* العنوان */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+              تفاصيل الطلب
+            </h1>
+            <p className="text-2xl font-bold text-foreground mt-2">
+              {order?.order_number}
+            </p>
+          </div>
+          <div className="text-left">
+            <p className="text-sm text-muted-foreground">تاريخ الطلب</p>
+            <p className="font-semibold flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              {order?.created_at && new Date(order.created_at).toLocaleDateString('ar-SA')}
+            </p>
+          </div>
+        </div>
 
+        {/* Timeline المرئي */}
+        <Card className="group relative overflow-hidden border-2 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-2xl transition-all duration-300">
+          <CardContent className="pt-6">
+            <OrderTimeline
+              currentStatus={order?.status as OrderStatus}
+              createdAt={order?.created_at}
+              packedAt={order?.packed_at}
+              shippedAt={order?.shipped_at}
+              deliveredAt={order?.delivered_at}
+              updatedAt={order?.updated_at}
+            />
+          </CardContent>
+        </Card>
+
+        {/* لوحة الإجراءات السريعة */}
+        {order?.status !== 'delivered' && order?.status !== 'cancelled' && (
+          <Card className="group relative overflow-hidden border-r-4 border-primary bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-2xl transition-all duration-300">
+            <CardContent className="pt-6">
+              <QuickActionsPanel
+                currentStatus={order?.status as OrderStatus}
+                orderNumber={order?.order_number}
+                onStatusChange={handleStatusChange}
+                onShipOrder={handleShipOrder}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* معلومات العميل وإدارة الطلب */}
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
+          {/* معلومات العميل */}
+          <Card className="group relative overflow-hidden border-r-4 border-blue-500 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="absolute top-4 left-4 w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+              <User className="w-6 h-6 text-blue-500" />
+            </div>
             <CardHeader>
-              <CardTitle>معلومات العميل</CardTitle>
+              <CardTitle className="text-xl">معلومات العميل</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <p><strong>الاسم:</strong> {order?.customer_name}</p>
-              <p><strong>البريد:</strong> {order?.customer_email}</p>
-              <p><strong>الهاتف:</strong> {order?.customer_phone}</p>
-              <p><strong>المدينة:</strong> {order?.city}</p>
-              <p><strong>العنوان:</strong> {order?.shipping_address}</p>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                <User className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">الاسم</p>
+                  <p className="font-semibold">{order?.customer_name}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">البريد الإلكتروني</p>
+                  <p className="font-semibold">{order?.customer_email}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                <Phone className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">رقم الهاتف</p>
+                  <p className="font-semibold">{order?.customer_phone}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">المدينة</p>
+                  <p className="font-semibold">{order?.city}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">العنوان</p>
+                  <p className="font-semibold">{order?.shipping_address}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* إدارة الطلب */}
+          <Card className="group relative overflow-hidden border-r-4 border-purple-500 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="absolute top-4 left-4 w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+              <Package className="w-6 h-6 text-purple-500" />
+            </div>
             <CardHeader>
-              <CardTitle>إدارة الطلب</CardTitle>
+              <CardTitle className="text-xl">إدارة الطلب</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {order?.payment_status === 'pending' && (
@@ -164,14 +279,15 @@ export default function AdminOrderDetail() {
               )}
 
               <div className="space-y-2">
-                <Label>حالة الطلب</Label>
-                <Select value={status} onValueChange={(value) => setStatus(value as OrderStatus)}>
-                  <SelectTrigger>
+                <Label className="text-base font-semibold">حالة الطلب</Label>
+                <Select value={status} onValueChange={(value) => handleStatusChange(value as OrderStatus)}>
+                  <SelectTrigger className="h-12">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">قيد الانتظار</SelectItem>
+                    <SelectItem value="pending">معلق</SelectItem>
                     <SelectItem value="processing">قيد المعالجة</SelectItem>
+                    <SelectItem value="packed">مُجهز للشحن</SelectItem>
                     <SelectItem value="shipped">تم الشحن</SelectItem>
                     <SelectItem value="delivered">تم التوصيل</SelectItem>
                     <SelectItem value="cancelled">ملغي</SelectItem>
@@ -179,52 +295,65 @@ export default function AdminOrderDetail() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>رقم التتبع</Label>
-                <Input
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
-                  placeholder="أدخل رقم التتبع"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Button onClick={() => updateMutation.mutate()}>
-                  حفظ التغييرات
-                </Button>
-                {trackingNumber && (
-                  <Button variant="outline" onClick={sendTrackingEmail}>
-                    إرسال رقم التتبع
-                  </Button>
-                )}
-              </div>
+              {trackingNumber && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800 font-semibold mb-1">رقم التتبع:</p>
+                  <p className="text-lg font-bold text-blue-900 font-mono">{trackingNumber}</p>
+                  {order?.shipping_company && (
+                    <p className="text-sm text-blue-600 mt-1">شركة الشحن: {order.shipping_company}</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        <Card>
+        {/* المنتجات */}
+        <Card className="group relative overflow-hidden border-r-4 border-green-500 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-2xl transition-all duration-300">
+          <div className="absolute top-4 left-4 w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+            <Package className="w-6 h-6 text-green-500" />
+          </div>
           <CardHeader>
-            <CardTitle>المنتجات</CardTitle>
+            <CardTitle className="text-xl">المنتجات المطلوبة</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {order?.order_items?.map((item: any) => (
-                <div key={item.id} className="flex justify-between border-b pb-2">
-                  <div>
-                    <p className="font-medium">{item.product_name}</p>
-                    <p className="text-sm text-muted-foreground">الكمية: {item.quantity}</p>
+                <div 
+                  key={item.id} 
+                  className="flex justify-between items-center border-b pb-3 hover:bg-accent/5 p-2 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Package className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-lg">{item.product_name}</p>
+                      <p className="text-sm text-muted-foreground">الكمية: {item.quantity} × {item.unit_price} ريال</p>
+                    </div>
                   </div>
-                  <p className="font-medium">{item.total_price} ريال</p>
+                  <p className="font-bold text-xl">{item.total_price} ريال</p>
                 </div>
               ))}
-              <div className="flex justify-between pt-4 border-t-2">
-                <p className="font-bold">المجموع الكلي</p>
-                <p className="font-bold text-lg">{order?.total_amount} ريال</p>
+              <div className="flex justify-between items-center pt-4 border-t-2 border-primary/20">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-6 h-6 text-primary" />
+                  <p className="font-bold text-xl">المجموع الكلي</p>
+                </div>
+                <p className="font-bold text-3xl text-primary">{order?.total_amount} ريال</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Shipping Modal */}
+      <ShippingModal
+        open={showShippingModal}
+        onClose={() => setShowShippingModal(false)}
+        onSubmit={handleShippingSubmit}
+        loading={updateMutation.isPending}
+      />
     </AdminLayout>
   );
 }
