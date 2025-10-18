@@ -154,7 +154,7 @@ export const Header = () => {
             <Leaf className="h-8 w-8 text-primary" />
             <div className="flex flex-col">
               <span className="text-xl font-bold text-primary">Seven Green</span>
-              <span className="text-xs text-accent">سفن جرين</span>
+              <span className="text-xs text-muted-foreground font-medium">سفن جرين</span>
             </div>
           </Link>
 
