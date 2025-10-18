@@ -1,7 +1,19 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Clock, CreditCard, Truck, Download } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+  useSidebar,
+} from '@/components/ui/sidebar';
 
 const navItems = [
   { title: 'لوحة التحكم', url: '/admin/dashboard', icon: LayoutDashboard },
@@ -16,43 +28,57 @@ const navItems = [
 
 export const AdminSidebar = () => {
   const { signOut } = useAdminAuth();
+  const { open } = useSidebar();
+  const location = useLocation();
+
+  const isActive = (url: string) => {
+    if (url === '/admin/orders') {
+      return location.pathname === '/admin/orders' || location.pathname.startsWith('/admin/orders/');
+    }
+    return location.pathname === url;
+  };
 
   return (
-    <aside className="w-64 min-h-screen bg-card border-l border-border">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-primary">Seven Green</h1>
-        <p className="text-sm text-muted-foreground">لوحة التحكم</p>
-      </div>
-      
-      <nav className="px-4 space-y-2">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.url}
-            to={item.url}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-accent text-foreground'
-              }`
-            }
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.title}</span>
-          </NavLink>
-        ))}
-      </nav>
+    <Sidebar collapsible="icon">
+      <SidebarContent>
+        <div className="p-6">
+          {open && (
+            <>
+              <h1 className="text-2xl font-bold text-primary">Seven Green</h1>
+              <p className="text-sm text-muted-foreground">لوحة التحكم</p>
+            </>
+          )}
+        </div>
 
-      <div className="absolute bottom-6 left-4 right-4">
-        <Button
-          variant="outline"
-          className="w-full justify-start gap-3"
-          onClick={signOut}
-        >
-          <LogOut className="h-5 w-5" />
-          <span>تسجيل الخروج</span>
-        </Button>
-      </div>
-    </aside>
+        <SidebarGroup>
+          <SidebarGroupLabel>القائمة الرئيسية</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <NavLink to={item.url}>
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={signOut}>
+              <LogOut className="h-5 w-5" />
+              <span>تسجيل الخروج</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 };
