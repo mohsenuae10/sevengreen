@@ -82,8 +82,8 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s' 
         </div>
       </div>
       
-      {/* Products Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 items-stretch">
+      {/* Products Grid - 2 columns on all screens */}
+      <div className="grid grid-cols-2 gap-4 md:gap-6">
         {categoryProducts.map((product) => (
           <ProductCard key={product.id} {...product} />
         ))}
