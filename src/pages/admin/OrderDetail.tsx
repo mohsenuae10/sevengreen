@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { OrderTimeline } from '@/components/admin/OrderTimeline';
 import { QuickActionsPanel } from '@/components/admin/QuickActionsPanel';
 import { ShippingModal } from '@/components/admin/ShippingModal';
-import { User, Mail, Phone, MapPin, Package, DollarSign, Calendar, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Package, DollarSign, Calendar, Loader2, Truck, ExternalLink, Save } from 'lucide-react';
 
 type OrderStatus = 'pending' | 'processing' | 'packed' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -20,7 +20,9 @@ export default function AdminOrderDetail() {
   const { id } = useParams();
   const [status, setStatus] = useState<OrderStatus>('pending');
   const [trackingNumber, setTrackingNumber] = useState('');
+  const [shippingCompany, setShippingCompany] = useState('');
   const [isSendingReminder, setIsSendingReminder] = useState(false);
+  const [isSavingTracking, setIsSavingTracking] = useState(false);
   const [showShippingModal, setShowShippingModal] = useState(false);
   const queryClient = useQueryClient();
 
@@ -35,6 +37,7 @@ export default function AdminOrderDetail() {
       if (error) throw error;
       setStatus(data.status as OrderStatus);
       setTrackingNumber(data.tracking_number || '');
+      setShippingCompany(data.shipping_company || '');
       return data;
     },
   });
@@ -120,6 +123,48 @@ export default function AdminOrderDetail() {
     }
   };
 
+  const handleSaveTracking = async () => {
+    if (!trackingNumber.trim()) {
+      toast.error('يرجى إدخال رقم التتبع');
+      return;
+    }
+
+    setIsSavingTracking(true);
+    try {
+      await updateMutation.mutateAsync({ 
+        tracking_number: trackingNumber,
+        shipping_company: shippingCompany,
+        status: 'shipped'
+      });
+
+      // إرسال إيميل الشحن
+      const { error } = await supabase.functions.invoke('send-tracking-email', {
+        body: { order_id: id, tracking_number: trackingNumber },
+      });
+      
+      if (error) {
+        toast.error('تم حفظ رقم التتبع لكن فشل إرسال البريد');
+      } else {
+        toast.success('تم حفظ رقم التتبع وتغيير الحالة إلى "تم الشحن"');
+      }
+    } catch (error) {
+      toast.error('خطأ في حفظ رقم التتبع');
+    } finally {
+      setIsSavingTracking(false);
+    }
+  };
+
+  const getTrackingUrl = (company: string, trackingNum: string) => {
+    const urls: { [key: string]: string } = {
+      'SMSA': `https://www.smsaexpress.com/track/?tracknumbers=${trackingNum}`,
+      'أرامكس': `https://www.aramex.com/ae/en/track/results?shipment_number=${trackingNum}`,
+      'DHL': `https://www.dhl.com/sa-en/home/tracking/tracking-express.html?submit=1&tracking-id=${trackingNum}`,
+      'UPS': `https://www.ups.com/track?tracknum=${trackingNum}`,
+      'FedEx': `https://www.fedex.com/fedextrack/?tracknumbers=${trackingNum}`,
+    };
+    return urls[company] || `https://www.google.com/search?q=${encodeURIComponent(company + ' tracking ' + trackingNum)}`;
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -196,15 +241,16 @@ export default function AdminOrderDetail() {
         )}
 
         {/* معلومات العميل والشحن */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              معلومات العميل والشحن
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-3">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* معلومات العميل */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                معلومات العميل
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">الاسم</p>
                 <p className="font-semibold">{order?.customer_name}</p>
@@ -217,8 +263,6 @@ export default function AdminOrderDetail() {
                 <p className="text-sm text-muted-foreground">البريد الإلكتروني</p>
                 <p className="font-semibold text-sm">{order?.customer_email}</p>
               </div>
-            </div>
-            <div className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">المدينة</p>
                 <p className="font-semibold">{order?.city}</p>
@@ -227,18 +271,98 @@ export default function AdminOrderDetail() {
                 <p className="text-sm text-muted-foreground">العنوان</p>
                 <p className="font-semibold">{order?.shipping_address}</p>
               </div>
-              {trackingNumber && (
-                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">رقم التتبع</p>
-                  <p className="font-bold font-mono text-lg">{trackingNumber}</p>
-                  {order?.shipping_company && (
-                    <p className="text-xs text-muted-foreground mt-1">{order.shipping_company}</p>
+            </CardContent>
+          </Card>
+
+          {/* معلومات الشحن */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Truck className="w-5 h-5" />
+                معلومات الشحن
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {order?.payment_status === 'completed' ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="trackingNumber">رقم التتبع</Label>
+                    <Input
+                      id="trackingNumber"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                      placeholder="أدخل رقم التتبع..."
+                      className="font-mono"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="shippingCompany">شركة الشحن</Label>
+                    <Select value={shippingCompany} onValueChange={setShippingCompany}>
+                      <SelectTrigger id="shippingCompany">
+                        <SelectValue placeholder="اختر شركة الشحن" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SMSA">SMSA</SelectItem>
+                        <SelectItem value="أرامكس">أرامكس</SelectItem>
+                        <SelectItem value="DHL">DHL</SelectItem>
+                        <SelectItem value="UPS">UPS</SelectItem>
+                        <SelectItem value="FedEx">FedEx</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {trackingNumber && shippingCompany && (
+                    <a 
+                      href={getTrackingUrl(shippingCompany, trackingNumber)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-primary hover:underline"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      تتبع الشحنة على موقع {shippingCompany}
+                    </a>
                   )}
+
+                  <Button 
+                    onClick={handleSaveTracking}
+                    disabled={isSavingTracking || !trackingNumber.trim()}
+                    className="w-full"
+                  >
+                    {isSavingTracking ? (
+                      <>
+                        <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        جاري الحفظ...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="ml-2 h-4 w-4" />
+                        حفظ رقم التتبع وتغيير الحالة
+                      </>
+                    )}
+                  </Button>
+
+                  {order?.status === 'shipped' && trackingNumber && (
+                    <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                      <p className="text-xs text-muted-foreground mb-1">رقم التتبع المحفوظ</p>
+                      <p className="font-bold font-mono text-lg">{trackingNumber}</p>
+                      {shippingCompany && (
+                        <p className="text-xs text-muted-foreground mt-1">{shippingCompany}</p>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-6 bg-destructive/5 border border-destructive/20 rounded-lg text-center">
+                  <p className="text-destructive font-bold text-lg">غير مدفوع</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    لا يمكن إضافة رقم تتبع للطلبات غير المدفوعة
+                  </p>
                 </div>
               )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* المنتجات والمجموع */}
         <Card>
