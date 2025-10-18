@@ -2,6 +2,8 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 import hairCareBanner from '@/assets/categories/hair-care-banner.jpg';
 import skincareBanner from '@/assets/categories/skincare-banner.jpg';
 import wellnessBanner from '@/assets/categories/wellness-banner.jpg';
@@ -39,7 +41,7 @@ interface CategorySectionProps {
 }
 
 export const CategorySection = ({ title, category, products, icon, delay = '0s' }: CategorySectionProps) => {
-  const categoryProducts = products.filter(p => p.category?.trim() === category).slice(0, 6);
+  const categoryProducts = products.filter(p => p.category?.trim() === category).slice(0, 3);
   
   // Get banner image for this category (fallback to first image if not found)
   const bannerImage = categoryBanners[category] || hairCareBanner;
@@ -82,12 +84,32 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s' 
         </div>
       </div>
       
-      {/* Products Grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 items-stretch">
-        {categoryProducts.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
-      </div>
+      {/* Products Carousel */}
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+          direction: "rtl",
+        }}
+        plugins={[
+          Autoplay({
+            delay: 4000,
+          }),
+        ]}
+        className="w-full"
+      >
+        <CarouselContent className="-mr-2 md:-mr-4">
+          {categoryProducts.map((product) => (
+            <CarouselItem key={product.id} className="pr-1 md:pr-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/7">
+              <ProductCard {...product} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <div className="hidden md:block">
+          <CarouselPrevious className="left-auto -right-12" />
+          <CarouselNext className="right-auto -left-12" />
+        </div>
+      </Carousel>
     </div>
   );
 };
