@@ -23,7 +23,7 @@ export const SEOHead = ({
   currency = 'SAR',
   availability,
 }: SEOHeadProps) => {
-  const fullTitle = `${title} | Seven Green | سفن جرين`;
+  const fullTitle = `${title} | متجر سفن جرين`;
   const currentUrl = url || `https://sevengreenstore.com${window.location.pathname}`;
 
   return (
@@ -33,6 +33,7 @@ export const SEOHead = ({
       <meta name="title" content={fullTitle} />
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
+      <meta name="application-name" content="متجر سفن جرين" />
       <link rel="canonical" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
@@ -41,7 +42,7 @@ export const SEOHead = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
-      <meta property="og:site_name" content="Seven Green | سفن جرين" />
+      <meta property="og:site_name" content="متجر سفن جرين" />
       <meta property="og:locale" content="ar_SA" />
 
       {/* Product-specific Open Graph tags */}
