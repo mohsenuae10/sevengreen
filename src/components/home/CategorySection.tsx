@@ -4,12 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
-import hairCareBanner from '@/assets/categories/hair-care-banner.jpg';
-import skincareBanner from '@/assets/categories/skincare-banner.jpg';
-import wellnessBanner from '@/assets/categories/wellness-banner.jpg';
-import bodyCareBanner from '@/assets/categories/body-care-banner.jpg';
-import menCareBanner from '@/assets/categories/men-care-banner.jpg';
-import giftsBanner from '@/assets/categories/gifts-banner.jpg';
+import defaultBanner from '@/assets/categories/hair-care-banner.jpg';
 
 interface Product {
   id: string;
@@ -22,29 +17,21 @@ interface Product {
   is_active: boolean;
 }
 
-// Map category names to banner images
-const categoryBanners: Record<string, string> = {
-  'العناية بالشعر': hairCareBanner,
-  'العناية بالبشرة': skincareBanner,
-  'الصحة والعافية': wellnessBanner,
-  'العناية بالجسم': bodyCareBanner,
-  'العناية بالرجال': menCareBanner,
-  'الهدايا والمجموعات': giftsBanner,
-};
-
 interface CategorySectionProps {
   title: string;
   category: string;
   products: Product[];
   icon?: React.ReactNode;
   delay?: string;
+  bannerUrl?: string | null;
+  categorySlug: string;
 }
 
-export const CategorySection = ({ title, category, products, icon, delay = '0s' }: CategorySectionProps) => {
+export const CategorySection = ({ title, category, products, icon, delay = '0s', bannerUrl, categorySlug }: CategorySectionProps) => {
   const categoryProducts = products.filter(p => p.category?.trim() === category);
   
-  // Get banner image for this category (fallback to first image if not found)
-  const bannerImage = categoryBanners[category] || hairCareBanner;
+  // Use provided banner URL or fallback to default
+  const bannerImage = bannerUrl || defaultBanner;
 
   // If no products for this category, don't show anything
   if (categoryProducts.length === 0) {

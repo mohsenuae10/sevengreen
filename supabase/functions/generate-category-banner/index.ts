@@ -115,7 +115,8 @@ The image should feel calming, natural, and premium while clearly representing t
     const base64Data = generatedImageUrl.replace(/^data:image\/\w+;base64,/, '');
     const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
     
-    const fileName = `${Date.now()}-${categoryName.replace(/\s+/g, '-').toLowerCase()}.png`;
+    // Create a safe filename using timestamp and random string (avoid Arabic characters)
+    const fileName = `banner-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
     
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('category-banners')

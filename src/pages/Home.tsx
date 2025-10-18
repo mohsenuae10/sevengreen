@@ -9,26 +9,14 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
-import { Droplets, Sparkles, Wind, Flower2, UserCircle, Gift } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Define priority categories and their icons
-const PRIORITY_CATEGORIES = [
-  'العناية بالشعر',
-  'العناية بالبشرة',
-  'العناية بالجسم',
-  'الصحة والعافية',
-  'العناية بالرجال',
-  'الهدايا والمجموعات'
-];
-
-const categoryIcons: Record<string, React.ReactNode> = {
-  'العناية بالشعر': <Droplets className="h-6 w-6 text-primary" />,
-  'العناية بالبشرة': <Sparkles className="h-6 w-6 text-primary" />,
-  'العناية بالجسم': <Wind className="h-6 w-6 text-primary" />,
-  'الصحة والعافية': <Flower2 className="h-6 w-6 text-primary" />,
-  'العناية بالرجال': <UserCircle className="h-6 w-6 text-primary" />,
-  'الهدايا والمجموعات': <Gift className="h-6 w-6 text-primary" />,
+// Helper function to get icon component from icon name
+const getIconComponent = (iconName: string) => {
+  const IconComponent = (LucideIcons as any)[iconName];
+  if (!IconComponent) return <LucideIcons.Sparkles className="h-6 w-6 text-primary" />;
+  return <IconComponent className="h-6 w-6 text-primary" />;
 };
 
 export default function Home() {
@@ -37,6 +25,7 @@ export default function Home() {
   // Clear old cache on mount
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ['all-products'] });
+    queryClient.invalidateQueries({ queryKey: ['active-categories'] });
   }, [queryClient]);
 
   const { data: products, isLoading, error } = useQuery({
@@ -55,16 +44,28 @@ export default function Home() {
     refetchOnMount: true,
   });
 
+  // Fetch active categories from database
+  const { data: categories } = useQuery({
+    queryKey: ['active-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   // Get featured product (most recent)
   const featuredProduct = products?.[0];
 
-  // Filter available categories based on priority and products
-  const availableCategories = PRIORITY_CATEGORIES.filter(cat => 
-    products?.some(p => p.category?.trim() === cat)
-  );
-  
-  // Show only available categories (not empty ones)
-  const displayCategories = availableCategories;
+  // Filter categories that have products
+  const displayCategories = categories?.filter(cat => 
+    products?.some(p => p.category?.trim() === cat.slug)
+  ) || [];
 
   return (
     <div className="min-h-screen">
@@ -100,12 +101,14 @@ export default function Home() {
             <div className="space-y-20">
               {displayCategories.map((category, index) => (
                 <CategorySection
-                  key={category}
-                  title={category}
-                  category={category}
+                  key={category.id}
+                  title={category.name_ar}
+                  category={category.slug}
                   products={products}
-                  icon={categoryIcons[category]}
+                  icon={getIconComponent(category.icon)}
                   delay={`${index * 0.1}s`}
+                  bannerUrl={category.banner_url}
+                  categorySlug={category.slug}
                 />
               ))}
             </div>
