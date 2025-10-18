@@ -18,6 +18,8 @@ export default function PaidOrders() {
         .from('orders')
         .select('*')
         .eq('payment_status', 'completed')
+        .neq('status', 'shipped')
+        .neq('status', 'delivered')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
@@ -31,7 +33,7 @@ export default function PaidOrders() {
           <CreditCard className="h-6 w-6 lg:h-8 lg:w-8 text-green-600" />
           <div>
             <h1 className="text-xl lg:text-3xl font-bold">الطلبات المدفوعة</h1>
-            <p className="text-muted-foreground text-sm lg:text-base">الطلبات التي تم الدفع فيها بنجاح</p>
+            <p className="text-muted-foreground text-sm lg:text-base">الطلبات المدفوعة التي لم يتم شحنها بعد</p>
           </div>
         </div>
 
