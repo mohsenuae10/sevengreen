@@ -4,6 +4,8 @@ import { ShoppingCart, Leaf, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Badge } from './ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,19 +15,24 @@ import {
 } from './ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
-const categories = [
-  { name: 'العناية بالبشرة', slug: 'skincare' },
-  { name: 'العناية بالشعر', slug: 'hair-care' },
-  { name: 'العناية بالجسم', slug: 'body-care' },
-  { name: 'العناية بالرجال', slug: 'men-care' },
-  { name: 'العافية', slug: 'wellness' },
-  { name: 'الهدايا', slug: 'gifts' },
-];
-
 export const Header = () => {
   const { totalItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+
+  // جلب الأقسام من قاعدة البيانات
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('name_ar, slug')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const handleMobileNavClick = () => {
     setMobileMenuOpen(false);
@@ -61,11 +68,11 @@ export const Header = () => {
                     {categories.map((category) => (
                       <Link
                         key={category.slug}
-                        to={`/products?category=${category.slug}`}
+                        to={`/products?category=${category.name_ar}`}
                         onClick={handleMobileNavClick}
                         className="block text-sm hover:text-primary transition-colors py-2 pr-4"
                       >
-                        {category.name}
+                        {category.name_ar}
                       </Link>
                     ))}
                   </div>
@@ -111,11 +118,11 @@ export const Header = () => {
                       {categories.map((category) => (
                         <Link
                           key={category.slug}
-                          to={`/products?category=${category.slug}`}
+                          to={`/products?category=${category.name_ar}`}
                           onClick={handleDesktopCategoryClick}
                           className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground animate-fade-in"
                         >
-                          <div className="text-sm font-medium leading-none">{category.name}</div>
+                          <div className="text-sm font-medium leading-none">{category.name_ar}</div>
                         </Link>
                       ))}
                     </div>

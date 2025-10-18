@@ -9,27 +9,8 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
-import { Droplets, Sparkles, Wind, Flower2, UserCircle, Gift } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-// Define priority categories and their icons
-const PRIORITY_CATEGORIES = [
-  'العناية بالشعر',
-  'العناية بالبشرة',
-  'العناية بالجسم',
-  'الصحة والعافية',
-  'العناية بالرجال',
-  'الهدايا والمجموعات'
-];
-
-const categoryIcons: Record<string, React.ReactNode> = {
-  'العناية بالشعر': <Droplets className="h-6 w-6 text-primary" />,
-  'العناية بالبشرة': <Sparkles className="h-6 w-6 text-primary" />,
-  'العناية بالجسم': <Wind className="h-6 w-6 text-primary" />,
-  'الصحة والعافية': <Flower2 className="h-6 w-6 text-primary" />,
-  'العناية بالرجال': <UserCircle className="h-6 w-6 text-primary" />,
-  'الهدايا والمجموعات': <Gift className="h-6 w-6 text-primary" />,
-};
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -55,16 +36,30 @@ export default function Home() {
     refetchOnMount: true,
   });
 
-  // Get featured product (most recent)
-  const featuredProduct = products?.[0];
+  // جلب الأقسام من قاعدة البيانات
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-  // Filter available categories based on priority and products
-  const availableCategories = PRIORITY_CATEGORIES.filter(cat => 
-    products?.some(p => p.category?.trim() === cat)
-  );
-  
-  // Show only available categories (not empty ones)
-  const displayCategories = availableCategories;
+  // Helper function to get icon component
+  const getIconComponent = (iconName: string) => {
+    const Icon = (LucideIcons as any)[iconName];
+    return Icon ? <Icon className="h-6 w-6 text-primary" /> : null;
+  };
+
+  // Filter categories that have products
+  const displayCategories = categories?.filter(cat => 
+    products?.some(p => p.category?.trim() === cat.name_ar)
+  ) || [];
 
   return (
     <div className="min-h-screen">
@@ -100,11 +95,13 @@ export default function Home() {
             <div className="space-y-20">
               {displayCategories.map((category, index) => (
                 <CategorySection
-                  key={category}
-                  title={category}
-                  category={category}
+                  key={category.id}
+                  title={category.name_ar}
+                  category={category.name_ar}
+                  categorySlug={category.slug}
+                  bannerUrl={category.banner_url}
                   products={products}
-                  icon={categoryIcons[category]}
+                  icon={getIconComponent(category.icon)}
                   delay={`${index * 0.1}s`}
                 />
               ))}
