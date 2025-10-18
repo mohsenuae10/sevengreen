@@ -77,7 +77,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-card">
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-card h-full flex flex-col">
       {/* شارة المنتج */}
       {hasBadge && (
         <Badge className="absolute top-1 right-1 z-10 bg-yellow-400 text-black font-bold text-[7px] px-1 py-0 hover:bg-yellow-400">
@@ -112,10 +112,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         )}
       </Link>
       
-      <CardContent className="p-3 space-y-2">
+      <CardContent className="p-3 flex flex-col flex-grow space-y-2">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-xs text-center hover:text-primary transition-colors line-clamp-2 min-h-[2.25rem] leading-snug">
+          <h3 className="font-bold text-xs text-center hover:text-primary transition-colors line-clamp-2 h-9 leading-snug flex items-center justify-center">
             {name_ar}
           </h3>
         </Link>
@@ -131,7 +131,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         </div>
 
         {/* السعر والخصم */}
-        <div className="text-center space-y-1.5">
+        <div className="text-center space-y-1.5 min-h-[4.5rem]">
           <div className="flex items-center justify-center gap-2">
             <div className="flex items-baseline gap-1">
               <p className="text-xl font-bold text-primary">
@@ -150,13 +150,16 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
               </div>
             )}
           </div>
-          {hasDiscount && (
-            <div className="bg-red-50 dark:bg-red-950/30 rounded-md px-2 py-1 inline-block">
-              <p className="text-[10px] text-red-600 dark:text-red-400 font-bold">
-                وفّر {discountPercentage}%
-              </p>
-            </div>
-          )}
+          {/* مساحة محجوزة للخصم */}
+          <div className="h-6">
+            {hasDiscount && (
+              <div className="bg-red-50 dark:bg-red-950/30 rounded-md px-2 py-1 inline-block">
+                <p className="text-[10px] text-red-600 dark:text-red-400 font-bold">
+                  وفّر {discountPercentage}%
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {stock_quantity <= 0 && (
@@ -168,7 +171,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         {/* زر اشتر الآن */}
         <Button
           onClick={handleBuyNow}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 rounded-lg font-bold shadow-sm hover:shadow-md transition-all mt-auto"
           disabled={stock_quantity <= 0}
         >
           <Zap className="ml-1.5 h-4 w-4" />

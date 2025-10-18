@@ -35,7 +35,7 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-8">منتجات ذات صلة</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 items-stretch">
           {products.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
