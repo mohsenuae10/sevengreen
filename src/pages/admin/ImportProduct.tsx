@@ -28,14 +28,7 @@ interface BulkImportResult {
   url: string;
 }
 
-const CATEGORIES = [
-  'العناية بالبشرة',
-  'العناية بالشعر',
-  'العناية بالجسم',
-  'العناية بالرجال',
-  'الصحة والعافية',
-  'الهدايا',
-];
+// سيتم تحميل الأقسام من قاعدة البيانات
 
 export default function ImportProduct() {
   const [productUrl, setProductUrl] = useState('');
@@ -49,6 +42,7 @@ export default function ImportProduct() {
   const [bulkResults, setBulkResults] = useState<BulkImportResult[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [detectedUrlType, setDetectedUrlType] = useState<'single' | 'category' | null>(null);
+  const [categories, setCategories] = useState<Array<{ name_ar: string; slug: string }>>([]);
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -67,6 +61,22 @@ export default function ImportProduct() {
   });
 
   const { toast } = useToast();
+
+  // تحميل الأقسام من قاعدة البيانات
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('name_ar, slug')
+        .eq('is_active', true)
+        .order('display_order');
+      
+      if (!error && data) {
+        setCategories(data);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const detectUrlType = (url: string): 'single' | 'category' | null => {
     if (!url.trim()) return null;
@@ -1038,9 +1048,9 @@ export default function ImportProduct() {
                         <SelectValue placeholder="اختر التصنيف" />
                       </SelectTrigger>
                       <SelectContent>
-                        {CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.slug} value={cat.slug}>
+                            {cat.name_ar}
                           </SelectItem>
                         ))}
                       </SelectContent>
