@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +48,7 @@ export default function ImportProduct() {
   const [isBulkImport, setIsBulkImport] = useState(false);
   const [bulkResults, setBulkResults] = useState<BulkImportResult[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
+  const [detectedUrlType, setDetectedUrlType] = useState<'single' | 'category' | null>(null);
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -66,6 +67,54 @@ export default function ImportProduct() {
   });
 
   const { toast } = useToast();
+
+  const detectUrlType = (url: string): 'single' | 'category' | null => {
+    if (!url.trim()) return null;
+    
+    try {
+      const urlObj = new URL(url);
+      const lowerUrl = url.toLowerCase();
+      const hostname = urlObj.hostname.toLowerCase();
+      
+      // AliExpress
+      if (hostname.includes('aliexpress')) {
+        if (lowerUrl.includes('/category/') || 
+            lowerUrl.includes('searchtext=') || 
+            lowerUrl.includes('/wholesale/')) {
+          return 'category';
+        }
+        return 'single';
+      }
+      
+      // Amazon
+      if (hostname.includes('amazon')) {
+        if (lowerUrl.includes('/s?') || 
+            lowerUrl.includes('/b/') || 
+            lowerUrl.includes('&rh=')) {
+          return 'category';
+        }
+        return 'single';
+      }
+      
+      // Shopify
+      if (hostname.includes('myshopify') || lowerUrl.includes('/collections/')) {
+        if (lowerUrl.includes('/collections/')) {
+          return 'category';
+        }
+        return 'single';
+      }
+      
+      // Default: assume single product
+      return 'single';
+    } catch {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const type = detectUrlType(productUrl);
+    setDetectedUrlType(type);
+  }, [productUrl]);
 
   const handleFetchProduct = async () => {
     if (!productUrl.trim()) {
@@ -558,35 +607,68 @@ export default function ImportProduct() {
               رابط المنتج
             </CardTitle>
             <CardDescription>
-              الصق رابط المنتج من الموقع الخارجي
+              <div className="space-y-2">
+                <p>الصق رابط المنتج أو رابط القسم من الموقع الخارجي</p>
+                <div className="text-xs opacity-70 space-y-1 border-r-2 border-muted pr-2 mt-2">
+                  <p className="flex items-center gap-1">
+                    <span className="text-blue-600 dark:text-blue-400">📦</span>
+                    <span className="font-medium">منتج واحد:</span>
+                    <code className="text-[10px] bg-muted px-1 rounded">aliexpress.com/item/...</code>
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <span className="text-purple-600 dark:text-purple-400">📁</span>
+                    <span className="font-medium">قسم كامل:</span>
+                    <code className="text-[10px] bg-muted px-1 rounded">aliexpress.com/category/...</code>
+                    <span className="text-[10px] opacity-60">(حتى 10 منتجات)</span>
+                  </p>
+                </div>
+              </div>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="https://www.aliexpress.com/item/..."
-                value={productUrl}
-                onChange={(e) => setProductUrl(e.target.value)}
-                disabled={isLoading}
-                dir="ltr"
-                className="flex-1"
-              />
-              <Button
-                onClick={handleFetchProduct}
-                disabled={isLoading || !productUrl.trim()}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                    جاري الجلب...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 ml-2" />
-                    جلب البيانات
-                  </>
-                )}
-              </Button>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://www.aliexpress.com/item/..."
+                  value={productUrl}
+                  onChange={(e) => setProductUrl(e.target.value)}
+                  disabled={isLoading}
+                  dir="ltr"
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleFetchProduct}
+                  disabled={isLoading || !productUrl.trim()}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                      جاري الجلب...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 ml-2" />
+                      جلب البيانات
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              {/* URL Type Indicator */}
+              {detectedUrlType && productUrl.trim() && (
+                <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-md border ${
+                  detectedUrlType === 'category'
+                    ? 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300'
+                    : 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
+                }`}>
+                  <span className="text-lg">{detectedUrlType === 'category' ? '📁' : '📦'}</span>
+                  <span className="font-medium">
+                    {detectedUrlType === 'category' 
+                      ? 'تم اكتشاف: رابط قسم - سيتم استيراد حتى 10 منتجات' 
+                      : 'تم اكتشاف: رابط منتج واحد'}
+                  </span>
+                </div>
+              )}
             </div>
 
             {scrapedData && (
