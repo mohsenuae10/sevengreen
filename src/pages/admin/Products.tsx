@@ -662,7 +662,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
             </SelectTrigger>
             <SelectContent>
               {categories?.map((cat) => (
-                <SelectItem key={cat.slug} value={cat.name_ar}>
+                <SelectItem key={cat.slug} value={cat.slug}>
                   {cat.name_ar}
                 </SelectItem>
               ))}
