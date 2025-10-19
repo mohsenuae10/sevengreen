@@ -198,7 +198,7 @@ function extractAliExpressData(html: string): Partial<ProductData> {
           uniqueImages.add(url);
         }
       }
-      data.images = Array.from(uniqueImages).slice(0, 10);
+      data.images = Array.from(uniqueImages).slice(0, 20);
     }
 
     // استراتيجية 5: استخراج السعر من patterns مختلفة
@@ -336,7 +336,7 @@ function extractAmazonData(html: string): Partial<ProductData> {
           for (const url of Object.keys(imageObj)) {
             if (url.startsWith('http') && !data.images?.includes(url)) {
               data.images?.push(url);
-              if (data.images && data.images.length >= 10) break;
+              if (data.images && data.images.length >= 20) break;
             }
           }
         } catch (e) {
@@ -407,6 +407,20 @@ function deduplicateAndFilterImages(images: string[]): string[] {
       continue;
     }
     
+    // تجنب صور placeholders و loading spinners
+    if (url.includes('placeholder') || url.includes('loading') || 
+        url.includes('spinner') || url.includes('blank.')) {
+      continue;
+    }
+    
+    // تفضيل الصور الكبيرة (إذا وُجدت نسخ متعددة من نفس الصورة)
+    if (url.includes('_small') || url.includes('_thumb') || url.includes('_mini')) {
+      const largeUrl = url.replace(/_small|_thumb|_mini/g, '_large');
+      if (!seen.has(largeUrl.split('?')[0])) {
+        continue; // تخطي الصورة الصغيرة إذا كانت النسخة الكبيرة موجودة
+      }
+    }
+    
     // إضافة فقط إذا لم نرها من قبل
     if (!seen.has(baseUrl)) {
       seen.add(baseUrl);
@@ -436,6 +450,88 @@ function extractLazyImages(html: string): string[] {
         images.push(url);
       }
     }
+  }
+  
+  return images;
+}
+
+// دالة متخصصة لاستخراج جميع صور المنتج من galleries مختلفة
+function extractImageGallery(html: string): string[] {
+  const images: string[] = [];
+  
+  // 1. استخراج من JSON-LD (أولوية عالية)
+  const jsonLdMatches = html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/gi);
+  for (const match of jsonLdMatches) {
+    try {
+      const jsonData = JSON.parse(match[1]);
+      if (jsonData.image) {
+        const imageArray = Array.isArray(jsonData.image) ? jsonData.image : [jsonData.image];
+        images.push(...imageArray.filter((img: any) => typeof img === 'string' && img.startsWith('http')));
+      }
+      // دعم nested products (مثل ItemList)
+      if (jsonData['@graph']) {
+        for (const item of jsonData['@graph']) {
+          if (item.image) {
+            const itemImages = Array.isArray(item.image) ? item.image : [item.image];
+            images.push(...itemImages.filter((img: any) => typeof img === 'string' && img.startsWith('http')));
+          }
+        }
+      }
+    } catch (e) {
+      // تجاهل أخطاء JSON
+    }
+  }
+  
+  // 2. استخراج من <img> tags داخل product gallery containers
+  const gallerySelectors = [
+    /class=["'][^"']*(?:product-gallery|image-gallery|product-images|gallery-wrap)[^"']*["']/gi,
+    /id=["'][^"']*(?:gallery|product-images|image-slider)[^"']*["']/gi,
+  ];
+  
+  for (const selector of gallerySelectors) {
+    const matches = html.matchAll(selector);
+    for (const match of matches) {
+      const galleryHtml = html.slice(match.index, match.index! + 5000); // استخراج 5000 حرف بعد الـ match
+      const imgMatches = galleryHtml.matchAll(/<img[^>]*src=["']([^"']+)["']/gi);
+      for (const imgMatch of imgMatches) {
+        if (imgMatch[1].startsWith('http')) {
+          images.push(imgMatch[1]);
+        }
+      }
+    }
+  }
+  
+  // 3. استخراج من <noscript> tags (صور عالية الجودة مخفية)
+  const noscriptMatches = html.matchAll(/<noscript[^>]*>([\s\S]*?)<\/noscript>/gi);
+  for (const match of noscriptMatches) {
+    const imgMatches = match[1].matchAll(/<img[^>]*src=["']([^"']+)["']/gi);
+    for (const imgMatch of imgMatches) {
+      if (imgMatch[1].startsWith('http')) {
+        images.push(imgMatch[1]);
+      }
+    }
+  }
+  
+  // 4. استخراج من data-state (React/Next.js apps)
+  const dataStateMatches = html.matchAll(/data-state=["']([^"']+)["']/gi);
+  for (const match of dataStateMatches) {
+    try {
+      const decoded = match[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+      const stateData = JSON.parse(decoded);
+      if (stateData.images) {
+        const stateImages = Array.isArray(stateData.images) ? stateData.images : [stateData.images];
+        images.push(...stateImages.filter((img: any) => typeof img === 'string' && img.startsWith('http')));
+      }
+    } catch (e) {
+      // تجاهل أخطاء JSON
+    }
+  }
+  
+  // 5. استخراج من srcset attributes (responsive images)
+  const srcsetMatches = html.matchAll(/srcset=["']([^"']+)["']/gi);
+  for (const match of srcsetMatches) {
+    const urls = match[1].split(',').map(s => s.trim().split(' ')[0]);
+    images.push(...urls.filter(url => url.startsWith('http')));
   }
   
   return images;
@@ -564,6 +660,10 @@ function extractFallbackData(html: string): Partial<ProductData> {
       const lazyImages = extractLazyImages(html);
       allImages.push(...lazyImages);
       
+      // 2.5. استخراج من Image Gallery Parser الجديد
+      const galleryImages = extractImageGallery(html);
+      allImages.push(...galleryImages);
+      
       // 3. صور من picture tags
       const pictureMatches = html.matchAll(/<source[^>]*srcset=["']([^"']+)["']/gi);
       for (const match of pictureMatches) {
@@ -589,7 +689,7 @@ function extractFallbackData(html: string): Partial<ProductData> {
       
       // فلترة وإزالة المكررات
       const filtered = deduplicateAndFilterImages(allImages);
-      data.images = filtered.slice(0, 15);
+      data.images = filtered.slice(0, 20);
     }
 
     // وضع علامة incomplete إذا كانت البيانات ناقصة
@@ -708,9 +808,17 @@ Deno.serve(async (req) => {
       ...productData,
     };
     
+    // استخراج صور إضافية من Gallery Parser
+    const galleryImages = extractImageGallery(html);
+    if (galleryImages.length > 0) {
+      console.log(`Extracted ${galleryImages.length} images from gallery parser`);
+      productData.images = [...(productData.images || []), ...galleryImages];
+    }
+    
     // إزالة الصور المكررة وتنظيفها
     if (productData.images && productData.images.length > 0) {
       productData.images = deduplicateAndFilterImages(productData.images);
+      console.log(`Total unique images after deduplication: ${productData.images.length}`);
     }
 
     // محاولة Fallback إذا لم نحصل على بيانات كافية
@@ -746,7 +854,7 @@ Deno.serve(async (req) => {
       description: productData.description || '',
       price: productData.price || 0,
       currency: productData.currency || 'USD',
-      images: (productData.images || []).filter(img => img && img.startsWith('http')).slice(0, 10),
+      images: (productData.images || []).filter(img => img && img.startsWith('http')).slice(0, 20),
       specifications: productData.specifications,
       brand: productData.brand,
       category: productData.category,
@@ -757,6 +865,7 @@ Deno.serve(async (req) => {
       name: cleanData.name,
       price: cleanData.price,
       imagesCount: cleanData.images.length,
+      imagesSample: cleanData.images.slice(0, 3), // عرض أول 3 روابط
       incomplete: cleanData.incomplete,
     });
 
