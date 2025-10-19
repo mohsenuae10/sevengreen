@@ -24,9 +24,9 @@ export const CategoryShortcuts = () => {
     return (
       <section className="py-6 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4">
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
+          <div className="grid grid-cols-3 gap-4 md:gap-6 pb-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 flex flex-col items-center gap-2">
+              <div key={i} className="flex flex-col items-center gap-2">
                 <Skeleton className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-full" />
                 <Skeleton className="h-4 w-20" />
               </div>
@@ -42,12 +42,12 @@ export const CategoryShortcuts = () => {
   return (
     <section className="py-6 bg-gradient-to-b from-background to-muted/20 animate-fade-in">
       <div className="container mx-auto px-4">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 scroll-smooth">
+        <div className="grid grid-cols-3 gap-4 md:gap-6 pb-4">
           {categories.map((category) => (
             <Link
               key={category.id}
               to={`/products?category=${category.slug}`}
-              className="flex-shrink-0 group"
+              className="group"
               aria-label={`عرض منتجات ${category.name_ar}`}
             >
               <div className="flex flex-col items-center gap-2 w-[100px] md:w-[120px]">
