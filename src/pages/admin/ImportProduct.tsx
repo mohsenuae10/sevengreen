@@ -8,14 +8,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Link as LinkIcon, Download, Check, Sparkles } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Download, Check, Sparkles, X, Star } from 'lucide-react';
+
+interface ProductImage {
+  url: string;
+  isPrimary: boolean;
+  id: string;
+}
 
 interface ScrapedProduct {
   name: string;
   description: string;
   price: number;
   currency: string;
-  images: string[];
+  images: ProductImage[];
   brand?: string;
   category?: string;
   incomplete?: boolean;
@@ -178,11 +184,35 @@ export default function ImportProduct() {
       // ====== معالجة Bulk Import ======
       if (data.isBulkImport) {
         setIsBulkImport(true);
-        setBulkResults(data.data);
+        const processedResults = data.data.map((result: any) => {
+          if (result.success && result.product) {
+            const rawImages = result.product.images || [];
+            const processedImages: ProductImage[] = rawImages.map((urlOrImg: string | ProductImage, index: number) => {
+              if (typeof urlOrImg === 'string') {
+                return {
+                  url: urlOrImg,
+                  isPrimary: index === 0,
+                  id: Math.random().toString(36).substring(7),
+                };
+              }
+              return urlOrImg;
+            });
+            
+            return {
+              ...result,
+              product: {
+                ...result.product,
+                images: processedImages,
+              },
+            };
+          }
+          return result;
+        });
+        setBulkResults(processedResults);
         
         // تحديد المنتجات الناجحة تلقائياً
         const successfulIndices = new Set<number>(
-          data.data
+          processedResults
             .map((result: BulkImportResult, index: number) => result.success ? index : -1)
             .filter((i: number) => i !== -1)
         );
@@ -196,7 +226,15 @@ export default function ImportProduct() {
       }
 
       // ====== معالجة Single Import (الكود الحالي) ======
-      const product = data.data as ScrapedProduct;
+      const rawProduct = data.data;
+      const product: ScrapedProduct = {
+        ...rawProduct,
+        images: (rawProduct.images || []).map((url: string, index: number) => ({
+          url,
+          isPrimary: index === 0,
+          id: Math.random().toString(36).substring(7),
+        })),
+      };
       setScrapedData(product);
       
       const priceInSAR = product.price ? Math.ceil(product.price * 3.75) : 0;
@@ -411,10 +449,15 @@ export default function ImportProduct() {
 
       // حفظ الصور
       if (scrapedData?.images && scrapedData.images.length > 0) {
-        const imagePromises = scrapedData.images.map(async (imageUrl, index) => {
+        // ترتيب الصور: الصورة الرئيسية أولاً
+        const sortedImages = [...scrapedData.images].sort((a, b) => 
+          (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0)
+        );
+
+        const imagePromises = sortedImages.map(async (img, index) => {
           try {
             // تحميل الصورة من الرابط الأصلي
-            const imageResponse = await fetch(imageUrl);
+            const imageResponse = await fetch(img.url);
             const imageBlob = await imageResponse.blob();
             
             // رفع الصورة إلى Supabase Storage
@@ -440,7 +483,7 @@ export default function ImportProduct() {
             await supabase.from('product_images').insert({
               product_id: product.id,
               image_url: publicUrl,
-              is_primary: index === 0,
+              is_primary: img.isPrimary,
               display_order: index,
             });
 
@@ -530,9 +573,14 @@ export default function ImportProduct() {
 
           // حفظ الصور
           if (product.images && product.images.length > 0) {
-            const imagePromises = product.images.slice(0, 5).map(async (imageUrl, imgIndex) => {
+            // ترتيب الصور: الصورة الرئيسية أولاً
+            const sortedImages = [...product.images].sort((a, b) => 
+              (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0)
+            );
+
+            const imagePromises = sortedImages.slice(0, 5).map(async (img, imgIndex) => {
               try {
-                const imageResponse = await fetch(imageUrl);
+                const imageResponse = await fetch(img.url);
                 const imageBlob = await imageResponse.blob();
                 
                 const fileName = `${savedProduct.id}-${imgIndex}-${Date.now()}.jpg`;
@@ -552,7 +600,7 @@ export default function ImportProduct() {
                 await supabase.from('product_images').insert({
                   product_id: savedProduct.id,
                   image_url: publicUrl,
-                  is_primary: imgIndex === 0,
+                  is_primary: img.isPrimary,
                   display_order: imgIndex,
                 });
 
@@ -756,12 +804,61 @@ export default function ImportProduct() {
                             <p className="text-sm text-muted-foreground mt-1">
                               السعر: ${result.product.price} | الصور: {result.product.images.length}
                             </p>
-                            {result.product.images[0] && (
-                              <img
-                                src={result.product.images[0]}
-                                alt={result.product.name}
-                                className="w-20 h-20 object-cover rounded mt-2"
-                              />
+                            {result.product.images.length > 0 && (
+                              <div className="grid grid-cols-3 gap-2 mt-2">
+                                {result.product.images.slice(0, 3).map((img) => (
+                                  <div key={img.id} className="relative group">
+                                    <div className="aspect-square rounded overflow-hidden border">
+                                      <img
+                                        src={img.url}
+                                        alt={result.product!.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    
+                                    {/* زر الحذف */}
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon"
+                                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        setBulkResults(prev => prev.map((r, i) => 
+                                          i === index && r.product
+                                            ? {...r, product: {...r.product, images: r.product.images.filter(im => im.id !== img.id)}}
+                                            : r
+                                        ));
+                                      }}
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </Button>
+
+                                    {/* زر تعيين كصورة رئيسية */}
+                                    <Button
+                                      type="button"
+                                      variant={img.isPrimary ? "default" : "secondary"}
+                                      size="icon"
+                                      className="absolute -top-1 -left-1 h-5 w-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        setBulkResults(prev => prev.map((r, i) => 
+                                          i === index && r.product
+                                            ? {...r, product: {...r.product, images: r.product.images.map(im => ({...im, isPrimary: im.id === img.id}))}}
+                                            : r
+                                        ));
+                                      }}
+                                    >
+                                      <Star className={`w-2 h-2 ${img.isPrimary ? 'fill-current' : ''}`} />
+                                    </Button>
+
+                                    {/* مؤشر الصورة الرئيسية */}
+                                    {img.isPrimary && (
+                                      <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-[10px] px-1 rounded">
+                                        رئيسية
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             )}
                           </>
                         ) : (
@@ -848,16 +945,55 @@ export default function ImportProduct() {
               {scrapedData.images.length > 0 && (
                 <div>
                   <Label>الصور ({scrapedData.images.length})</Label>
-                  <div className="grid grid-cols-4 gap-4 mt-2">
-                    {scrapedData.images.slice(0, 8).map((img, idx) => (
-                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
-                        <img
-                          src={img}
-                          alt={`صورة ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        {idx === 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                    {scrapedData.images.map((img, idx) => (
+                      <div key={img.id} className="relative group">
+                        <div className="aspect-square rounded-lg overflow-hidden border border-border">
+                          <img
+                            src={img.url}
+                            alt={`صورة ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        
+                        {/* زر الحذف */}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            setScrapedData(prev => prev ? {
+                              ...prev,
+                              images: prev.images.filter(i => i.id !== img.id)
+                            } : null);
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+
+                        {/* زر تعيين كصورة رئيسية */}
+                        <Button
+                          type="button"
+                          variant={img.isPrimary ? "default" : "secondary"}
+                          size="icon"
+                          className="absolute -top-2 -left-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            setScrapedData(prev => prev ? {
+                              ...prev,
+                              images: prev.images.map(i => ({
+                                ...i,
+                                isPrimary: i.id === img.id
+                              }))
+                            } : null);
+                          }}
+                        >
+                          <Star className={`w-3 h-3 ${img.isPrimary ? 'fill-current' : ''}`} />
+                        </Button>
+
+                        {/* مؤشر الصورة الرئيسية */}
+                        {img.isPrimary && (
                           <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                             رئيسية
                           </div>
@@ -865,6 +1001,11 @@ export default function ImportProduct() {
                       </div>
                     ))}
                   </div>
+                  {scrapedData.images.length > 0 && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      اضغط على <Star className="w-3 h-3 inline" /> لتعيين الصورة الرئيسية، أو <X className="w-3 h-3 inline" /> للحذف
+                    </p>
+                  )}
                 </div>
               )}
 
