@@ -21,6 +21,13 @@ interface ScrapedProduct {
   incomplete?: boolean;
 }
 
+interface BulkImportResult {
+  success: boolean;
+  product?: ScrapedProduct;
+  error?: string;
+  url: string;
+}
+
 const CATEGORIES = [
   'العناية بالبشرة',
   'العناية بالشعر',
@@ -38,6 +45,9 @@ export default function ImportProduct() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingField, setIsGeneratingField] = useState<string | null>(null);
   const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
+  const [isBulkImport, setIsBulkImport] = useState(false);
+  const [bulkResults, setBulkResults] = useState<BulkImportResult[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -61,13 +71,16 @@ export default function ImportProduct() {
     if (!productUrl.trim()) {
       toast({
         title: 'خطأ',
-        description: 'الرجاء إدخال رابط المنتج',
+        description: 'الرجاء إدخال رابط المنتج أو القسم',
         variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
+    setIsBulkImport(false);
+    setBulkResults([]);
+    
     try {
       const { data, error } = await supabase.functions.invoke('scrape-product', {
         body: { url: productUrl },
@@ -76,7 +89,6 @@ export default function ImportProduct() {
       if (error) throw error;
 
       if (!data.success) {
-        // عرض رسالة خطأ مفصلة
         const errorMsg = data.message || data.error || 'فشل في جلب بيانات المنتج';
         const suggestion = data.suggestion || '';
         
@@ -104,12 +116,32 @@ export default function ImportProduct() {
         return;
       }
 
+      // ====== معالجة Bulk Import ======
+      if (data.isBulkImport) {
+        setIsBulkImport(true);
+        setBulkResults(data.data);
+        
+        // تحديد المنتجات الناجحة تلقائياً
+        const successfulIndices = new Set<number>(
+          data.data
+            .map((result: BulkImportResult, index: number) => result.success ? index : -1)
+            .filter((i: number) => i !== -1)
+        );
+        setSelectedProducts(successfulIndices);
+        
+        toast({
+          title: 'نجح الاستيراد الجماعي',
+          description: `تم جلب ${data.summary.successful} منتج من أصل ${data.summary.total}`,
+        });
+        return;
+      }
+
+      // ====== معالجة Single Import (الكود الحالي) ======
       const product = data.data as ScrapedProduct;
       setScrapedData(product);
-
-      // تحويل السعر من الدولار إلى الريال (تقريباً 3.75)
+      
       const priceInSAR = product.price ? Math.ceil(product.price * 3.75) : 0;
-
+      
       setFormData({
         name_ar: product.name || '',
         description_ar: product.description || '',
@@ -125,7 +157,6 @@ export default function ImportProduct() {
         seo_keywords: '',
       });
 
-      // عرض رسالة نجاح مع تحذيرات إن وجدت
       const warnings = data.warnings || [];
       toast({
         title: product.incomplete ? 'تم جلب البيانات (جزئياً)' : 'نجح',
@@ -398,6 +429,118 @@ export default function ImportProduct() {
     }
   };
 
+  const handleSaveBulkProducts = async () => {
+    if (selectedProducts.size === 0) {
+      toast({
+        title: 'تنبيه',
+        description: 'الرجاء اختيار منتج واحد على الأقل',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      for (const index of Array.from(selectedProducts)) {
+        const result = bulkResults[index];
+        if (!result.success || !result.product) continue;
+
+        const product = result.product;
+        const priceInSAR = product.price ? Math.ceil(product.price * 3.75) : 0;
+
+        try {
+          // حفظ المنتج
+          const { data: savedProduct, error: productError } = await supabase
+            .from('products')
+            .insert({
+              name_ar: product.name,
+              description_ar: product.description,
+              price: priceInSAR,
+              category: product.category || '',
+              stock_quantity: 10,
+              made_in: product.brand || '',
+              is_active: true,
+            })
+            .select()
+            .single();
+
+          if (productError) throw productError;
+
+          // حفظ الصور
+          if (product.images && product.images.length > 0) {
+            const imagePromises = product.images.slice(0, 5).map(async (imageUrl, imgIndex) => {
+              try {
+                const imageResponse = await fetch(imageUrl);
+                const imageBlob = await imageResponse.blob();
+                
+                const fileName = `${savedProduct.id}-${imgIndex}-${Date.now()}.jpg`;
+                const { error: uploadError } = await supabase.storage
+                  .from('product-images')
+                  .upload(fileName, imageBlob, {
+                    contentType: 'image/jpeg',
+                    upsert: false,
+                  });
+
+                if (uploadError) return null;
+
+                const { data: { publicUrl } } = supabase.storage
+                  .from('product-images')
+                  .getPublicUrl(fileName);
+
+                await supabase.from('product_images').insert({
+                  product_id: savedProduct.id,
+                  image_url: publicUrl,
+                  is_primary: imgIndex === 0,
+                  display_order: imgIndex,
+                });
+
+                return publicUrl;
+              } catch (error) {
+                console.error('Error processing image:', error);
+                return null;
+              }
+            });
+
+            await Promise.all(imagePromises);
+          }
+
+          successCount++;
+          
+          // تأخير لتجنب الضغط على القاعدة
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+        } catch (error) {
+          console.error('Error saving product:', error);
+          failCount++;
+        }
+      }
+
+      toast({
+        title: 'اكتمل الحفظ الجماعي',
+        description: `تم حفظ ${successCount} منتج بنجاح${failCount > 0 ? `، فشل ${failCount}` : ''}`,
+      });
+
+      // إعادة تعيين
+      setIsBulkImport(false);
+      setBulkResults([]);
+      setSelectedProducts(new Set());
+      setProductUrl('');
+      
+    } catch (error: any) {
+      console.error('Error in bulk save:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل في حفظ المنتجات',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -476,6 +619,109 @@ export default function ImportProduct() {
             )}
           </CardContent>
         </Card>
+
+        {isBulkImport && bulkResults.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>المنتجات المستوردة ({bulkResults.length})</CardTitle>
+              <CardDescription>
+                اختر المنتجات التي تريد حفظها
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {bulkResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className={`border rounded-lg p-4 ${
+                      result.success
+                        ? 'border-green-200 bg-green-50 dark:bg-green-950'
+                        : 'border-red-200 bg-red-50 dark:bg-red-950'
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      {result.success && (
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.has(index)}
+                          onChange={(e) => {
+                            const newSelected = new Set(selectedProducts);
+                            if (e.target.checked) {
+                              newSelected.add(index);
+                            } else {
+                              newSelected.delete(index);
+                            }
+                            setSelectedProducts(newSelected);
+                          }}
+                          className="mt-1"
+                        />
+                      )}
+                      
+                      <div className="flex-1">
+                        {result.success && result.product ? (
+                          <>
+                            <h3 className="font-semibold">{result.product.name}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              السعر: ${result.product.price} | الصور: {result.product.images.length}
+                            </p>
+                            {result.product.images[0] && (
+                              <img
+                                src={result.product.images[0]}
+                                alt={result.product.name}
+                                className="w-20 h-20 object-cover rounded mt-2"
+                              />
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-red-600">
+                            <p className="font-semibold">فشل الاستيراد</p>
+                            <p className="text-sm">{result.error}</p>
+                            <a
+                              href={result.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm underline"
+                            >
+                              فتح الرابط
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <Button
+                  onClick={handleSaveBulkProducts}
+                  disabled={isSaving || selectedProducts.size === 0}
+                  className="flex-1"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    `حفظ المنتجات المحددة (${selectedProducts.size})`
+                  )}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsBulkImport(false);
+                    setBulkResults([]);
+                    setSelectedProducts(new Set());
+                  }}
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {scrapedData && (
           <Card>

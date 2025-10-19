@@ -718,6 +718,215 @@ function extractFallbackData(html: string): Partial<ProductData> {
   return data;
 }
 
+// دالة للتحقق من كون الرابط هو category URL
+function isCategoryUrl(url: string, hostname: string): boolean {
+  const lowerUrl = url.toLowerCase();
+  const lowerHost = hostname.toLowerCase();
+  
+  // AliExpress
+  if (lowerHost.includes('aliexpress')) {
+    return lowerUrl.includes('/category/') || 
+           lowerUrl.includes('searchtext=') || 
+           lowerUrl.includes('/wholesale/');
+  }
+  
+  // Amazon
+  if (lowerHost.includes('amazon')) {
+    return lowerUrl.includes('/s?') || 
+           lowerUrl.includes('/b/') || 
+           lowerUrl.includes('&rh=');
+  }
+  
+  // Shopify
+  if (lowerHost.includes('myshopify') || lowerUrl.includes('/collections/')) {
+    return lowerUrl.includes('/collections/');
+  }
+  
+  return false;
+}
+
+// دالة لاستخراج روابط المنتجات من صفحة category
+function extractProductLinks(html: string, hostname: string, baseUrl: string): string[] {
+  const links: string[] = [];
+  const seen = new Set<string>();
+  
+  try {
+    if (hostname.includes('aliexpress')) {
+      // 1. JSON extraction من window.runParams
+      const runParamsMatch = html.match(/window\.runParams\s*=\s*({[\s\S]*?});/);
+      if (runParamsMatch) {
+        try {
+          const data = JSON.parse(runParamsMatch[1]);
+          if (data.items && Array.isArray(data.items)) {
+            data.items.forEach((item: any) => {
+              if (item.productId) {
+                const link = `https://www.aliexpress.com/item/${item.productId}.html`;
+                if (!seen.has(link)) {
+                  seen.add(link);
+                  links.push(link);
+                }
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error parsing AliExpress JSON:', e);
+        }
+      }
+      
+      // 2. Fallback: HTML links
+      const linkMatches = html.matchAll(/<a[^>]*href=["']([^"']*\/item\/\d+\.html[^"']*)["']/gi);
+      for (const match of linkMatches) {
+        let link = match[1];
+        if (!link.startsWith('http')) {
+          link = 'https:' + (link.startsWith('//') ? link : '//www.aliexpress.com' + link);
+        }
+        if (!seen.has(link)) {
+          seen.add(link);
+          links.push(link);
+        }
+      }
+    }
+    
+    else if (hostname.includes('amazon')) {
+      // 1. data-asin attributes
+      const asinMatches = html.matchAll(/data-asin=["']([A-Z0-9]{10})["']/gi);
+      for (const match of asinMatches) {
+        const asin = match[1];
+        const link = `https://www.amazon.com/dp/${asin}`;
+        if (!seen.has(link)) {
+          seen.add(link);
+          links.push(link);
+        }
+      }
+      
+      // 2. Fallback: href links
+      const linkMatches = html.matchAll(/<a[^>]*href=["']([^"']*\/dp\/[A-Z0-9]{10}[^"']*)["']/gi);
+      for (const match of linkMatches) {
+        const link = match[1].startsWith('http') ? match[1] : `https://www.amazon.com${match[1]}`;
+        const cleanLink = link.split('?')[0];
+        if (!seen.has(cleanLink)) {
+          seen.add(cleanLink);
+          links.push(cleanLink);
+        }
+      }
+    }
+    
+    else if (hostname.includes('myshopify') || html.includes('Shopify')) {
+      // 1. JSON في script tags
+      const jsonMatches = html.matchAll(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/gi);
+      for (const match of jsonMatches) {
+        try {
+          const data = JSON.parse(match[1]);
+          if (data.products && Array.isArray(data.products)) {
+            data.products.forEach((product: any) => {
+              if (product.handle) {
+                const link = `${baseUrl}/products/${product.handle}`;
+                if (!seen.has(link)) {
+                  seen.add(link);
+                  links.push(link);
+                }
+              }
+            });
+          }
+        } catch (e) {
+          // تجاهل
+        }
+      }
+      
+      // 2. HTML links
+      const linkMatches = html.matchAll(/<a[^>]*href=["']([^"']*\/products\/[^"'\/]+)["']/gi);
+      for (const match of linkMatches) {
+        const link = match[1].startsWith('http') ? match[1] : `${baseUrl}${match[1]}`;
+        const cleanLink = link.split('?')[0];
+        if (!seen.has(cleanLink)) {
+          seen.add(cleanLink);
+          links.push(cleanLink);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error extracting product links:', error);
+  }
+  
+  return links.slice(0, 10);
+}
+
+// دالة لاستخراج بيانات منتج واحد
+async function scrapeProductData(url: string): Promise<{ success: boolean; product?: ProductData; error?: string; url: string }> {
+  try {
+    const result = await followRedirects(url);
+    const html = result.html;
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname.toLowerCase();
+    
+    let productData: Partial<ProductData> = {};
+    
+    // استخراج البيانات حسب الموقع
+    if (hostname.includes('aliexpress')) {
+      productData = extractAliExpressData(html);
+    } else if (hostname.includes('amazon')) {
+      productData = extractAmazonData(html);
+    } else if (hostname.includes('myshopify') || html.includes('Shopify.theme') || html.includes('cdn.shopify')) {
+      productData = extractShopifyData(html);
+    }
+    
+    // Meta tags
+    const metaData = extractMetaTags(html);
+    productData = { ...metaData, ...productData };
+    
+    // Gallery images
+    const galleryImages = extractImageGallery(html);
+    if (galleryImages.length > 0) {
+      productData.images = [...(productData.images || []), ...galleryImages];
+    }
+    
+    // Deduplication
+    if (productData.images && productData.images.length > 0) {
+      productData.images = deduplicateAndFilterImages(productData.images);
+    }
+    
+    // Fallback
+    if (!productData.name || !productData.price) {
+      const fallbackData = extractFallbackData(html);
+      productData = { ...fallbackData, ...productData };
+    }
+    
+    // التحقق من البيانات الأساسية
+    if (!productData.name) {
+      return {
+        success: false,
+        error: 'لم يتم العثور على اسم المنتج',
+        url
+      };
+    }
+    
+    const cleanData: ProductData = {
+      name: productData.name || '',
+      description: productData.description || '',
+      price: productData.price || 0,
+      currency: productData.currency || 'USD',
+      images: (productData.images || []).filter(img => img && img.startsWith('http')).slice(0, 20),
+      specifications: productData.specifications,
+      brand: productData.brand,
+      category: productData.category,
+      incomplete: productData.incomplete,
+    };
+    
+    return {
+      success: true,
+      product: cleanData,
+      url
+    };
+  } catch (error) {
+    console.error(`Error scraping ${url}:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'خطأ غير معروف',
+      url
+    };
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -776,124 +985,107 @@ Deno.serve(async (req) => {
 
     console.log('Fetching product from:', url);
 
-    let html: string;
-    let finalUrl: string;
-
-    try {
-      // استخدام followRedirects المحسنة
-      const result = await followRedirects(url);
-      html = result.html;
-      finalUrl = result.finalUrl;
-      console.log('Successfully fetched page, final URL:', finalUrl);
-    } catch (error) {
-      console.error('Error fetching page:', error);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'FETCH_FAILED',
-          message: error instanceof Error ? error.message : 'Failed to fetch the product page',
-          suggestion: 'تأكد من صحة الرابط أو حاول رابطاً آخر',
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
     const hostname = parsedUrl.hostname.toLowerCase();
-    let productData: Partial<ProductData> = {};
-
-    // تحديد نوع الموقع واستخراج البيانات
-    if (hostname.includes('aliexpress')) {
-      console.log('Detected AliExpress');
-      productData = extractAliExpressData(html);
-    } else if (hostname.includes('amazon')) {
-      console.log('Detected Amazon');
-      productData = extractAmazonData(html);
-    } else if (hostname.includes('myshopify') || html.includes('Shopify.theme') || html.includes('cdn.shopify')) {
-      console.log('Detected Shopify store');
-      productData = extractShopifyData(html);
-    }
-
-    // استخراج البيانات العامة من meta tags
-    const metaData = extractMetaTags(html);
-    productData = {
-      ...metaData,
-      ...productData,
-    };
+    const baseUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
     
-    // استخراج صور إضافية من Gallery Parser
-    const galleryImages = extractImageGallery(html);
-    if (galleryImages.length > 0) {
-      console.log(`Extracted ${galleryImages.length} images from gallery parser`);
-      productData.images = [...(productData.images || []), ...galleryImages];
-    }
+    // ============ اكتشاف نوع الرابط ============
+    const isCategoryPage = isCategoryUrl(url, hostname);
     
-    // إزالة الصور المكررة وتنظيفها
-    if (productData.images && productData.images.length > 0) {
-      productData.images = deduplicateAndFilterImages(productData.images);
-      console.log(`Total unique images after deduplication: ${productData.images.length}`);
-    }
-
-    // محاولة Fallback إذا لم نحصل على بيانات كافية
-    if (!productData.name || !productData.price || !productData.images || productData.images.length === 0) {
-      console.log('Using fallback extraction');
-      const fallbackData = extractFallbackData(html);
-      productData = {
-        ...fallbackData,
-        ...productData, // البيانات الموجودة لها الأولوية
-      };
-    }
-
-    // التحقق من وجود البيانات الأساسية
-    if (!productData.name) {
+    if (isCategoryPage) {
+      // ====== معالجة Category URL (Bulk Import) ======
+      console.log('Detected category URL, extracting product links...');
+      
+      let result;
+      try {
+        result = await followRedirects(url);
+      } catch (error) {
+        console.error('Error fetching category page:', error);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'FETCH_FAILED',
+            message: error instanceof Error ? error.message : 'فشل في جلب صفحة القسم',
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
+      const productLinks = extractProductLinks(result.html, hostname, baseUrl);
+      
+      if (productLinks.length === 0) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'NO_PRODUCTS_FOUND',
+            message: 'لم يتم العثور على منتجات في هذه الصفحة',
+            suggestion: 'تأكد من أن الرابط يحتوي على منتجات'
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      console.log(`Found ${productLinks.length} products, starting scraping...`);
+      
+      const results = [];
+      for (const productUrl of productLinks) {
+        console.log(`Scraping: ${productUrl}`);
+        const result = await scrapeProductData(productUrl);
+        results.push(result);
+        
+        // تأخير لتجنب Rate Limiting
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+      
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      
+      console.log(`Bulk import complete: ${successful} successful, ${failed} failed`);
+      
       return new Response(
         JSON.stringify({
-          success: false,
-          error: 'EXTRACTION_FAILED',
-          message: 'Could not extract product name from the page',
-          suggestion: 'يمكنك نسخ البيانات يدوياً من الصفحة',
-          url: finalUrl,
+          success: true,
+          isBulkImport: true,
+          data: results,
+          summary: {
+            total: results.length,
+            successful,
+            failed
+          }
         }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } 
+    else {
+      // ====== معالجة Product URL العادي (Single Import) ======
+      console.log('Detected product URL, scraping single product...');
+      
+      const result = await scrapeProductData(url);
+      
+      if (!result.success) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'EXTRACTION_FAILED',
+            message: result.error || 'فشل في استخراج بيانات المنتج',
+            url: result.url
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          isBulkImport: false,
+          data: result.product,
+          warnings: result.product?.incomplete ? ['بعض البيانات قد تكون ناقصة، يرجى مراجعتها'] : undefined
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // تنظيف البيانات
-    const cleanData: ProductData = {
-      name: productData.name || '',
-      description: productData.description || '',
-      price: productData.price || 0,
-      currency: productData.currency || 'USD',
-      images: (productData.images || []).filter(img => img && img.startsWith('http')).slice(0, 20),
-      specifications: productData.specifications,
-      brand: productData.brand,
-      category: productData.category,
-      incomplete: productData.incomplete,
-    };
-
-    console.log('Successfully extracted product data:', {
-      name: cleanData.name,
-      price: cleanData.price,
-      imagesCount: cleanData.images.length,
-      imagesSample: cleanData.images.slice(0, 3), // عرض أول 3 روابط
-      incomplete: cleanData.incomplete,
-    });
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        data: cleanData,
-        warnings: cleanData.incomplete ? ['بعض البيانات قد تكون ناقصة، يرجى مراجعتها'] : undefined,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
   } catch (error) {
     console.error('Unexpected error:', error);
     
