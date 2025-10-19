@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PromoBanner } from '@/components/home/PromoBanner';
+import { CategoryShortcuts } from '@/components/home/CategoryShortcuts';
 import { PromotionalBanner } from '@/components/PromotionalBanner';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
 import { CategorySection } from '@/components/home/CategorySection';
@@ -101,6 +102,9 @@ export default function Home() {
       
       {/* Promotional Banner (Rotating Messages) */}
       <PromoBanner />
+
+      {/* Category Shortcuts */}
+      <CategoryShortcuts />
 
       {/* Promotional Banners (AI Generated/Uploaded) */}
       {activeBanners && activeBanners.length > 0 && (
