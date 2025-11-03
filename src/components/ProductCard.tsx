@@ -24,15 +24,31 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // محاكاة خصم عشوائي للعرض (يمكن استبداله ببيانات حقيقية من قاعدة البيانات)
-  const hasDiscount = Math.random() > 0.6;
-  const discountPercentage = hasDiscount ? Math.floor(Math.random() * 30) + 10 : 0;
+  // دالة لتوليد رقم عشوائي ثابت بناءً على ID
+  const seededRandom = (seed: string, max: number = 1) => {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+      hash |= 0;
+    }
+    return (Math.abs(hash) % 100) / 100 * max;
+  };
+
+  // استخدام ID للحصول على قيم ثابتة
+  const discountSeed = seededRandom(id);
+  const hasDiscount = discountSeed > 0.6;
+  const discountPercentage = hasDiscount ? Math.floor(discountSeed * 30) + 10 : 0;
   const oldPrice = hasDiscount ? price / (1 - discountPercentage / 100) : price;
-  
-  // شارات عشوائية للعرض
-  const badges = ['منتج تريد', 'الأكثر مبيعاً', 'توصية الأسبوع', 'جديد'];
-  const hasBadge = Math.random() > 0.5;
-  const randomBadge = badges[Math.floor(Math.random() * badges.length)];
+
+  const badges = ['الأكثر مبيعاً', 'منتج جديد', 'عرض خاص', 'الأكثر شعبية'];
+  const badgeSeed = seededRandom(id + 'badge');
+  const hasBadge = badgeSeed > 0.5;
+  const badgeIndex = Math.floor(seededRandom(id + 'badgeType', badges.length));
+  const randomBadge = badges[badgeIndex];
+
+  const ratingSeed = seededRandom(id + 'rating');
+  const rating = Number((ratingSeed * 1 + 4).toFixed(1));
+  const reviewCount = Math.floor(seededRandom(id + 'reviews', 150)) + 10;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -77,10 +93,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-card h-full flex flex-col">
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group relative bg-card h-full flex flex-col border-2 hover:border-primary/20">
       {/* شارة المنتج */}
       {hasBadge && (
-        <Badge className="absolute top-1 right-1 z-10 bg-yellow-400 text-black font-bold text-[7px] px-1 py-0 hover:bg-yellow-400">
+        <Badge className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold text-[9px] px-2 py-0.5 shadow-md">
           {randomBadge}
         </Badge>
       )}
@@ -88,11 +104,12 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       {/* أيقونة المفضلة */}
       <button
         onClick={toggleFavorite}
-        className="absolute top-1 left-1 z-10 w-5 h-5 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
+        className="absolute top-2 left-2 z-10 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-sm"
+        aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
       >
         <Heart
-          className={`h-2.5 w-2.5 transition-colors ${
-            isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'
+          className={`h-4 w-4 transition-all ${
+            isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-600'
           }`}
         />
       </button>
@@ -112,10 +129,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         )}
       </Link>
       
-      <CardContent className="p-2 flex flex-col flex-grow space-y-1">
+      <CardContent className="p-3 md:p-4 flex-1 flex flex-col justify-between gap-2">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-[10px] text-center hover:text-primary transition-colors line-clamp-2 h-8 leading-tight flex items-center justify-center">
+          <h3 className="font-bold text-xs md:text-sm text-center hover:text-primary transition-colors line-clamp-2 min-h-[2.5rem] leading-tight flex items-center justify-center px-1">
             {name_ar}
           </h3>
         </Link>
@@ -123,66 +140,65 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         {/* التقييم */}
         <div className="flex justify-center">
           <ProductRating 
-            rating={Number((Math.random() * 1 + 4).toFixed(1))} 
-            reviewCount={Math.floor(Math.random() * 150) + 10} 
-            showCount={false} 
+            rating={rating} 
+            reviewCount={reviewCount} 
+            showCount={true} 
             size="sm" 
           />
         </div>
 
-        {/* السعر والخصم */}
-        <div className="text-center space-y-0.5 min-h-[3rem]">
-          <div className="flex items-center justify-center gap-1">
-            <div className="flex items-baseline gap-0.5">
-              <p className="text-sm font-bold text-primary">
+        {/* قسم السعر */}
+        <div className="text-center space-y-1 py-2">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-baseline gap-1">
+              <p className="text-lg md:text-xl font-bold text-primary">
                 {price.toFixed(2)}
               </p>
-              <p className="text-[8px] font-semibold text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 ر.س
               </p>
             </div>
             {hasDiscount && (
               <div className="flex items-baseline gap-0.5">
-                <p className="text-[9px] text-muted-foreground line-through">
+                <p className="text-xs text-muted-foreground line-through">
                   {oldPrice.toFixed(2)}
                 </p>
-                <p className="text-[7px] text-muted-foreground">ر.س</p>
               </div>
             )}
           </div>
-          {/* مساحة محجوزة للخصم */}
-          <div className="h-4">
-            {hasDiscount && (
-              <div className="bg-red-50 dark:bg-red-950/30 rounded-sm px-1 py-0.5 inline-block">
-                <p className="text-[8px] text-red-600 dark:text-red-400 font-bold">
-                  وفّر {discountPercentage}%
-                </p>
-              </div>
-            )}
-          </div>
+          {hasDiscount && (
+            <div className="inline-block">
+              <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
+                وفّر {discountPercentage}%
+              </Badge>
+            </div>
+          )}
         </div>
 
+        {/* رسالة غير متوفر */}
         {stock_quantity <= 0 && (
-          <p className="text-[8px] text-destructive text-center font-semibold bg-destructive/10 rounded-sm py-0.5">
-            غير متوفر
-          </p>
+          <div className="bg-destructive/10 border border-destructive/20 rounded-md py-1.5 px-2">
+            <p className="text-xs text-destructive text-center font-semibold">
+              نفذت الكمية
+            </p>
+          </div>
         )}
 
-        {/* أزرار الشراء */}
-        <div className="flex gap-1 mt-auto">
+        {/* أزرار الإجراءات */}
+        <div className="flex gap-2 mt-auto pt-2">
           <Button
             onClick={handleAddToCart}
             variant="outline"
             size="sm"
-            className="flex-1 h-6 rounded-md text-[9px] p-0"
+            className="flex-1 h-9 rounded-lg text-xs hover:bg-primary hover:text-primary-foreground transition-colors"
             disabled={stock_quantity <= 0}
           >
-            <ShoppingCart className="h-2.5 w-2.5" />
+            <ShoppingCart className="h-4 w-4" />
           </Button>
           <Button
             onClick={handleBuyNow}
             size="sm"
-            className="flex-[2] h-6 rounded-md text-[9px] font-bold p-1"
+            className="flex-[2] h-9 rounded-lg text-xs font-bold hover:scale-105 transition-transform"
             disabled={stock_quantity <= 0}
           >
             اشتر الآن
