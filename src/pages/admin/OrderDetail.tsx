@@ -30,7 +30,6 @@ export default function AdminOrderDetail() {
   const [showShippingModal, setShowShippingModal] = useState(false);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
-  const [isEditingTracking, setIsEditingTracking] = useState(false);
   const queryClient = useQueryClient();
 
   // Helper function to get status badge variant and label
@@ -247,24 +246,44 @@ export default function AdminOrderDetail() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            {order?.payment_status === 'pending' && (
-              <Button 
-                onClick={sendPaymentReminder}
-                disabled={isSendingReminder}
-                variant="outline"
-                size="sm"
-              >
-                {isSendingReminder ? (
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Mail className="ml-2 h-4 w-4" />
-                )}
-                تذكير بالدفع
-              </Button>
-            )}
-          </div>
         </div>
+
+        {/* تحذير الطلب غير المدفوع */}
+        {order?.payment_status === 'pending' && (
+          <Card className="border-yellow-300 bg-yellow-50 shadow-lg">
+            <CardContent className="pt-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex-shrink-0 w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-yellow-600" />
+                </div>
+                <div className="flex-1 text-center sm:text-right">
+                  <h3 className="text-xl font-bold text-yellow-900 mb-1">الطلب غير مدفوع</h3>
+                  <p className="text-yellow-800">
+                    يرجى إرسال تذكير للعميل بالدفع قبل البدء بمعالجة الطلب
+                  </p>
+                </div>
+                <Button 
+                  onClick={sendPaymentReminder}
+                  disabled={isSendingReminder}
+                  size="lg"
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white shadow-md min-w-[180px]"
+                >
+                  {isSendingReminder ? (
+                    <>
+                      <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                      جاري الإرسال...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="ml-2 h-5 w-5" />
+                      إرسال تذكير بالدفع
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Timeline */}
         <Card>
@@ -282,8 +301,8 @@ export default function AdminOrderDetail() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions Panel */}
-        {order?.payment_status === 'completed' && status !== 'delivered' && status !== 'cancelled' && (
+        {/* Quick Actions Panel - فقط للطلبات المدفوعة وغير المشحونة */}
+        {order?.payment_status === 'completed' && status !== 'shipped' && status !== 'delivered' && status !== 'cancelled' && (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="pt-6">
               <QuickActionsPanel
@@ -296,43 +315,35 @@ export default function AdminOrderDetail() {
           </Card>
         )}
 
-        {/* Status Selector */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5" />
-              إدارة حالة الطلب
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>تغيير الحالة</Label>
-              <Select value={status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">قيد الانتظار</SelectItem>
-                  <SelectItem value="processing">قيد المعالجة</SelectItem>
-                  <SelectItem value="packed">جاهز للشحن</SelectItem>
-                  <SelectItem value="shipped">تم الشحن</SelectItem>
-                  <SelectItem value="delivered">تم التوصيل</SelectItem>
-                  <SelectItem value="cancelled">ملغي</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {order?.payment_status === 'pending' && status !== 'pending' && (
-              <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-yellow-800">
-                  <p className="font-semibold">تنبيه: الطلب غير مدفوع</p>
-                  <p className="mt-1">يُنصح بتغيير حالة الطلب فقط بعد استلام الدفع.</p>
-                </div>
+        {/* Status Selector - فقط للطلبات المدفوعة وغير المشحونة */}
+        {order?.payment_status === 'completed' && status !== 'shipped' && status !== 'delivered' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5" />
+                إدارة حالة الطلب
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>تغيير الحالة</Label>
+                <Select value={status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">قيد الانتظار</SelectItem>
+                    <SelectItem value="processing">قيد المعالجة</SelectItem>
+                    <SelectItem value="packed">جاهز للشحن</SelectItem>
+                    <SelectItem value="shipped">تم الشحن</SelectItem>
+                    <SelectItem value="delivered">تم التوصيل</SelectItem>
+                    <SelectItem value="cancelled">ملغي</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* معلومات العميل والشحن */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -371,29 +382,16 @@ export default function AdminOrderDetail() {
           {/* معلومات الشحن */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Truck className="w-5 h-5" />
-                  معلومات الشحن
-                </div>
-                {order?.payment_status === 'completed' && trackingNumber && !isEditingTracking && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsEditingTracking(true)}
-                    className="gap-2"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    تعديل
-                  </Button>
-                )}
+              <CardTitle className="flex items-center gap-2">
+                <Truck className="w-5 h-5" />
+                معلومات الشحن
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {order?.payment_status === 'completed' ? (
                 <div className="space-y-4">
-                  {trackingNumber && !isEditingTracking ? (
-                    // عرض معلومات الشحن
+                  {trackingNumber && (status === 'shipped' || status === 'delivered') ? (
+                    // عرض معلومات الشحن (Read-only للطلبات المشحونة)
                     <div className="space-y-4">
                       <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 rounded-lg">
                         <p className="text-xs text-muted-foreground mb-2">رقم التتبع</p>
@@ -419,91 +417,74 @@ export default function AdminOrderDetail() {
                       )}
 
                       {status === 'shipped' && (
-                        <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                          <p className="text-sm text-green-800 font-medium">تم شحن الطلب بنجاح</p>
-                        </div>
+                        <Button
+                          onClick={() => handleStatusChange('delivered')}
+                          size="lg"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white shadow-md"
+                        >
+                          <Package className="ml-2 h-5 w-5" />
+                          تأكيد التوصيل
+                        </Button>
                       )}
                     </div>
-                  ) : (
-                    // نموذج تعديل معلومات الشحن
+                  ) : (status !== 'shipped' && status !== 'delivered') ? (
+                    // نموذج إدخال معلومات الشحن (للطلبات غير المشحونة)
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="trackingNumber">رقم التتبع</Label>
                         <Input
                           id="trackingNumber"
+                          placeholder="أدخل رقم التتبع"
                           value={trackingNumber}
                           onChange={(e) => setTrackingNumber(e.target.value)}
-                          placeholder="أدخل رقم التتبع..."
-                          className="font-mono"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="shippingCompany">شركة الشحن</Label>
                         <Input
                           id="shippingCompany"
+                          placeholder="اسم شركة الشحن"
                           value={shippingCompany}
                           onChange={(e) => setShippingCompany(e.target.value)}
-                          placeholder="أدخل اسم شركة الشحن..."
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="trackingUrl">رابط تتبع الشحنة (اختياري)</Label>
-                        <Input
-                          id="trackingUrl"
-                          value={trackingUrl}
-                          onChange={(e) => setTrackingUrl(e.target.value)}
-                          placeholder="https://..."
-                          type="url"
-                        />
-                      </div>
+                      {trackingNumber && shippingCompany && (
+                        <div className="space-y-2">
+                          <Label htmlFor="trackingUrl">رابط التتبع (اختياري)</Label>
+                          <Input
+                            id="trackingUrl"
+                            placeholder="https://..."
+                            value={trackingUrl}
+                            onChange={(e) => setTrackingUrl(e.target.value)}
+                          />
+                        </div>
+                      )}
 
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={handleSaveTracking}
-                          disabled={isSavingTracking || !trackingNumber.trim()}
-                          className="flex-1"
-                        >
-                          {isSavingTracking ? (
-                            <>
-                              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                              جاري الحفظ...
-                            </>
-                          ) : (
-                            <>
-                              <Save className="ml-2 h-4 w-4" />
-                              حفظ وتغيير الحالة
-                            </>
-                          )}
-                        </Button>
-                        {isEditingTracking && (
-                          <Button 
-                            variant="outline"
-                            onClick={() => {
-                              setIsEditingTracking(false);
-                              // إعادة تعيين القيم
-                              setTrackingNumber(order?.tracking_number || '');
-                              setShippingCompany(order?.shipping_company || '');
-                            }}
-                          >
-                            إلغاء
-                          </Button>
+                      <Button
+                        onClick={handleSaveTracking}
+                        disabled={!trackingNumber.trim() || isSavingTracking}
+                        size="lg"
+                        className="w-full gap-2"
+                      >
+                        {isSavingTracking ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Save className="h-5 w-5" />
                         )}
-                      </div>
+                        حفظ وشحن الطلب
+                      </Button>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               ) : (
-                <div className="p-6 bg-destructive/5 border-2 border-destructive/20 rounded-lg text-center">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-destructive/10 flex items-center justify-center">
-                    <AlertCircle className="w-6 h-6 text-destructive" />
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <AlertCircle className="w-8 h-8 text-yellow-600" />
                   </div>
-                  <p className="text-destructive font-bold text-lg mb-2">غير مدفوع</p>
-                  <p className="text-sm text-muted-foreground">
-                    لا يمكن إضافة رقم تتبع للطلبات غير المدفوعة
-                  </p>
+                  <p className="text-yellow-800 font-semibold">يرجى انتظار تأكيد الدفع</p>
+                  <p className="text-sm text-yellow-700 mt-1">لا يمكن إضافة معلومات الشحن للطلبات غير المدفوعة</p>
                 </div>
               )}
             </CardContent>
@@ -562,14 +543,9 @@ export default function AdminOrderDetail() {
                 {pendingStatus && getStatusInfo(pendingStatus).label}
               </span>
               ؟
-              {pendingStatus === 'shipped' && (
-                <div className="mt-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                  <p className="text-sm font-medium">سيتم إرسال إشعار للعميل برقم التتبع تلقائياً.</p>
-                </div>
-              )}
               {pendingStatus === 'cancelled' && (
                 <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <p className="text-sm font-medium text-destructive">تنبيه: لا يمكن التراجع عن إلغاء الطلب.</p>
+                  <p className="text-sm text-destructive font-semibold">تحذير: هذا الإجراء لا يمكن التراجع عنه</p>
                 </div>
               )}
             </AlertDialogDescription>
@@ -577,7 +553,7 @@ export default function AdminOrderDetail() {
           <AlertDialogFooter>
             <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={confirmStatusChange}>
-              تأكيد التغيير
+              تأكيد
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
