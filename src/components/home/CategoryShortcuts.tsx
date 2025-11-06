@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 
 export const CategoryShortcuts = () => {
   const { data: categories, isLoading } = useQuery({
@@ -42,34 +44,53 @@ export const CategoryShortcuts = () => {
   return (
     <section className="py-6 bg-gradient-to-b from-background to-muted/20 animate-fade-in">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-3 gap-4 md:gap-6 pb-4">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              to={`/products?category=${category.slug}`}
-              className="group"
-              aria-label={`عرض منتجات ${category.name_ar}`}
-            >
-              <div className="flex flex-col items-center gap-2 w-[100px] md:w-[120px]">
-                {/* الدائرة */}
-                <div className="relative w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-full bg-gradient-to-br from-primary-light/20 to-accent p-1.5 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-white shadow-soft">
-                    <OptimizedImage
-                      src={category.banner_url || ''}
-                      alt={category.name_ar}
-                      className="w-full h-full"
-                      aspectRatio="1/1"
-                    />
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+            direction: "rtl",
+          }}
+          plugins={[
+            Autoplay({
+              delay: 3000,
+            }),
+          ]}
+          className="w-full"
+        >
+          <CarouselContent className="-mr-2 md:-mr-4">
+            {categories.map((category) => (
+              <CarouselItem key={category.id} className="pr-2 md:pr-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
+                <Link
+                  to={`/products?category=${category.slug}`}
+                  className="group"
+                  aria-label={`عرض منتجات ${category.name_ar}`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    {/* الدائرة */}
+                    <div className="relative w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-full bg-gradient-to-br from-primary-light/20 to-accent p-1.5 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
+                      <div className="w-full h-full rounded-full overflow-hidden bg-white shadow-soft">
+                        <OptimizedImage
+                          src={category.banner_url || ''}
+                          alt={category.name_ar}
+                          className="w-full h-full"
+                          aspectRatio="1/1"
+                        />
+                      </div>
+                    </div>
+                    {/* اسم القسم */}
+                    <span className="text-sm md:text-base font-medium text-center text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                      {category.name_ar}
+                    </span>
                   </div>
-                </div>
-                {/* اسم القسم */}
-                <span className="text-sm md:text-base font-medium text-center text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2">
-                  {category.name_ar}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+                </Link>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="hidden md:block">
+            <CarouselPrevious className="left-auto -right-12" />
+            <CarouselNext className="right-auto -left-12" />
+          </div>
+        </Carousel>
       </div>
     </section>
   );
