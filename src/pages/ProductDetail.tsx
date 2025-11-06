@@ -301,7 +301,11 @@ export default function ProductDetail() {
                   className="flex-1"
                   disabled={product.stock_quantity <= 0}
                 >
-                  <Zap className="ml-2 h-5 w-5" />
+                  <img 
+                    src="/images/payment-icons/apple-pay.svg" 
+                    alt="Apple Pay" 
+                    className="ml-2 h-6 w-auto"
+                  />
                   اشتر الآن
                 </Button>
               </div>
