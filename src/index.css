@@ -8,11 +8,11 @@
   :root {
     /* Pure white background */
     --background: 0 0% 100%;
-    --foreground: 145 30% 20%;
+    --foreground: 0 0% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 145 30% 20%;
+    --card-foreground: 0 0% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 145 30% 20%;
+    --popover-foreground: 0 0% 15%;
     
     /* Natural green primary - olive green */
     --primary: 100 28% 36%;
@@ -20,20 +20,23 @@
     --primary-light: 100 35% 55%;
     --primary-dark: 100 28% 25%;
     
-    /* Soft beige accent */
-    --accent: 40 20% 95%;
-    --accent-foreground: 145 30% 20%;
+    /* Warm beige/gold accent */
+    --accent: 35 40% 92%;
+    --accent-foreground: 0 0% 15%;
     
-    /* Soft beige secondary */
-    --secondary: 40 20% 95%;
-    --secondary-foreground: 100 28% 36%;
+    /* Neutral secondary */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
     
-    --muted: 100 20% 96%;
-    --muted-foreground: 145 15% 45%;
+    /* Neutral muted tones */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 100 20% 85%;
-    --input: 100 20% 85%;
+    
+    /* Neutral borders and inputs */
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
     --ring: 100 28% 36%;
     --radius: 0.75rem;
 
