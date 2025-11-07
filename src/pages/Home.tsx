@@ -11,6 +11,7 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
+import { LocalBusinessSchema } from '@/components/SEO/LocalBusinessSchema';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -92,13 +93,14 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <SEOHead
-        title="الرئيسية"
-        description="سيفن جرين يقدّم منتجات طبيعية، وخاصة بار شامبو (شامبو صلب) يحتوي على مزيج من 12 عشبة طبيعية مثل الجينسنغ، أوراق التوت، زنجبيل وغيرها، لتغذية الشعر والعناية به بطريقة طبيعية 100%"
-        keywords="شامبو طبيعي, صابون الشعر, منتجات طبيعية, عناية الشعر, سفن جرين, شامبو صلب, أعشاب طبيعية"
+        title="متجر سفن جرين - منتجات طبيعية للعناية بالشعر والبشرة في السعودية"
+        description="متجر سفن جرين - أفضل منتجات العناية الطبيعية للشعر والبشرة في السعودية. بار شامبو طبيعي يحتوي على 12 عشبة طبيعية، سيروم فيتامين سي، منتجات عضوية 100% مع توصيل سريع لجميع مناطق المملكة. اطلب الآن واحصل على بشرة وشعر صحي."
+        keywords="متجر سفن جرين, بار شامبو طبيعي, شامبو صلب, سيروم فيتامين سي, منتجات طبيعية السعودية, العناية بالشعر الطبيعي, العناية بالبشرة, منتجات عضوية, جينسنغ, أعشاب طبيعية, توصيل سريع السعودية, Seven Green Store, شامبو بالأعشاب, منتجات بدون كيماويات"
         type="website"
         url="/"
       />
       <OrganizationSchema />
+      <LocalBusinessSchema />
       
       {/* Promotional Banner (Rotating Messages) */}
       <PromoBanner />

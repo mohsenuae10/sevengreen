@@ -55,26 +55,29 @@ export default function FAQ() {
   ];
 
   const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': 'https://sevengreenstore.com/faq#faqpage',
+    headline: 'الأسئلة الشائعة - متجر سفن جرين',
+    description: 'إجابات على أكثر الأسئلة شيوعاً حول منتجاتنا الطبيعية وسياسات المتجر',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
   };
 
   return (
     <>
       <SEOHead
-        title="الأسئلة الشائعة - Seven Green | سفن جرين"
-        description="أجوبة على الأسئلة الشائعة حول منتجات Seven Green الطبيعية، الشحن، الإرجاع، وطرق الدفع."
-        keywords="أسئلة شائعة, FAQ, استفسارات, خدمة العملاء, سفن جرين"
-        url="/faq"
-        type="website"
+        title="الأسئلة الشائعة - متجر سفن جرين للمنتجات الطبيعية"
+        description="أسئلة وأجوبة حول منتجات سفن جرين الطبيعية: بار الشامبو، سيروم فيتامين سي، طرق الشحن، الإرجاع والاستبدال، طرق الدفع. احصل على إجابات فورية لجميع استفساراتك."
+        keywords="أسئلة شائعة سفن جرين, استفسارات المنتجات الطبيعية, سياسة الإرجاع, الشحن والتوصيل, طرق الدفع, منتجات طبيعية آمنة, FAQ Seven Green"
+        url="https://sevengreenstore.com/faq"
+        type="article"
       />
       <BreadcrumbSchema items={breadcrumbs} />
       <script type="application/ld+json">
