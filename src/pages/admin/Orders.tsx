@@ -323,7 +323,7 @@ export default function AdminOrders() {
                       })}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                      {new Date(order.created_at).toLocaleDateString('en-GB')}
                     </div>
                   </div>
                   {delayed && (

@@ -236,10 +236,10 @@ export default function AdminOrderDetail() {
               </div>
               <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                {order?.created_at && new Date(order.created_at).toLocaleDateString('ar-SA', { 
+                {order?.created_at && new Date(order.created_at).toLocaleDateString('en-GB', { 
                   year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
+                  month: '2-digit', 
+                  day: '2-digit',
                   hour: '2-digit',
                   minute: '2-digit'
                 })}

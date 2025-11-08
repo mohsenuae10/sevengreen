@@ -1,6 +1,5 @@
 import { Package, Truck, CheckCircle, Clock, Box } from 'lucide-react';
 import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
 
 type OrderStatus = 'pending' | 'processing' | 'packed' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -111,7 +110,7 @@ export const OrderTimeline = ({
             <h3 className="text-lg font-bold">تم إلغاء الطلب</h3>
             {updatedAt && (
               <p className="text-sm text-red-500">
-                {format(new Date(updatedAt), 'dd MMMM yyyy - hh:mm a', { locale: ar })}
+                {format(new Date(updatedAt), 'dd/MM/yyyy - HH:mm')}
               </p>
             )}
           </div>
@@ -173,9 +172,9 @@ export const OrderTimeline = ({
                 </p>
                 {step.timestamp && (step.completed || step.active) && (
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(step.timestamp), 'dd MMM', { locale: ar })}
+                    {format(new Date(step.timestamp), 'dd/MM/yyyy')}
                     <br />
-                    {format(new Date(step.timestamp), 'hh:mm a', { locale: ar })}
+                    {format(new Date(step.timestamp), 'HH:mm')}
                   </p>
                 )}
               </div>

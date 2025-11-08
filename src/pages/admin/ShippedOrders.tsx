@@ -79,7 +79,7 @@ export default function ShippedOrders() {
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-primary">{order.total_amount} ريال</span>
                             <span className="text-xs text-muted-foreground">
-                              {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                              {new Date(order.created_at).toLocaleDateString('en-GB')}
                             </span>
                           </div>
 
@@ -127,7 +127,7 @@ export default function ShippedOrders() {
                         )}
                       </TableCell>
                       <TableCell>
-                        {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                        {new Date(order.created_at).toLocaleDateString('en-GB')}
                       </TableCell>
                       <TableCell>
                         <Button

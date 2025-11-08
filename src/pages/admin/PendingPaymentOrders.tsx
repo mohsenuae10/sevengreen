@@ -101,7 +101,7 @@ export default function PendingPaymentOrders() {
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-primary">{order.total_amount.toFixed(2)} ریال</span>
                             <span className="text-xs text-muted-foreground">
-                              {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                              {new Date(order.created_at).toLocaleDateString('en-GB')}
                             </span>
                           </div>
 
@@ -193,10 +193,10 @@ export default function PendingPaymentOrders() {
                         
                         <TableCell>
                           <div className="text-sm">
-                            {new Date(order.created_at).toLocaleDateString('ar-SA')}
+                            {new Date(order.created_at).toLocaleDateString('en-GB')}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(order.created_at).toLocaleTimeString('ar-SA', { 
+                            {new Date(order.created_at).toLocaleTimeString('en-GB', { 
                               hour: '2-digit', 
                               minute: '2-digit' 
                             })}
