@@ -1,7 +1,5 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Package, Leaf, Info, Star } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package, Leaf, Info, Star, AlertTriangle } from "lucide-react";
 
 interface ProductTabsProps {
   description?: string;
@@ -28,233 +26,128 @@ export function ProductTabs({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Desktop Tabs */}
-      <Card className="hidden md:block w-full">
-        <Tabs defaultValue="description" dir="rtl" className="w-full">
-          <TabsList className="w-full grid grid-cols-4 gap-2 bg-muted p-2 rounded-t-lg h-auto">
-            {description && (
-              <TabsTrigger value="description" className="flex items-center gap-2 py-3">
-                <Info className="h-4 w-4" />
-                <span className="hidden sm:inline">وصف المنتج</span>
-                <span className="sm:hidden">الوصف</span>
-              </TabsTrigger>
-            )}
-            {ingredients && (
-              <TabsTrigger value="ingredients" className="flex items-center gap-2 py-3">
-                <Leaf className="h-4 w-4" />
-                <span className="hidden sm:inline">المكونات</span>
-                <span className="sm:hidden">مكونات</span>
-              </TabsTrigger>
-            )}
-            {howToUse && (
-              <TabsTrigger value="usage" className="flex items-center gap-2 py-3">
-                <Package className="h-4 w-4" />
-                <span className="hidden sm:inline">طريقة الاستخدام</span>
-                <span className="sm:hidden">استخدام</span>
-              </TabsTrigger>
-            )}
-            {(benefits || warnings || sizeInfo || madeIn) && (
-              <TabsTrigger value="info" className="flex items-center gap-2 py-3">
-                <Star className="h-4 w-4" />
-                <span className="hidden sm:inline">معلومات إضافية</span>
-                <span className="sm:hidden">معلومات</span>
-              </TabsTrigger>
-            )}
-          </TabsList>
-
-          <CardContent className="p-6 min-h-[200px]">
-            {description && (
-              <TabsContent value="description" className="mt-0">
-                <div className="prose prose-sm max-w-none">
-                  <h3 className="text-xl font-bold mb-4">وصف المنتج</h3>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {description}
-                  </p>
-                </div>
-              </TabsContent>
-            )}
-
-            {ingredients && (
-              <TabsContent value="ingredients" className="mt-0">
-                <div className="prose prose-sm max-w-none">
-                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Leaf className="h-5 w-5 text-primary" />
-                    المكونات
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {ingredients}
-                  </p>
-                </div>
-              </TabsContent>
-            )}
-
-            {howToUse && (
-              <TabsContent value="usage" className="mt-0">
-                <div className="prose prose-sm max-w-none">
-                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Package className="h-5 w-5 text-primary" />
-                    طريقة الاستخدام
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {howToUse}
-                  </p>
-                </div>
-              </TabsContent>
-            )}
-
-            {(benefits || warnings || sizeInfo || madeIn) && (
-              <TabsContent value="info" className="mt-0">
-                <div className="prose prose-sm max-w-none space-y-6">
-                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Star className="h-5 w-5 text-primary" />
-                    معلومات إضافية
-                  </h3>
-                  
-                  {benefits && (
-                    <div>
-                      <h4 className="font-semibold text-lg mb-2">الفوائد</h4>
-                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                        {benefits}
-                      </p>
-                    </div>
-                  )}
-
-                  {warnings && (
-                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-4">
-                      <h4 className="font-semibold text-lg mb-2 text-amber-900 dark:text-amber-100">
-                        ⚠️ تحذيرات
-                      </h4>
-                      <p className="text-amber-800 dark:text-amber-200 leading-relaxed whitespace-pre-line">
-                        {warnings}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {sizeInfo && (
-                      <div className="bg-muted/50 rounded-lg p-4">
-                        <h4 className="font-semibold mb-1">الحجم</h4>
-                        <p className="text-muted-foreground">{sizeInfo}</p>
-                      </div>
-                    )}
-
-                    {madeIn && (
-                      <div className="bg-muted/50 rounded-lg p-4">
-                        <h4 className="font-semibold mb-1">بلد المنشأ</h4>
-                        <p className="text-muted-foreground">{madeIn}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TabsContent>
-            )}
+    <div className="mt-12 space-y-6">
+      {/* وصف المنتج */}
+      {description && (
+        <Card className="border-2 hover:border-primary/50 transition-colors">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Info className="h-5 w-5 text-primary" />
+              </div>
+              وصف المنتج
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
+              {description}
+            </p>
           </CardContent>
-        </Tabs>
-      </Card>
+        </Card>
+      )}
 
-      {/* Mobile Accordion */}
-      <Card className="md:hidden w-full">
-        <CardContent className="p-4">
-          <Accordion type="single" collapsible className="w-full" dir="rtl">
-            {description && (
-              <AccordionItem value="description">
-                <AccordionTrigger className="text-base">
-                  <div className="flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    <span>وصف المنتج</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {description}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            )}
+      {/* المكونات */}
+      {ingredients && (
+        <Card className="border-2 hover:border-primary/50 transition-colors">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              المكونات
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
+              {ingredients}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-            {ingredients && (
-              <AccordionItem value="ingredients">
-                <AccordionTrigger className="text-base">
-                  <div className="flex items-center gap-2">
-                    <Leaf className="h-4 w-4" />
-                    <span>المكونات</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {ingredients}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            )}
+      {/* طريقة الاستخدام */}
+      {howToUse && (
+        <Card className="border-2 hover:border-primary/50 transition-colors">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              طريقة الاستخدام
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
+              {howToUse}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-            {howToUse && (
-              <AccordionItem value="usage">
-                <AccordionTrigger className="text-base">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    <span>طريقة الاستخدام</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {howToUse}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            )}
+      {/* الفوائد */}
+      {benefits && (
+        <Card className="border-2 hover:border-primary/50 transition-colors">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              الفوائد
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
+              {benefits}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-            {(benefits || warnings || sizeInfo || madeIn) && (
-              <AccordionItem value="info">
-                <AccordionTrigger className="text-base">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4" />
-                    <span>معلومات إضافية</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4">
-                    {benefits && (
-                      <div>
-                        <h4 className="font-semibold mb-2">الفوائد</h4>
-                        <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                          {benefits}
-                        </p>
-                      </div>
-                    )}
+      {/* التحذيرات */}
+      {warnings && (
+        <Card className="border-2 border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl text-amber-900 dark:text-amber-100">
+              <div className="w-10 h-10 rounded-full bg-amber-200 dark:bg-amber-900/50 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+              </div>
+              تحذيرات هامة
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-amber-800 dark:text-amber-200 leading-relaxed whitespace-pre-line text-base">
+              {warnings}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-                    {warnings && (
-                      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-3">
-                        <h4 className="font-semibold mb-2 text-amber-900 dark:text-amber-100">
-                          ⚠️ تحذيرات
-                        </h4>
-                        <p className="text-amber-800 dark:text-amber-200 leading-relaxed whitespace-pre-line text-sm">
-                          {warnings}
-                        </p>
-                      </div>
-                    )}
+      {/* معلومات إضافية */}
+      {(sizeInfo || madeIn) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {sizeInfo && (
+            <Card className="border-2 hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-lg">الحجم والتعبئة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-base">{sizeInfo}</p>
+              </CardContent>
+            </Card>
+          )}
 
-                    {sizeInfo && (
-                      <div className="bg-muted/50 rounded-lg p-3">
-                        <h4 className="font-semibold mb-1">الحجم</h4>
-                        <p className="text-muted-foreground text-sm">{sizeInfo}</p>
-                      </div>
-                    )}
-
-                    {madeIn && (
-                      <div className="bg-muted/50 rounded-lg p-3">
-                        <h4 className="font-semibold mb-1">بلد المنشأ</h4>
-                        <p className="text-muted-foreground text-sm">{madeIn}</p>
-                      </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-          </Accordion>
-        </CardContent>
-      </Card>
+          {madeIn && (
+            <Card className="border-2 hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-lg">بلد المنشأ</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-base">{madeIn}</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 }
