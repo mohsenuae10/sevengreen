@@ -23,21 +23,28 @@ interface ScrapeOptions {
 }
 
 // HTTP Headers محسنة لمحاكاة متصفح حقيقي
-const getBrowserHeaders = (referer?: string) => ({
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-  'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8',
-  'Accept-Encoding': 'gzip, deflate, br',
-  'Connection': 'keep-alive',
-  'Upgrade-Insecure-Requests': '1',
-  'Sec-Fetch-Dest': 'document',
-  'Sec-Fetch-Mode': 'navigate',
-  'Sec-Fetch-Site': 'none',
-  'Sec-Fetch-User': '?1',
-  'Cache-Control': 'max-age=0',
-  'DNT': '1',
-  ...(referer && { 'Referer': referer }),
-});
+const getBrowserHeaders = (url?: string, referer?: string) => {
+  const isAliExpress = url?.toLowerCase().includes('aliexpress') || false;
+  
+  return {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Language': isAliExpress ? 'ar,en-US;q=0.9,en;q=0.8' : 'en-US,en;q=0.9,ar;q=0.8',
+    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': referer ? 'same-origin' : 'none',
+    'Sec-Fetch-User': '?1',
+    'Sec-Ch-Ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+    'Sec-Ch-Ua-Mobile': '?0',
+    'Sec-Ch-Ua-Platform': '"Windows"',
+    'Cache-Control': 'max-age=0',
+    'DNT': '1',
+    ...(referer && { 'Referer': referer }),
+  };
+};
 
 // دالة لمعالجة روابط AliExpress القصيرة والخاصة
 async function resolveAliExpressUrl(url: string): Promise<string> {
@@ -66,13 +73,14 @@ async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: 
   
   let currentUrl = url;
   let redirectCount = 0;
+  const isAliExpress = url.toLowerCase().includes('aliexpress');
 
   while (redirectCount < maxRedirects) {
     console.log(`جلب الرابط (redirect ${redirectCount}): ${currentUrl}`);
     
     const response = await fetch(currentUrl, {
       method: 'GET',
-      headers: getBrowserHeaders(redirectCount > 0 ? url : undefined),
+      headers: getBrowserHeaders(currentUrl, redirectCount > 0 ? url : undefined),
       redirect: 'manual',
     });
 
@@ -90,8 +98,8 @@ async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: 
       
       redirectCount++;
       
-      // تأخير بسيط لتجنب Rate Limiting
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // تأخير أطول لـ AliExpress
+      await new Promise(resolve => setTimeout(resolve, isAliExpress ? 300 : 150));
       continue;
     }
 
@@ -102,6 +110,12 @@ async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: 
 
     const html = await response.text();
     console.log(`✓ تم جلب HTML بنجاح (${html.length} حرف)`);
+    
+    // للتحقق من أن الصفحة ليست محمية أو فارغة
+    if (isAliExpress && html.length < 5000) {
+      console.log('⚠️ المحتوى صغير جداً، قد تكون الصفحة محمية');
+    }
+    
     return { html, finalUrl: currentUrl };
   }
 
@@ -198,57 +212,110 @@ function extractAliExpressData(html: string): Partial<ProductData> {
         if (runParams.data) {
           const productData = runParams.data;
           
-          // استخراج العنوان
-          if (!data.name && productData.productTitle) {
-            data.name = productData.productTitle;
-            console.log('✓ اسم المنتج من runParams:', data.name);
-          }
-          if (!data.name && productData.titleModule?.subject) {
-            data.name = productData.titleModule.subject;
-            console.log('✓ اسم المنتج من titleModule:', data.name);
-          }
-          
-          // استخراج الوصف
-          if (!data.description && productData.productDescription) {
-            data.description = productData.productDescription;
-          }
-          if (!data.description && productData.descriptionModule?.descriptionUrl) {
-            data.description = 'معلومات المنتج متوفرة';
+          // استخراج العنوان - محاولات متعددة
+          if (!data.name) {
+            data.name = productData.productTitle || 
+                       productData.titleModule?.subject ||
+                       productData.titleModule?.title ||
+                       productData.metaDataModule?.title;
+            if (data.name) console.log('✓ اسم المنتج من runParams:', data.name);
           }
           
-          // استخراج السعر
-          if (!data.price && productData.priceModule?.minActivityAmount?.value) {
-            data.price = parseFloat(productData.priceModule.minActivityAmount.value);
-            console.log('✓ السعر من priceModule:', data.price);
-          }
-          if (!data.price && productData.priceModule?.minAmount?.value) {
-            data.price = parseFloat(productData.priceModule.minAmount.value);
-            console.log('✓ السعر من minAmount:', data.price);
-          }
-          
-          // العملة
-          if (!data.currency && productData.priceModule?.minActivityAmount?.currency) {
-            data.currency = productData.priceModule.minActivityAmount.currency;
+          // استخراج الوصف - محاولات متعددة
+          if (!data.description) {
+            data.description = productData.productDescription ||
+                              productData.pageModule?.description ||
+                              productData.titleModule?.description ||
+                              productData.descriptionModule?.description;
+            if (!data.description && productData.descriptionModule?.descriptionUrl) {
+              data.description = 'معلومات المنتج متوفرة';
+            }
           }
           
-          // استخراج الصور من imageModule
-          if (productData.imageModule?.imagePathList && Array.isArray(productData.imageModule.imagePathList)) {
-            productData.imageModule.imagePathList.forEach((path: string) => {
-              const fullUrl = path.startsWith('//') ? 'https:' + path : path;
-              if (fullUrl.startsWith('http')) {
-                data.images?.push(fullUrl);
+          // استخراج السعر - محاولات موسعة
+          if (!data.price && productData.priceModule) {
+            const pm = productData.priceModule;
+            const priceValue = pm.minActivityAmount?.value ||
+                              pm.minAmount?.value ||
+                              pm.maxActivityAmount?.value ||
+                              pm.maxAmount?.value ||
+                              pm.formattedPrice?.replace(/[^\d.]/g, '');
+            
+            if (priceValue) {
+              data.price = parseFloat(priceValue);
+              data.currency = pm.minActivityAmount?.currency || 
+                            pm.minAmount?.currency || 
+                            pm.maxActivityAmount?.currency || 
+                            'USD';
+              console.log('✓ السعر من priceModule:', data.price, data.currency);
+            }
+          }
+          
+          // استخراج الصور من imageModule - طرق متعددة
+          if (productData.imageModule) {
+            const im = productData.imageModule;
+            const imageSources = [
+              im.imageBigViewURL,
+              im.imagePathList,
+              im.sumImagePathList,
+              im.videos?.map((v: any) => v.coverUrl).filter(Boolean)
+            ].filter(Boolean);
+            
+            imageSources.forEach(source => {
+              if (Array.isArray(source)) {
+                source.forEach((path: string) => {
+                  const fullUrl = path.startsWith('//') ? 'https:' + path : path;
+                  if (fullUrl.startsWith('http') && !data.images?.includes(fullUrl)) {
+                    data.images?.push(fullUrl);
+                  }
+                });
               }
             });
-            console.log('✓ صور من imageModule:', productData.imageModule.imagePathList.length);
+            
+            if (data.images && data.images.length > 0) {
+              console.log('✓ صور من imageModule:', data.images.length);
+            }
           }
           
-          // Brand
-          if (!data.brand && productData.storeModule?.storeName) {
-            data.brand = productData.storeModule.storeName;
+          // Brand من أماكن متعددة
+          if (!data.brand) {
+            data.brand = productData.storeModule?.storeName ||
+                        productData.sellerModule?.sellerName ||
+                        productData.brandModule?.brandName;
           }
         }
       } catch (e) {
-        console.error('خطأ في runParams:', e);
+        const error = e as Error;
+        console.error('خطأ في runParams:', error.message);
+      }
+    } else {
+      console.log('✗ لم نجد window.runParams في HTML');
+      // محاولة البحث عن data object مباشرة
+      const dataObjMatch = html.match(/"data"\s*:\s*({[\s\S]{100,10000}?})\s*[,}]/);
+      if (dataObjMatch) {
+        try {
+          const dataObj = JSON.parse(dataObjMatch[1]);
+          console.log('✓ وجدنا data object مباشرة');
+          
+          if (dataObj.titleModule?.subject && !data.name) {
+            data.name = dataObj.titleModule.subject;
+          }
+          if (dataObj.priceModule?.minAmount?.value && !data.price) {
+            data.price = parseFloat(dataObj.priceModule.minAmount.value);
+            data.currency = dataObj.priceModule.minAmount.currency || 'USD';
+          }
+          if (dataObj.imageModule?.imagePathList && Array.isArray(dataObj.imageModule.imagePathList)) {
+            dataObj.imageModule.imagePathList.forEach((path: string) => {
+              const fullUrl = path.startsWith('//') ? 'https:' + path : path;
+              if (fullUrl.startsWith('http') && !data.images?.includes(fullUrl)) {
+                data.images?.push(fullUrl);
+              }
+            });
+          }
+        } catch (e) {
+          const error = e as Error;
+          console.error('خطأ في تحليل data object:', error.message);
+        }
       }
     }
 
