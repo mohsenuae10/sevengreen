@@ -34,6 +34,11 @@ export const SEOHead = ({
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="application-name" content="متجر سفن جرين" />
+      <meta name="author" content="متجر سفن جرين" />
+      <meta name="publisher" content="متجر سفن جرين" />
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <meta name="googlebot" content="index, follow" />
+      <meta httpEquiv="content-language" content="ar-SA" />
       <link rel="canonical" href={currentUrl} />
 
       {/* Open Graph / Facebook */}

@@ -41,7 +41,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
       <div className="relative group">
         <OptimizedImage
           src={currentImage.image_url}
-          alt={`${productName} - صورة ${selectedIndex + 1}`}
+          alt={`${productName} - صورة عالية الجودة ${selectedIndex + 1} من ${images.length} - منتجات سفن جرين الطبيعية`}
           className="w-full rounded-lg"
           aspectRatio="1/1"
           priority={selectedIndex === 0}
@@ -92,7 +92,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
             >
               <OptimizedImage
                 src={image.image_url}
-                alt={`${productName} - مصغرة ${index + 1}`}
+                alt={`${productName} - صورة مصغرة ${index + 1} - منتج طبيعي من سفن جرين`}
                 className="w-full h-full"
                 aspectRatio="1/1"
               />

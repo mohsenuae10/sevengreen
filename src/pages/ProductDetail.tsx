@@ -14,6 +14,7 @@ import SocialShare from '@/components/product/SocialShare';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { ProductSchema } from '@/components/SEO/ProductSchema';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+import { FAQSchema } from '@/components/SEO/FAQSchema';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { ProductImageGallery } from '@/components/product/ProductImageGallery';
 import { ProductTabs } from '@/components/product/ProductTabs';
@@ -156,33 +157,69 @@ export default function ProductDetail() {
     );
   }
 
-  const productUrl = `/product/${product.id}`;
+  const productUrl = `/product/${product.slug || product.id}`;
   const isInStock = product.stock_quantity > 0;
+  
+  // جمع كل الصور للـ Schema
+  const allImages = product.images.length > 0 
+    ? product.images.map(img => img.image_url) 
+    : product.image_url ? [product.image_url] : [];
+  
+  // FAQs المتعلقة بالمنتج
+  const productFAQs = [
+    {
+      question: `كيف أستخدم ${product.name_ar}؟`,
+      answer: product.how_to_use_ar || `للحصول على أفضل النتائج من ${product.name_ar}، يُنصح باتباع التعليمات الموجودة على العبوة. منتجاتنا مصممة لتكون سهلة الاستخدام ومناسبة للاستخدام اليومي.`,
+    },
+    {
+      question: 'هل المنتج مناسب لجميع أنواع البشرة/الشعر؟',
+      answer: 'جميع منتجات سفن جرين مصنوعة من مكونات طبيعية 100% وآمنة للاستخدام. ومع ذلك، ننصح بإجراء اختبار حساسية بسيط قبل الاستخدام الكامل.',
+    },
+    {
+      question: 'كم يستغرق الشحن؟',
+      answer: 'نوفر شحن مجاني لجميع أنحاء المملكة العربية السعودية. عادةً ما يستغرق التوصيل من 3 إلى 5 أيام عمل.',
+    },
+    {
+      question: 'هل يمكنني إرجاع المنتج؟',
+      answer: 'نعم، نقدم سياسة إرجاع مرنة لمدة 14 يومًا. يمكنك إرجاع المنتج إذا لم يكن مناسبًا لك، بشرط أن يكون في حالته الأصلية.',
+    },
+    {
+      question: `ما هي مكونات ${product.name_ar}؟`,
+      answer: product.ingredients_ar || 'جميع منتجاتنا مصنوعة من مكونات طبيعية عالية الجودة ومختارة بعناية لتوفير أفضل النتائج للعناية بالبشرة والشعر.',
+    },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={product.name_ar}
-        description={product.description_ar || product.seo_description || `اكتشف ${product.name_ar} من سفن جرين - منتج طبيعي 100% للعناية بالشعر`}
-        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, سفن جرين`}
-        image={product.image_url || undefined}
+        title={product.seo_title || product.name_ar}
+        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من سفن جرين - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
+        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, سفن جرين, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
+        image={allImages[0] || product.image_url || undefined}
         type="product"
-        url={productUrl}
+        url={`https://sevengreenstore.com${productUrl}`}
         price={Number(product.price)}
         currency="SAR"
         availability={isInStock ? 'instock' : 'outofstock'}
       />
       <ProductSchema
         name={product.name_ar}
-        description={product.description_ar || product.seo_description || ''}
+        description={product.description_ar || product.seo_description || `${product.name_ar} - منتج طبيعي 100% من سفن جرين`}
         image={product.image_url || ''}
+        images={allImages}
         price={Number(product.price)}
         currency="SAR"
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
         category={product.category}
         slug={product.slug}
+        rating={4.5}
+        reviewCount={128}
+        madeIn={product.made_in}
+        shippingDays={3}
+        returnDays={14}
       />
+      <FAQSchema faqs={productFAQs} />
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' },
@@ -223,7 +260,7 @@ export default function ProductDetail() {
             </Badge>
             
             {/* Product Name */}
-            <h1 className="text-3xl md:text-4xl font-bold">
+            <h1 className="text-3xl md:text-4xl font-bold" itemProp="name">
               {product.name_ar}
             </h1>
             

@@ -4,6 +4,7 @@ interface ProductSchemaProps {
   name: string;
   description: string;
   image: string;
+  images?: string[];
   price: number;
   currency?: string;
   sku: string;
@@ -15,12 +16,21 @@ interface ProductSchemaProps {
   gtin?: string;
   mpn?: string;
   slug?: string | null;
+  weight?: string;
+  dimensions?: string;
+  color?: string;
+  material?: string;
+  warranty?: string;
+  shippingDays?: number;
+  returnDays?: number;
+  madeIn?: string;
 }
 
 export const ProductSchema = ({
   name,
   description,
   image,
+  images,
   price,
   currency = 'SAR',
   sku,
@@ -32,13 +42,23 @@ export const ProductSchema = ({
   gtin,
   mpn,
   slug,
+  weight,
+  dimensions,
+  color,
+  material,
+  warranty,
+  shippingDays = 3,
+  returnDays = 14,
+  madeIn,
 }: ProductSchemaProps) => {
+  const productUrl = `https://sevengreenstore.com/product/${slug || sku}`;
+  
   const schema = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
     name,
     description,
-    image,
+    image: images && images.length > 0 ? images : [image],
     sku,
     brand: {
       '@type': 'Brand',
@@ -46,7 +66,7 @@ export const ProductSchema = ({
     },
     offers: {
       '@type': 'Offer',
-      url: `https://sevengreenstore.com/product/${slug || sku}`,
+      url: productUrl,
       priceCurrency: currency,
       price: price.toString(),
       priceValidUntil: '2025-12-31',
@@ -55,11 +75,61 @@ export const ProductSchema = ({
       seller: {
         '@type': 'Organization',
         name: 'متجر سفن جرين',
+        url: 'https://sevengreenstore.com',
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: currency,
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'SA',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 2,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: shippingDays,
+            maxValue: shippingDays + 2,
+            unitCode: 'DAY',
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'SA',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: returnDays,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
       },
     },
     ...(category && { category }),
     ...(gtin && { gtin }),
     ...(mpn && { mpn }),
+    ...(weight && { weight: { '@type': 'QuantitativeValue', value: weight } }),
+    ...(dimensions && { depth: dimensions, width: dimensions, height: dimensions }),
+    ...(color && { color }),
+    ...(material && { material }),
+    ...(madeIn && { countryOfOrigin: madeIn }),
+    ...(warranty && { 
+      warranty: {
+        '@type': 'WarrantyPromise',
+        durationOfWarranty: {
+          '@type': 'QuantitativeValue',
+          value: warranty,
+        },
+      },
+    }),
     ...(rating && reviewCount && reviewCount > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
@@ -69,6 +139,13 @@ export const ProductSchema = ({
         worstRating: '1',
       },
     }),
+    audience: {
+      '@type': 'PeopleAudience',
+      geographicArea: {
+        '@type': 'AdministrativeArea',
+        name: 'المملكة العربية السعودية',
+      },
+    },
   };
 
   return (
