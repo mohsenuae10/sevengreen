@@ -58,6 +58,7 @@ export default function ImportProduct() {
     results: BulkImportResult[];
   } | null>(null);
   const [isFileImporting, setIsFileImporting] = useState(false);
+  const [importMode, setImportMode] = useState<'full' | 'images-only'>('full');
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -174,7 +175,11 @@ export default function ImportProduct() {
     
     try {
       const { data, error } = await supabase.functions.invoke('scrape-product', {
-        body: { url: productUrl },
+        body: { 
+          url: productUrl,
+          imagesOnly: importMode === 'images-only',
+          maxImages: 20
+        },
       });
 
       if (error) throw error;
@@ -659,7 +664,11 @@ export default function ImportProduct() {
 
       try {
         const { data, error } = await supabase.functions.invoke('scrape-product', {
-          body: { url },
+          body: { 
+            url,
+            imagesOnly: true, // دائماً صور فقط في الاستيراد الجماعي من الملف
+            maxImages: 15 // عدد أقل للاستيراد السريع
+          },
         });
 
         if (error) throw error;
@@ -886,6 +895,11 @@ export default function ImportProduct() {
               <p className="text-sm text-muted-foreground mb-3">
                 قم برفع ملف يحتوي على روابط المنتجات في أي عمود أو صف
               </p>
+              <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-3">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  💡 <span className="font-semibold">ملاحظة:</span> الاستيراد من الملف يجلب الصور فقط للسرعة - يمكنك إضافة البيانات الأخرى يدوياً أو بالذكاء الاصطناعي لاحقاً
+                </p>
+              </div>
               <div className="flex items-center gap-2">
                 <Input
                   type="file"
@@ -906,8 +920,39 @@ export default function ImportProduct() {
             </div>
 
             {/* استيراد من رابط مباشر */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label className="text-base font-semibold">استيراد من رابط مباشر</Label>
+              
+              {/* خيارات الاستيراد */}
+              <div className="flex gap-2 p-3 bg-muted/30 rounded-lg">
+                <Button
+                  type="button"
+                  variant={importMode === 'full' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setImportMode('full')}
+                  className="flex-1"
+                >
+                  <Download className="h-4 w-4 ml-2" />
+                  استيراد كامل
+                </Button>
+                <Button
+                  type="button"
+                  variant={importMode === 'images-only' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setImportMode('images-only')}
+                  className="flex-1"
+                >
+                  <FileSpreadsheet className="h-4 w-4 ml-2" />
+                  الصور فقط
+                </Button>
+              </div>
+              
+              {importMode === 'images-only' && (
+                <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  🚀 <span className="font-semibold">وضع سريع:</span> سيتم جلب الصور فقط (حتى 20 صورة) مع تجاهل باقي البيانات - مثالي للاستيراد السريع من علي إكسبريس
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <Input
                   placeholder="https://www.aliexpress.com/item/..."
@@ -929,7 +974,7 @@ export default function ImportProduct() {
                   ) : (
                     <>
                       <Download className="h-4 w-4 ml-2" />
-                      جلب البيانات
+                      {importMode === 'images-only' ? 'جلب الصور' : 'جلب البيانات'}
                     </>
                   )}
                 </Button>

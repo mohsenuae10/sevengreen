@@ -17,6 +17,11 @@ interface ProductData {
   incomplete?: boolean;
 }
 
+interface ScrapeOptions {
+  imagesOnly?: boolean; // جلب الصور فقط
+  maxImages?: number; // عدد الصور المطلوبة (افتراضي: 20)
+}
+
 // HTTP Headers محسنة لمحاكاة متصفح حقيقي
 const getBrowserHeaders = (referer?: string) => ({
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -1134,7 +1139,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url } = await req.json();
+    const { url, imagesOnly = false, maxImages = 20 } = await req.json();
+    
+    console.log('خيارات الاستيراد:', { imagesOnly, maxImages });
 
     if (!url || typeof url !== 'string') {
       return new Response(
@@ -1187,6 +1194,60 @@ Deno.serve(async (req) => {
 
     const hostname = parsedUrl.hostname.toLowerCase();
     const baseUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+    
+    // ============ إذا كان الوضع "صور فقط" ============
+    if (imagesOnly) {
+      console.log('🖼️ وضع جلب الصور فقط - تنفيذ سريع');
+      
+      const { html, finalUrl } = await followRedirects(url);
+      
+      // استخراج الصور فقط
+      let allImages: string[] = [];
+      
+      // استراتيجية خاصة حسب الموقع
+      if (hostname.includes('aliexpress')) {
+        const aliData = extractAliExpressData(html);
+        allImages = aliData.images || [];
+        console.log(`✓ AliExpress: ${allImages.length} صورة`);
+      } else if (hostname.includes('amazon')) {
+        const amzData = extractAmazonData(html);
+        allImages = amzData.images || [];
+        console.log(`✓ Amazon: ${allImages.length} صورة`);
+      } else {
+        // استخراج عام للصور
+        allImages = extractImageGallery(html);
+        if (allImages.length < 5) {
+          const fallbackData = extractFallbackData(html);
+          allImages = [...allImages, ...(fallbackData.images || [])];
+        }
+        console.log(`✓ عام: ${allImages.length} صورة`);
+      }
+      
+      // فلترة وإزالة المكررات
+      const uniqueImages = deduplicateAndFilterImages(allImages);
+      const limitedImages = uniqueImages.slice(0, maxImages);
+      
+      console.log(`✓ النتيجة النهائية: ${limitedImages.length} صورة`);
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          isBulkImport: false,
+          data: {
+            name: 'صور المنتج',
+            description: '',
+            price: 0,
+            currency: 'USD',
+            images: limitedImages,
+            incomplete: false,
+          },
+          warnings: limitedImages.length === 0 ? ['لم يتم العثور على صور'] : [],
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
     
     // ============ اكتشاف نوع الرابط ============
     const isCategoryPage = isCategoryUrl(url, hostname);
