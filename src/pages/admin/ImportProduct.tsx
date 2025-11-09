@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Link as LinkIcon, Download, Check, Sparkles, X, Star } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Download, Check, Sparkles, X, Star, Upload, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import Papa from 'papaparse';
 
 interface ProductImage {
   url: string;
@@ -49,6 +51,13 @@ export default function ImportProduct() {
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [detectedUrlType, setDetectedUrlType] = useState<'single' | 'category' | null>(null);
   const [categories, setCategories] = useState<Array<{ name_ar: string; slug: string }>>([]);
+  const [fileImportProgress, setFileImportProgress] = useState<{
+    total: number;
+    current: number;
+    urls: string[];
+    results: BulkImportResult[];
+  } | null>(null);
+  const [isFileImporting, setIsFileImporting] = useState(false);
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -548,6 +557,168 @@ export default function ImportProduct() {
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    
+    if (!['xlsx', 'xls', 'csv'].includes(fileExtension || '')) {
+      toast({
+        title: 'خطأ',
+        description: 'يرجى رفع ملف Excel (.xlsx, .xls) أو CSV',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      let urls: string[] = [];
+
+      if (fileExtension === 'csv') {
+        // قراءة ملف CSV
+        const text = await file.text();
+        Papa.parse(text, {
+          complete: (results) => {
+            // استخراج الروابط من الأعمدة
+            urls = results.data
+              .flat()
+              .filter((cell: any) => 
+                typeof cell === 'string' && 
+                (cell.includes('http://') || cell.includes('https://'))
+              )
+              .map((url: string) => url.trim());
+          },
+          skipEmptyLines: true,
+        });
+      } else {
+        // قراءة ملف Excel
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+        
+        // استخراج الروابط من جميع الخلايا
+        urls = jsonData
+          .flat()
+          .filter((cell: any) => 
+            typeof cell === 'string' && 
+            (cell.includes('http://') || cell.includes('https://'))
+          )
+          .map((url: string) => url.trim());
+      }
+
+      // إزالة الروابط المكررة
+      const uniqueUrls = Array.from(new Set(urls));
+
+      if (uniqueUrls.length === 0) {
+        toast({
+          title: 'تنبيه',
+          description: 'لم يتم العثور على روابط في الملف',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'تم قراءة الملف',
+        description: `تم العثور على ${uniqueUrls.length} رابط`,
+      });
+
+      // بدء عملية الاستيراد
+      await handleBulkImportFromFile(uniqueUrls);
+
+    } catch (error: any) {
+      console.error('Error reading file:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل في قراءة الملف',
+        variant: 'destructive',
+      });
+    }
+
+    // إعادة تعيين input
+    event.target.value = '';
+  };
+
+  const handleBulkImportFromFile = async (urls: string[]) => {
+    setIsFileImporting(true);
+    setFileImportProgress({
+      total: urls.length,
+      current: 0,
+      urls,
+      results: [],
+    });
+
+    const results: BulkImportResult[] = [];
+
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      
+      setFileImportProgress(prev => prev ? { ...prev, current: i + 1 } : null);
+
+      try {
+        const { data, error } = await supabase.functions.invoke('scrape-product', {
+          body: { url },
+        });
+
+        if (error) throw error;
+
+        if (data.success && !data.isBulkImport) {
+          const rawProduct = data.data;
+          const product: ScrapedProduct = {
+            ...rawProduct,
+            images: (rawProduct.images || []).map((url: string, index: number) => ({
+              url,
+              isPrimary: index === 0,
+              id: Math.random().toString(36).substring(7),
+            })),
+          };
+
+          results.push({
+            success: true,
+            product,
+            url,
+          });
+        } else {
+          results.push({
+            success: false,
+            error: data.message || 'فشل في جلب البيانات',
+            url,
+          });
+        }
+      } catch (error: any) {
+        results.push({
+          success: false,
+          error: error.message || 'خطأ في الاتصال',
+          url,
+        });
+      }
+
+      // تأخير بين الطلبات
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    setFileImportProgress(prev => prev ? { ...prev, results } : null);
+    setIsFileImporting(false);
+
+    // عرض النتائج في واجهة الاستيراد الجماعي
+    setBulkResults(results);
+    setIsBulkImport(true);
+    
+    const successfulIndices = new Set<number>(
+      results
+        .map((result, index) => result.success ? index : -1)
+        .filter(i => i !== -1)
+    );
+    setSelectedProducts(successfulIndices);
+
+    toast({
+      title: 'اكتمل الاستيراد',
+      description: `تم استيراد ${results.filter(r => r.success).length} من ${urls.length} منتج`,
+    });
+  };
+
   const handleSaveBulkProducts = async () => {
     if (selectedProducts.size === 0) {
       toast({
@@ -679,11 +850,11 @@ export default function ImportProduct() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <LinkIcon className="h-5 w-5" />
-              رابط المنتج
+              استيراد المنتجات
             </CardTitle>
             <CardDescription>
               <div className="space-y-2">
-                <p>الصق رابط المنتج أو رابط القسم من الموقع الخارجي</p>
+                <p>اختر طريقة الاستيراد: رابط مباشر أو ملف Excel/CSV</p>
                 <div className="text-xs opacity-70 space-y-1 border-r-2 border-muted pr-2 mt-2">
                   <p className="flex items-center gap-1">
                     <span className="text-blue-600 dark:text-blue-400">📦</span>
@@ -696,24 +867,59 @@ export default function ImportProduct() {
                     <code className="text-[10px] bg-muted px-1 rounded">aliexpress.com/category/...</code>
                     <span className="text-[10px] opacity-60">(حتى 10 منتجات)</span>
                   </p>
+                  <p className="flex items-center gap-1">
+                    <span className="text-green-600 dark:text-green-400">📊</span>
+                    <span className="font-medium">ملف Excel/CSV:</span>
+                    <span className="text-[10px] opacity-60">(عدة روابط دفعة واحدة)</span>
+                  </p>
                 </div>
               </div>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* استيراد من ملف */}
+            <div className="space-y-2 p-4 border-2 border-dashed rounded-lg bg-muted/10">
+              <div className="flex items-center gap-2 mb-2">
+                <FileSpreadsheet className="h-5 w-5 text-primary" />
+                <Label className="text-base font-semibold">استيراد من ملف Excel/CSV</Label>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                قم برفع ملف يحتوي على روابط المنتجات في أي عمود أو صف
+              </p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileUpload}
+                  disabled={isFileImporting || isLoading}
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  disabled={isFileImporting || isLoading}
+                  className="whitespace-nowrap"
+                >
+                  <Upload className="h-4 w-4 ml-2" />
+                  رفع الملف
+                </Button>
+              </div>
+            </div>
+
+            {/* استيراد من رابط مباشر */}
             <div className="space-y-2">
+              <Label className="text-base font-semibold">استيراد من رابط مباشر</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="https://www.aliexpress.com/item/..."
                   value={productUrl}
                   onChange={(e) => setProductUrl(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isLoading || isFileImporting}
                   dir="ltr"
                   className="flex-1"
                 />
                 <Button
                   onClick={handleFetchProduct}
-                  disabled={isLoading || !productUrl.trim()}
+                  disabled={isLoading || isFileImporting || !productUrl.trim()}
                 >
                   {isLoading ? (
                     <>
@@ -776,6 +982,35 @@ export default function ImportProduct() {
             )}
           </CardContent>
         </Card>
+
+        {/* شريط تقدم استيراد الملف */}
+        {fileImportProgress && isFileImporting && (
+          <Card className="border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                جاري استيراد المنتجات من الملف...
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span>المنتج {fileImportProgress.current} من {fileImportProgress.total}</span>
+                  <span>{Math.round((fileImportProgress.current / fileImportProgress.total) * 100)}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(fileImportProgress.current / fileImportProgress.total) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  الرابط الحالي: {fileImportProgress.urls[fileImportProgress.current - 1] || '...'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {isBulkImport && bulkResults.length > 0 && (
           <Card>
