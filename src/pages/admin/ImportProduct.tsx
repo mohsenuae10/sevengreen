@@ -92,12 +92,29 @@ export default function ImportProduct() {
       const lowerUrl = url.toLowerCase();
       const hostname = urlObj.hostname.toLowerCase();
       
-      // AliExpress
+      // AliExpress - دعم جميع أنماط الروابط
       if (hostname.includes('aliexpress')) {
+        // روابط الفئات
         if (lowerUrl.includes('/category/') || 
             lowerUrl.includes('searchtext=') || 
-            lowerUrl.includes('/wholesale/')) {
+            lowerUrl.includes('/wholesale/') ||
+            lowerUrl.includes('/w/wholesale-') ||
+            lowerUrl.includes('/premium/') ||
+            lowerUrl.includes('/af/') ||
+            (lowerUrl.includes('/store/') && lowerUrl.includes('/search'))) {
           return 'category';
+        }
+        // روابط المنتجات الفردية
+        if (lowerUrl.includes('/item/') || 
+            lowerUrl.includes('/i/') ||
+            lowerUrl.match(/\/\d+\.html/)) {
+          return 'single';
+        }
+        // روابط قصيرة (a.aliexpress.com, s.click.aliexpress.com)
+        if (hostname.includes('a.aliexpress.com') || 
+            hostname.includes('s.click.aliexpress.com') ||
+            hostname.includes('sale.aliexpress.com')) {
+          return 'single'; // عادة تقود إلى منتج واحد
         }
         return 'single';
       }

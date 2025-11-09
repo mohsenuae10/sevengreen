@@ -34,13 +34,36 @@ const getBrowserHeaders = (referer?: string) => ({
   ...(referer && { 'Referer': referer }),
 });
 
+// دالة لمعالجة روابط AliExpress القصيرة والخاصة
+async function resolveAliExpressUrl(url: string): Promise<string> {
+  const lowerUrl = url.toLowerCase();
+  
+  // روابط AliExpress القصيرة تحتاج متابعة
+  if (lowerUrl.includes('a.aliexpress.com') || 
+      lowerUrl.includes('s.click.aliexpress.com') ||
+      lowerUrl.includes('sale.aliexpress.com')) {
+    console.log('رابط AliExpress قصير، سيتم متابعة الـ redirects...');
+  }
+  
+  // روابط /i/ يجب تحويلها إلى /item/
+  if (lowerUrl.includes('/i/') && !lowerUrl.includes('/item/')) {
+    url = url.replace(/\/i\/(\d+)\.html/i, '/item/$1.html');
+    console.log('تحويل رابط /i/ إلى /item/:', url);
+  }
+  
+  return url;
+}
+
 // دالة لمتابعة Redirects يدوياً
 async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: string; finalUrl: string }> {
+  // معالجة روابط AliExpress الخاصة
+  url = await resolveAliExpressUrl(url);
+  
   let currentUrl = url;
   let redirectCount = 0;
 
   while (redirectCount < maxRedirects) {
-    console.log(`Fetching URL (redirect ${redirectCount}): ${currentUrl}`);
+    console.log(`جلب الرابط (redirect ${redirectCount}): ${currentUrl}`);
     
     const response = await fetch(currentUrl, {
       method: 'GET',
@@ -63,7 +86,7 @@ async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: 
       redirectCount++;
       
       // تأخير بسيط لتجنب Rate Limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
       continue;
     }
 
@@ -73,10 +96,11 @@ async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: 
     }
 
     const html = await response.text();
+    console.log(`✓ تم جلب HTML بنجاح (${html.length} حرف)`);
     return { html, finalUrl: currentUrl };
   }
 
-  throw new Error(`Maximum redirects (${maxRedirects}) exceeded`);
+  throw new Error(`تجاوز الحد الأقصى للـ redirects (${maxRedirects})`);
 }
 
 // دالة لاستخراج البيانات من meta tags
@@ -122,104 +146,215 @@ function extractAliExpressData(html: string): Partial<ProductData> {
   };
 
   try {
-    // استراتيجية 1: JSON-LD
-    const jsonLdMatch = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/i);
-    if (jsonLdMatch) {
+    console.log('=== بدء استخراج بيانات AliExpress ===');
+    
+    // استراتيجية 1: JSON-LD (أعلى أولوية)
+    const jsonLdMatches = html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi);
+    for (const match of jsonLdMatches) {
       try {
-        const jsonData = JSON.parse(jsonLdMatch[1]);
-        if (jsonData.name) data.name = jsonData.name;
-        if (jsonData.description) data.description = jsonData.description;
-        if (jsonData.offers?.price) data.price = parseFloat(jsonData.offers.price);
-        if (jsonData.offers?.priceCurrency) data.currency = jsonData.offers.priceCurrency;
-        if (jsonData.image) {
-          data.images = Array.isArray(jsonData.image) ? jsonData.image : [jsonData.image];
+        const jsonData = JSON.parse(match[1]);
+        if (jsonData['@type'] === 'Product' || jsonData.name) {
+          if (jsonData.name && !data.name) {
+            data.name = jsonData.name;
+            console.log('✓ اسم المنتج من JSON-LD:', data.name);
+          }
+          if (jsonData.description && !data.description) {
+            data.description = jsonData.description;
+            console.log('✓ وصف المنتج من JSON-LD');
+          }
+          if (jsonData.offers?.price && !data.price) {
+            data.price = parseFloat(jsonData.offers.price);
+            console.log('✓ السعر من JSON-LD:', data.price);
+          }
+          if (jsonData.offers?.priceCurrency && !data.currency) {
+            data.currency = jsonData.offers.priceCurrency;
+          }
+          if (jsonData.image) {
+            const images = Array.isArray(jsonData.image) ? jsonData.image : [jsonData.image];
+            data.images = [...(data.images || []), ...images];
+            console.log('✓ صور من JSON-LD:', images.length);
+          }
+          if (jsonData.brand?.name && !data.brand) {
+            data.brand = jsonData.brand.name;
+          }
         }
-        if (jsonData.brand?.name) data.brand = jsonData.brand.name;
       } catch (e) {
-        console.error('Error parsing JSON-LD:', e);
+        console.error('خطأ في JSON-LD:', e);
       }
     }
 
-    // استراتيجية 2: window.runParams
-    const runParamsMatch = html.match(/window\.runParams\s*=\s*({[^;]+});/);
+    // استراتيجية 2: window.runParams (البيانات الرئيسية)
+    const runParamsMatch = html.match(/window\.runParams\s*=\s*({[\s\S]*?});?\s*(?:window\.|<\/script>)/);
     if (runParamsMatch) {
       try {
         const runParams = JSON.parse(runParamsMatch[1]);
+        console.log('✓ وجدنا window.runParams');
+        
         if (runParams.data) {
           const productData = runParams.data;
-          if (!data.name && productData.productTitle) data.name = productData.productTitle;
-          if (!data.description && productData.productDescription) data.description = productData.productDescription;
-          if (!data.price && productData.priceAmount) data.price = parseFloat(productData.priceAmount);
+          
+          // استخراج العنوان
+          if (!data.name && productData.productTitle) {
+            data.name = productData.productTitle;
+            console.log('✓ اسم المنتج من runParams:', data.name);
+          }
+          if (!data.name && productData.titleModule?.subject) {
+            data.name = productData.titleModule.subject;
+            console.log('✓ اسم المنتج من titleModule:', data.name);
+          }
+          
+          // استخراج الوصف
+          if (!data.description && productData.productDescription) {
+            data.description = productData.productDescription;
+          }
+          if (!data.description && productData.descriptionModule?.descriptionUrl) {
+            data.description = 'معلومات المنتج متوفرة';
+          }
+          
+          // استخراج السعر
+          if (!data.price && productData.priceModule?.minActivityAmount?.value) {
+            data.price = parseFloat(productData.priceModule.minActivityAmount.value);
+            console.log('✓ السعر من priceModule:', data.price);
+          }
+          if (!data.price && productData.priceModule?.minAmount?.value) {
+            data.price = parseFloat(productData.priceModule.minAmount.value);
+            console.log('✓ السعر من minAmount:', data.price);
+          }
+          
+          // العملة
+          if (!data.currency && productData.priceModule?.minActivityAmount?.currency) {
+            data.currency = productData.priceModule.minActivityAmount.currency;
+          }
+          
+          // استخراج الصور من imageModule
+          if (productData.imageModule?.imagePathList && Array.isArray(productData.imageModule.imagePathList)) {
+            productData.imageModule.imagePathList.forEach((path: string) => {
+              const fullUrl = path.startsWith('//') ? 'https:' + path : path;
+              if (fullUrl.startsWith('http')) {
+                data.images?.push(fullUrl);
+              }
+            });
+            console.log('✓ صور من imageModule:', productData.imageModule.imagePathList.length);
+          }
+          
+          // Brand
+          if (!data.brand && productData.storeModule?.storeName) {
+            data.brand = productData.storeModule.storeName;
+          }
         }
       } catch (e) {
-        console.error('Error parsing runParams:', e);
+        console.error('خطأ في runParams:', e);
       }
     }
 
     // استراتيجية 3: data.imageBigViewURL و imagePathList
-    const imageBigViewMatch = html.match(/imageBigViewURL["']?\s*:\s*\[([^\]]+)\]/);
+    const imageBigViewMatch = html.match(/["']?imageBigViewURL["']?\s*:\s*\[([^\]]+)\]/);
     if (imageBigViewMatch) {
       const imageUrls = imageBigViewMatch[1].match(/["']([^"']+)["']/g);
       if (imageUrls) {
         imageUrls.forEach(url => {
           const cleanUrl = url.replace(/["']/g, '');
-          if (cleanUrl.startsWith('//')) {
-            data.images?.push('https:' + cleanUrl);
-          } else if (cleanUrl.startsWith('http')) {
-            data.images?.push(cleanUrl);
+          const fullUrl = cleanUrl.startsWith('//') ? 'https:' + cleanUrl : cleanUrl;
+          if (fullUrl.startsWith('http') && !data.images?.includes(fullUrl)) {
+            data.images?.push(fullUrl);
           }
         });
+        console.log('✓ صور من imageBigViewURL:', imageUrls.length);
       }
     }
 
-    const imagePathMatch = html.match(/imagePathList["']?\s*:\s*\[([^\]]+)\]/);
-    if (imagePathMatch && (!data.images || data.images.length === 0)) {
+    const imagePathMatch = html.match(/["']?imagePathList["']?\s*:\s*\[([^\]]+)\]/);
+    if (imagePathMatch) {
       const imagePaths = imagePathMatch[1].match(/["']([^"']+)["']/g);
       if (imagePaths) {
         imagePaths.forEach(path => {
           const cleanPath = path.replace(/["']/g, '');
-          if (cleanPath.startsWith('//')) {
-            data.images?.push('https:' + cleanPath);
-          } else if (cleanPath.startsWith('http')) {
-            data.images?.push(cleanPath);
+          const fullUrl = cleanPath.startsWith('//') ? 'https:' + cleanPath : cleanPath;
+          if (fullUrl.startsWith('http') && !data.images?.includes(fullUrl)) {
+            data.images?.push(fullUrl);
           }
         });
+        console.log('✓ صور من imagePathList:', imagePaths.length);
       }
     }
 
-    // استراتيجية 4: استخراج صور من ae01.alicdn.com مباشرة
-    if (!data.images || data.images.length === 0) {
-      const cdnImages = html.matchAll(/https?:\/\/ae01\.alicdn\.com\/[^"'\s]+\.jpg/gi);
+    // استراتيجية 4: استخراج صور من CDN مباشرة
+    if (!data.images || data.images.length < 3) {
+      const cdnPatterns = [
+        /https?:\/\/ae01\.alicdn\.com\/kf\/[^"'\s]+\.(?:jpg|jpeg|png|webp)/gi,
+        /https?:\/\/ae\d+\.alicdn\.com\/[^"'\s]+\.(?:jpg|jpeg|png|webp)/gi,
+      ];
+      
       const uniqueImages = new Set<string>();
-      for (const match of cdnImages) {
-        const url = match[0];
-        // فقط الصور الكبيرة (تجنب الأيقونات الصغيرة)
-        if (url.includes('_640x640') || url.includes('_800x800') || !url.includes('_50x50')) {
-          uniqueImages.add(url);
+      for (const pattern of cdnPatterns) {
+        const matches = html.matchAll(pattern);
+        for (const match of matches) {
+          const url = match[0];
+          // فقط الصور الكبيرة (تجنب الأيقونات الصغيرة)
+          if (!url.includes('_50x50') && 
+              !url.includes('_40x40') && 
+              !url.includes('avatar') &&
+              !url.includes('icon')) {
+            uniqueImages.add(url);
+          }
         }
       }
-      data.images = Array.from(uniqueImages).slice(0, 20);
+      const cdnImages = Array.from(uniqueImages);
+      data.images = [...(data.images || []), ...cdnImages];
+      if (cdnImages.length > 0) {
+        console.log('✓ صور من CDN:', cdnImages.length);
+      }
     }
 
-    // استراتيجية 5: استخراج السعر من patterns مختلفة
+    // استراتيجية 5: استخراج السعر من patterns متعددة
     if (!data.price) {
       const pricePatterns = [
+        /["']price["']\s*:\s*{[^}]*["']value["']\s*:\s*["']?(\d+\.?\d*)["']?/i,
         /["']price["']\s*:\s*["']?(\d+\.?\d*)["']?/i,
         /["']minPrice["']\s*:\s*["']?(\d+\.?\d*)["']?/i,
-        /["']maxPrice["']\s*:\s*["']?(\d+\.?\d*)["']?/i,
+        /["']minActivityAmount["']\s*:\s*{[^}]*["']value["']\s*:\s*["']?(\d+\.?\d*)["']?/i,
+        /["']minAmount["']\s*:\s*{[^}]*["']value["']\s*:\s*["']?(\d+\.?\d*)["']?/i,
         /price["\s:]+(\d+\.?\d*)/i,
       ];
 
       for (const pattern of pricePatterns) {
         const match = html.match(pattern);
         if (match) {
-          data.price = parseFloat(match[1]);
-          if (data.price > 0) break;
+          const price = parseFloat(match[1]);
+          if (price > 0) {
+            data.price = price;
+            console.log('✓ السعر من pattern:', data.price);
+            break;
+          }
         }
       }
     }
+
+    // استراتيجية 6: استخراج الاسم من title tag إذا لم نجده
+    if (!data.name) {
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (titleMatch) {
+        data.name = titleMatch[1]
+          .replace(/\s*-\s*AliExpress.*$/i, '')
+          .replace(/\s*\|\s*AliExpress.*$/i, '')
+          .trim();
+        console.log('✓ اسم المنتج من title:', data.name);
+      }
+    }
+
+    // تنظيف العملة
+    if (!data.currency) {
+      data.currency = 'USD';
+    }
+
+    console.log('=== نتائج استخراج AliExpress ===');
+    console.log('الاسم:', data.name ? '✓' : '✗');
+    console.log('السعر:', data.price ? '✓' : '✗');
+    console.log('الصور:', data.images?.length || 0);
+    console.log('الوصف:', data.description ? '✓' : '✗');
+    
   } catch (e) {
-    console.error('Error in extractAliExpressData:', e);
+    console.error('خطأ عام في extractAliExpressData:', e);
   }
 
   return data;
@@ -723,11 +858,15 @@ function isCategoryUrl(url: string, hostname: string): boolean {
   const lowerUrl = url.toLowerCase();
   const lowerHost = hostname.toLowerCase();
   
-  // AliExpress
+  // AliExpress - أنماط مختلفة
   if (lowerHost.includes('aliexpress')) {
     return lowerUrl.includes('/category/') || 
            lowerUrl.includes('searchtext=') || 
-           lowerUrl.includes('/wholesale/');
+           lowerUrl.includes('/wholesale/') ||
+           lowerUrl.includes('/w/wholesale-') ||
+           lowerUrl.includes('/premium/') ||
+           lowerUrl.includes('/af/') ||
+           (lowerUrl.includes('/store/') && lowerUrl.includes('/search'));
   }
   
   // Amazon
@@ -752,11 +891,16 @@ function extractProductLinks(html: string, hostname: string, baseUrl: string): s
   
   try {
     if (hostname.includes('aliexpress')) {
+      console.log('=== استخراج روابط المنتجات من AliExpress ===');
+      
       // 1. JSON extraction من window.runParams
-      const runParamsMatch = html.match(/window\.runParams\s*=\s*({[\s\S]*?});/);
+      const runParamsMatch = html.match(/window\.runParams\s*=\s*({[\s\S]*?});?\s*(?:window\.|<\/script>)/);
       if (runParamsMatch) {
         try {
           const data = JSON.parse(runParamsMatch[1]);
+          console.log('✓ وجدنا window.runParams');
+          
+          // محاولة 1: items array
           if (data.items && Array.isArray(data.items)) {
             data.items.forEach((item: any) => {
               if (item.productId) {
@@ -767,24 +911,80 @@ function extractProductLinks(html: string, hostname: string, baseUrl: string): s
                 }
               }
             });
+            console.log(`✓ وجدنا ${data.items.length} منتج في items array`);
+          }
+          
+          // محاولة 2: data.data.productList
+          if (data.data?.productList && Array.isArray(data.data.productList)) {
+            data.data.productList.forEach((item: any) => {
+              if (item.productId) {
+                const link = `https://www.aliexpress.com/item/${item.productId}.html`;
+                if (!seen.has(link)) {
+                  seen.add(link);
+                  links.push(link);
+                }
+              }
+            });
+            console.log(`✓ وجدنا ${data.data.productList.length} منتج في productList`);
+          }
+          
+          // محاولة 3: mods array
+          if (data.mods && Array.isArray(data.mods)) {
+            for (const mod of data.mods) {
+              if (mod.content?.productList && Array.isArray(mod.content.productList)) {
+                mod.content.productList.forEach((item: any) => {
+                  if (item.productId) {
+                    const link = `https://www.aliexpress.com/item/${item.productId}.html`;
+                    if (!seen.has(link)) {
+                      seen.add(link);
+                      links.push(link);
+                    }
+                  }
+                });
+              }
+            }
           }
         } catch (e) {
-          console.error('Error parsing AliExpress JSON:', e);
+          console.error('خطأ في تحليل runParams:', e);
         }
       }
       
-      // 2. Fallback: HTML links
-      const linkMatches = html.matchAll(/<a[^>]*href=["']([^"']*\/item\/\d+\.html[^"']*)["']/gi);
-      for (const match of linkMatches) {
-        let link = match[1];
-        if (!link.startsWith('http')) {
-          link = 'https:' + (link.startsWith('//') ? link : '//www.aliexpress.com' + link);
-        }
-        if (!seen.has(link)) {
-          seen.add(link);
-          links.push(link);
+      // 2. Fallback: HTML links - أنماط مختلفة
+      const linkPatterns = [
+        /<a[^>]*href=["']([^"']*\/item\/\d+\.html[^"']*)["']/gi,
+        /<a[^>]*href=["']([^"']*aliexpress\.com\/i\/\d+\.html[^"']*)["']/gi,
+        /https?:\/\/[^"'\s]*aliexpress\.com\/item\/\d+\.html/gi,
+        /https?:\/\/[^"'\s]*aliexpress\.com\/i\/\d+\.html/gi,
+      ];
+      
+      for (const pattern of linkPatterns) {
+        const matches = html.matchAll(pattern);
+        for (const match of matches) {
+          let link = match[1] || match[0];
+          
+          // تنظيف الرابط
+          if (!link.startsWith('http')) {
+            if (link.startsWith('//')) {
+              link = 'https:' + link;
+            } else if (link.startsWith('/')) {
+              link = 'https://www.aliexpress.com' + link;
+            }
+          }
+          
+          // تحويل /i/ إلى /item/
+          link = link.replace(/\/i\/(\d+)\.html/i, '/item/$1.html');
+          
+          // إزالة query parameters
+          link = link.split('?')[0];
+          
+          if (!seen.has(link)) {
+            seen.add(link);
+            links.push(link);
+          }
         }
       }
+      
+      console.log(`✓ إجمالي الروابط المستخرجة: ${links.length}`);
     }
     
     else if (hostname.includes('amazon')) {
