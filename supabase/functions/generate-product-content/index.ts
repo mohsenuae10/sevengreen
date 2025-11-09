@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, productName, category, brand, existingDescription } = await req.json();
+    const { type, productName, category, brand, existingDescription, originalName } = await req.json();
     
     console.log('Generate content request:', { type, productName, category });
 
@@ -77,6 +77,20 @@ serve(async (req) => {
   "seoDescription": "الوصف هنا",
   "seoKeywords": "كلمة1, كلمة2, كلمة3"
 }`;
+    } else if (type === 'optimize_name') {
+      systemPrompt = 'أنت خبير في كتابة أسماء المنتجات للتجارة الإلكترونية. تكتب أسماء احترافية بالعربية مختصرة وصديقة لمحركات البحث.';
+      userPrompt = `اسم المنتج الأصلي: "${originalName || productName}"
+${category ? `الفئة: ${category}` : ''}
+${brand ? `العلامة: ${brand}` : ''}
+
+أعد كتابة اسم المنتج ليكون:
+1. بالعربية الفصحى
+2. مختصر وواضح (4-8 كلمات فقط)
+3. صديق لمحركات البحث SEO
+4. يحتوي على الكلمات المفتاحية الرئيسية
+5. جذاب للعميل
+
+قدم الاسم المحسّن فقط بدون أي نص إضافي أو رموز.`;
     }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -142,7 +156,7 @@ serve(async (req) => {
         JSON.stringify(fieldsData),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    } else if (type === 'description' || type === 'ingredients' || type === 'benefits' || type === 'how_to_use') {
+    } else if (type === 'description' || type === 'ingredients' || type === 'benefits' || type === 'how_to_use' || type === 'optimize_name') {
       return new Response(
         JSON.stringify({ content: generatedText.trim() }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

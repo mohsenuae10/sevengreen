@@ -59,6 +59,8 @@ export default function ImportProduct() {
   } | null>(null);
   const [isFileImporting, setIsFileImporting] = useState(false);
   const [importMode, setImportMode] = useState<'full' | 'images-only'>('full');
+  const [optimizeProductName, setOptimizeProductName] = useState(false);
+  const [isOptimizingName, setIsOptimizingName] = useState(false);
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -270,8 +272,37 @@ export default function ImportProduct() {
       
       const priceInSAR = product.price ? Math.ceil(product.price * 3.75) : 0;
       
+      let optimizedName = product.name || '';
+      
+      // تحسين الاسم بالذكاء الاصطناعي إذا كان الخيار مفعلاً
+      if (optimizeProductName && product.name) {
+        setIsOptimizingName(true);
+        try {
+          const { data: nameData, error: nameError } = await supabase.functions.invoke('generate-product-content', {
+            body: {
+              type: 'optimize_name',
+              originalName: product.name,
+              category: product.category,
+              brand: product.brand,
+            }
+          });
+
+          if (!nameError && nameData?.content) {
+            optimizedName = nameData.content;
+            toast({ 
+              title: '✨ تم تحسين اسم المنتج',
+              description: 'تم إنشاء اسم عربي محسّن وصديق للـ SEO',
+            });
+          }
+        } catch (error) {
+          console.error('Error optimizing name:', error);
+        } finally {
+          setIsOptimizingName(false);
+        }
+      }
+      
       setFormData({
-        name_ar: product.name || '',
+        name_ar: optimizedName,
         description_ar: product.description || '',
         price: priceInSAR,
         category: product.category || '',
@@ -953,6 +984,26 @@ export default function ImportProduct() {
                 </div>
               )}
               
+              {/* خيار تحسين اسم المنتج بالذكاء الاصطناعي */}
+              <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 border border-purple-200 dark:border-purple-800 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="optimize-name"
+                  checked={optimizeProductName}
+                  onChange={(e) => setOptimizeProductName(e.target.checked)}
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <label htmlFor="optimize-name" className="flex-1 cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <span className="font-semibold text-sm">تحسين اسم المنتج بالذكاء الاصطناعي</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    تحويل الاسم إلى عربي مختصر وصديق لمحركات البحث SEO
+                  </p>
+                </label>
+              </div>
+              
               <div className="flex gap-2">
                 <Input
                   placeholder="https://www.aliexpress.com/item/..."
@@ -964,12 +1015,12 @@ export default function ImportProduct() {
                 />
                 <Button
                   onClick={handleFetchProduct}
-                  disabled={isLoading || isFileImporting || !productUrl.trim()}
+                  disabled={isLoading || isFileImporting || !productUrl.trim() || isOptimizingName}
                 >
-                  {isLoading ? (
+                  {isLoading || isOptimizingName ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                      جاري الجلب...
+                      {isOptimizingName ? 'جارٍ تحسين الاسم...' : 'جاري الجلب...'}
                     </>
                   ) : (
                     <>
