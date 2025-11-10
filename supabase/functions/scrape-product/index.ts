@@ -23,27 +23,60 @@ interface ScrapeOptions {
 }
 
 // HTTP Headers محسنة لمحاكاة متصفح حقيقي
-const getBrowserHeaders = (url?: string, referer?: string) => {
+const getBrowserHeaders = (url?: string, referer?: string, attemptNumber = 0) => {
   const isAliExpress = url?.toLowerCase().includes('aliexpress') || false;
   
-  return {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  // تدوير User Agents لتجنب الكشف
+  const userAgents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+  ];
+  
+  const userAgent = userAgents[attemptNumber % userAgents.length];
+  
+  // Headers أساسية
+  const headers: Record<string, string> = {
+    'User-Agent': userAgent,
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
     'Accept-Language': isAliExpress ? 'ar,en-US;q=0.9,en;q=0.8' : 'en-US,en;q=0.9,ar;q=0.8',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    'Accept-Encoding': 'gzip, deflate, br',
     'Connection': 'keep-alive',
     'Upgrade-Insecure-Requests': '1',
     'Sec-Fetch-Dest': 'document',
     'Sec-Fetch-Mode': 'navigate',
     'Sec-Fetch-Site': referer ? 'same-origin' : 'none',
     'Sec-Fetch-User': '?1',
-    'Sec-Ch-Ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-    'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"Windows"',
     'Cache-Control': 'max-age=0',
     'DNT': '1',
-    ...(referer && { 'Referer': referer }),
   };
+  
+  // إضافة Sec-Ch-Ua headers للمتصفحات المبنية على Chromium
+  if (userAgent.includes('Chrome')) {
+    headers['Sec-Ch-Ua'] = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
+    headers['Sec-Ch-Ua-Mobile'] = '?0';
+    headers['Sec-Ch-Ua-Platform'] = userAgent.includes('Mac') ? '"macOS"' : '"Windows"';
+  }
+  
+  // إضافة Referer إذا كان موجوداً
+  if (referer) {
+    headers['Referer'] = referer;
+  }
+  
+  // لـ AliExpress: إضافة cookies أساسية لمحاكاة جلسة حقيقية
+  if (isAliExpress) {
+    const cookies = [
+      'aep_usuc_f=site=sau&c_tp=SAR&region=SA&b_locale=ar_MA',
+      'intl_locale=ar_MA',
+      'xman_us_f=x_locale=ar_MA&x_l=1',
+      'xman_t=g9PMmPRqzwQpFT2w2h8aKTCT3gUCb3XUqxmJyH7ZHQiN8pXQXZ0K8F5gYyJmEqNQ',
+      `aep_history=keywords%5E&product%5E${Date.now()}`,
+    ];
+    headers['Cookie'] = cookies.join('; ');
+  }
+  
+  return headers;
 };
 
 // دالة لمعالجة روابط AliExpress القصيرة والخاصة
@@ -66,60 +99,85 @@ async function resolveAliExpressUrl(url: string): Promise<string> {
   return url;
 }
 
-// دالة لمتابعة Redirects يدوياً
-async function followRedirects(url: string, maxRedirects = 30): Promise<{ html: string; finalUrl: string }> {
+// دالة لمتابعة Redirects يدوياً مع محاولات متعددة
+async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3): Promise<{ html: string; finalUrl: string }> {
   // معالجة روابط AliExpress الخاصة
   url = await resolveAliExpressUrl(url);
   
-  let currentUrl = url;
-  let redirectCount = 0;
   const isAliExpress = url.toLowerCase().includes('aliexpress');
+  let lastError: Error | null = null;
+  
+  // محاولات متعددة مع تأخير متزايد
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      if (attempt > 0) {
+        const delay = 1000 * (attempt + 1); // 1s, 2s, 3s
+        console.log(`⏳ محاولة ${attempt + 1}/${maxAttempts} بعد ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
+      let currentUrl = url;
+      let redirectCount = 0;
 
-  while (redirectCount < maxRedirects) {
-    console.log(`جلب الرابط (redirect ${redirectCount}): ${currentUrl}`);
-    
-    const response = await fetch(currentUrl, {
-      method: 'GET',
-      headers: getBrowserHeaders(currentUrl, redirectCount > 0 ? url : undefined),
-      redirect: 'manual',
-    });
+      while (redirectCount < maxRedirects) {
+        console.log(`📥 جلب الرابط (redirect ${redirectCount}, attempt ${attempt + 1}): ${currentUrl}`);
+        
+        const response = await fetch(currentUrl, {
+          method: 'GET',
+          headers: getBrowserHeaders(currentUrl, redirectCount > 0 ? url : undefined, attempt),
+          redirect: 'manual',
+        });
 
-    // التحقق من الـ redirect
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get('location');
-      if (!location) {
-        throw new Error('Redirect without location header');
+        // التحقق من الـ redirect
+        if (response.status >= 300 && response.status < 400) {
+          const location = response.headers.get('location');
+          if (!location) {
+            throw new Error('Redirect without location header');
+          }
+
+          // معالجة الروابط النسبية
+          currentUrl = location.startsWith('http') 
+            ? location 
+            : new URL(location, currentUrl).toString();
+          
+          redirectCount++;
+          
+          // تأخير أطول لـ AliExpress
+          await new Promise(resolve => setTimeout(resolve, isAliExpress ? 500 : 200));
+          continue;
+        }
+
+        // إذا لم يكن redirect، استخراج المحتوى
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const html = await response.text();
+        console.log(`✓ تم جلب HTML بنجاح (${html.length} حرف)`);
+        
+        // للتحقق من أن الصفحة ليست محمية أو فارغة
+        if (isAliExpress && html.length < 5000) {
+          console.log('⚠️ المحتوى صغير جداً، قد تكون الصفحة محمية - سنحاول مرة أخرى');
+          throw new Error('محتوى صغير جداً - الصفحة قد تكون محمية');
+        }
+        
+        return { html, finalUrl: currentUrl };
       }
 
-      // معالجة الروابط النسبية
-      currentUrl = location.startsWith('http') 
-        ? location 
-        : new URL(location, currentUrl).toString();
+      throw new Error(`تجاوز الحد الأقصى للـ redirects (${maxRedirects})`);
       
-      redirectCount++;
+    } catch (e) {
+      lastError = e as Error;
+      console.error(`❌ خطأ في المحاولة ${attempt + 1}:`, lastError.message);
       
-      // تأخير أطول لـ AliExpress
-      await new Promise(resolve => setTimeout(resolve, isAliExpress ? 300 : 150));
-      continue;
+      // إذا كانت آخر محاولة، نرمي الخطأ
+      if (attempt === maxAttempts - 1) {
+        throw lastError;
+      }
     }
-
-    // إذا لم يكن redirect، استخراج المحتوى
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const html = await response.text();
-    console.log(`✓ تم جلب HTML بنجاح (${html.length} حرف)`);
-    
-    // للتحقق من أن الصفحة ليست محمية أو فارغة
-    if (isAliExpress && html.length < 5000) {
-      console.log('⚠️ المحتوى صغير جداً، قد تكون الصفحة محمية');
-    }
-    
-    return { html, finalUrl: currentUrl };
   }
-
-  throw new Error(`تجاوز الحد الأقصى للـ redirects (${maxRedirects})`);
+  
+  throw lastError || new Error('فشلت جميع المحاولات');
 }
 
 // دالة لاستخراج البيانات من meta tags
