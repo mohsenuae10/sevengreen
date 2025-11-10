@@ -99,85 +99,160 @@ async function resolveAliExpressUrl(url: string): Promise<string> {
   return url;
 }
 
-// دالة لمتابعة Redirects يدوياً مع محاولات متعددة
-async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3): Promise<{ html: string; finalUrl: string }> {
+// دالة لاستخراج رقم المنتج من رابط AliExpress
+function extractAliExpressProductId(url: string): string | null {
+  const patterns = [
+    /\/item\/(\d+)\.html/i,
+    /\/(\d{10,})\.html/i,
+    /product_id=(\d+)/i,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  return null;
+}
+
+// دالة محاولة جلب من AliExpress API مباشرة
+async function tryAliExpressAPI(productId: string): Promise<Partial<ProductData> | null> {
+  try {
+    console.log('🔄 محاولة جلب من AliExpress API، المنتج:', productId);
+    
+    // محاولة الوصول إلى API endpoint
+    const apiUrl = `https://www.aliexpress.com/aegis/product/metadata/pc/${productId}`;
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: getBrowserHeaders(apiUrl),
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✓ نجحت محاولة API');
+      
+      // استخراج البيانات من API response
+      if (data && data.productTitle) {
+        return {
+          name: data.productTitle,
+          description: data.productDescription || '',
+          price: data.salePrice?.min || data.originalPrice?.min || 0,
+          currency: data.currency || 'USD',
+          images: data.imageModule?.imagePathList || [],
+          brand: data.storeName || data.brandName,
+        };
+      }
+    }
+  } catch (e) {
+    console.log('⚠️ فشل جلب من API:', (e as Error).message);
+  }
+  
+  return null;
+}
+
+// دالة لتحويل رابط AliExpress إلى نسخة الموبايل
+function convertToMobileUrl(url: string): string {
+  return url
+    .replace('www.aliexpress.com', 'm.aliexpress.com')
+    .replace('ar.aliexpress.com', 'm.arabic.aliexpress.com')
+    .replace('aliexpress.com', 'm.aliexpress.com');
+}
+
+// دالة لمتابعة Redirects يدوياً مع محاولات متعددة واستراتيجيات بديلة
+async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, tryMobile = true): Promise<{ html: string; finalUrl: string }> {
   // معالجة روابط AliExpress الخاصة
   url = await resolveAliExpressUrl(url);
   
   const isAliExpress = url.toLowerCase().includes('aliexpress');
   let lastError: Error | null = null;
+  const urlsToTry: string[] = [url];
   
-  // محاولات متعددة مع تأخير متزايد
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      if (attempt > 0) {
-        const delay = 1000 * (attempt + 1); // 1s, 2s, 3s
-        console.log(`⏳ محاولة ${attempt + 1}/${maxAttempts} بعد ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-      
-      let currentUrl = url;
-      let redirectCount = 0;
-
-      while (redirectCount < maxRedirects) {
-        console.log(`📥 جلب الرابط (redirect ${redirectCount}, attempt ${attempt + 1}): ${currentUrl}`);
+  // إذا كان AliExpress، أضف نسخة الموبايل كـ fallback
+  if (isAliExpress && tryMobile) {
+    const mobileUrl = convertToMobileUrl(url);
+    if (mobileUrl !== url) {
+      urlsToTry.push(mobileUrl);
+      console.log('🔄 سنجرب نسخة الموبايل أيضاً:', mobileUrl);
+    }
+  }
+  
+  // جرب كل رابط في القائمة
+  for (const currentTryUrl of urlsToTry) {
+    // محاولات متعددة لكل رابط
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        if (attempt > 0) {
+          const delay = 1000 * (attempt + 1); // 1s, 2s, 3s
+          console.log(`⏳ محاولة ${attempt + 1}/${maxAttempts} للرابط: ${currentTryUrl.substring(0, 60)}...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
         
-        const response = await fetch(currentUrl, {
-          method: 'GET',
-          headers: getBrowserHeaders(currentUrl, redirectCount > 0 ? url : undefined, attempt),
-          redirect: 'manual',
-        });
+        let currentUrl = currentTryUrl;
+        let redirectCount = 0;
 
-        // التحقق من الـ redirect
-        if (response.status >= 300 && response.status < 400) {
-          const location = response.headers.get('location');
-          if (!location) {
-            throw new Error('Redirect without location header');
+        while (redirectCount < maxRedirects) {
+          const response = await fetch(currentUrl, {
+            method: 'GET',
+            headers: getBrowserHeaders(currentUrl, redirectCount > 0 ? currentTryUrl : undefined, attempt),
+            redirect: 'manual',
+          });
+
+          // التحقق من الـ redirect
+          if (response.status >= 300 && response.status < 400) {
+            const location = response.headers.get('location');
+            if (!location) {
+              throw new Error('Redirect without location header');
+            }
+
+            // معالجة الروابط النسبية
+            currentUrl = location.startsWith('http') 
+              ? location 
+              : new URL(location, currentUrl).toString();
+            
+            redirectCount++;
+            
+            // تأخير أطول لـ AliExpress
+            await new Promise(resolve => setTimeout(resolve, isAliExpress ? 700 : 200));
+            continue;
           }
 
-          // معالجة الروابط النسبية
-          currentUrl = location.startsWith('http') 
-            ? location 
-            : new URL(location, currentUrl).toString();
+          // إذا لم يكن redirect، استخراج المحتوى
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const html = await response.text();
+          console.log(`✓ تم جلب HTML بنجاح (${html.length} حرف) من ${currentUrl.includes('m.') ? 'موبايل' : 'ويب'}`);
           
-          redirectCount++;
+          // للتحقق من أن الصفحة ليست محمية أو فارغة
+          if (isAliExpress && html.length < 5000) {
+            console.log('⚠️ المحتوى صغير جداً، قد تكون الصفحة محمية');
+            throw new Error('محتوى صغير جداً - الصفحة قد تكون محمية');
+          }
           
-          // تأخير أطول لـ AliExpress
-          await new Promise(resolve => setTimeout(resolve, isAliExpress ? 500 : 200));
+          return { html, finalUrl: currentUrl };
+        }
+
+        throw new Error(`تجاوز الحد الأقصى للـ redirects (${maxRedirects})`);
+        
+      } catch (e) {
+        lastError = e as Error;
+        console.error(`❌ خطأ في المحاولة ${attempt + 1} للرابط ${currentTryUrl.substring(0, 50)}:`, lastError.message);
+        
+        // إذا لم تكن آخر محاولة لهذا الرابط، حاول مرة أخرى
+        if (attempt < maxAttempts - 1) {
           continue;
         }
-
-        // إذا لم يكن redirect، استخراج المحتوى
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const html = await response.text();
-        console.log(`✓ تم جلب HTML بنجاح (${html.length} حرف)`);
         
-        // للتحقق من أن الصفحة ليست محمية أو فارغة
-        if (isAliExpress && html.length < 5000) {
-          console.log('⚠️ المحتوى صغير جداً، قد تكون الصفحة محمية - سنحاول مرة أخرى');
-          throw new Error('محتوى صغير جداً - الصفحة قد تكون محمية');
-        }
-        
-        return { html, finalUrl: currentUrl };
-      }
-
-      throw new Error(`تجاوز الحد الأقصى للـ redirects (${maxRedirects})`);
-      
-    } catch (e) {
-      lastError = e as Error;
-      console.error(`❌ خطأ في المحاولة ${attempt + 1}:`, lastError.message);
-      
-      // إذا كانت آخر محاولة، نرمي الخطأ
-      if (attempt === maxAttempts - 1) {
-        throw lastError;
+        // إذا كانت آخر محاولة لهذا الرابط، جرب الرابط التالي
+        console.log('⏭️ الانتقال للرابط التالي في القائمة...');
       }
     }
   }
   
-  throw lastError || new Error('فشلت جميع المحاولات');
+  throw lastError || new Error('فشلت جميع المحاولات والروابط البديلة');
 }
 
 // دالة لاستخراج البيانات من meta tags
@@ -1181,19 +1256,57 @@ function extractProductLinks(html: string, hostname: string, baseUrl: string): s
   return links.slice(0, 10);
 }
 
-// دالة لاستخراج بيانات منتج واحد
+// دالة لاستخراج بيانات منتج واحد مع استراتيجيات متعددة
 async function scrapeProductData(url: string): Promise<{ success: boolean; product?: ProductData; error?: string; url: string }> {
   try {
-    const result = await followRedirects(url);
-    const html = result.html;
     const parsedUrl = new URL(url);
     const hostname = parsedUrl.hostname.toLowerCase();
+    const isAliExpress = hostname.includes('aliexpress');
     
     let productData: Partial<ProductData> = {};
     
+    // استراتيجية خاصة لـ AliExpress: جرب API أولاً
+    if (isAliExpress) {
+      const productId = extractAliExpressProductId(url);
+      if (productId) {
+        console.log('🎯 محاولة جلب من AliExpress API أولاً...');
+        const apiData = await tryAliExpressAPI(productId);
+        if (apiData && apiData.name) {
+          console.log('✅ نجح جلب البيانات من API!');
+          productData = apiData;
+          
+          // إذا حصلنا على بيانات كافية من API، نرجعها مباشرة
+          if (productData.name && productData.price && productData.images && productData.images.length > 0) {
+            const cleanData: ProductData = {
+              name: productData.name,
+              description: productData.description || '',
+              price: productData.price,
+              currency: productData.currency || 'USD',
+              images: productData.images.filter(img => img && img.startsWith('http')).slice(0, 20),
+              specifications: productData.specifications,
+              brand: productData.brand,
+              category: productData.category,
+            };
+            
+            return {
+              success: true,
+              product: cleanData,
+              url
+            };
+          }
+        }
+      }
+    }
+    
+    // إذا فشل API أو لم يكن متاحاً، جرب scraping عادي
+    console.log('🌐 جلب البيانات من HTML...');
+    const result = await followRedirects(url);
+    const html = result.html;
+    
     // استخراج البيانات حسب الموقع
-    if (hostname.includes('aliexpress')) {
-      productData = extractAliExpressData(html);
+    if (isAliExpress) {
+      const scrapedData = extractAliExpressData(html);
+      productData = { ...productData, ...scrapedData }; // دمج مع بيانات API إن وجدت
     } else if (hostname.includes('amazon')) {
       productData = extractAmazonData(html);
     } else if (hostname.includes('myshopify') || html.includes('Shopify.theme') || html.includes('cdn.shopify')) {
@@ -1225,7 +1338,7 @@ async function scrapeProductData(url: string): Promise<{ success: boolean; produ
     if (!productData.name) {
       return {
         success: false,
-        error: 'لم يتم العثور على اسم المنتج',
+        error: 'لم يتم العثور على اسم المنتج بعد تجربة جميع الطرق',
         url
       };
     }
