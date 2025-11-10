@@ -61,6 +61,7 @@ export default function ImportProduct() {
   const [importMode, setImportMode] = useState<'full' | 'images-only'>('full');
   const [optimizeProductName, setOptimizeProductName] = useState(false);
   const [isOptimizingName, setIsOptimizingName] = useState(false);
+  const [isOptimizingNameManual, setIsOptimizingNameManual] = useState(false);
   
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
@@ -474,6 +475,46 @@ export default function ImportProduct() {
     }
   };
 
+  const handleOptimizeProductName = async () => {
+    if (!formData.name_ar) {
+      toast({
+        title: 'تنبيه',
+        description: 'يرجى إدخال اسم المنتج أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsOptimizingNameManual(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          type: 'optimize_name',
+          originalName: formData.name_ar,
+          category: formData.category,
+          brand: formData.made_in,
+        }
+      });
+
+      if (error) throw error;
+      
+      setFormData({ ...formData, name_ar: data.content });
+      toast({ 
+        title: '✨ تم تحسين اسم المنتج',
+        description: 'تم إنشاء اسم عربي محسّن وصديق للـ SEO',
+      });
+    } catch (error: any) {
+      console.error('Optimize name error:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل تحسين الاسم',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsOptimizingNameManual(false);
+    }
+  };
+
   const handleSaveProduct = async () => {
     if (!formData.name_ar || !formData.category) {
       toast({
@@ -510,6 +551,7 @@ export default function ImportProduct() {
       if (productError) throw productError;
 
       // حفظ الصور
+      let primaryImageUrl: string | null = null;
       if (scrapedData?.images && scrapedData.images.length > 0) {
         // ترتيب الصور: الصورة الرئيسية أولاً
         const sortedImages = [...scrapedData.images].sort((a, b) => 
@@ -549,6 +591,11 @@ export default function ImportProduct() {
               display_order: index,
             });
 
+            // حفظ رابط الصورة الرئيسية
+            if (img.isPrimary) {
+              primaryImageUrl = publicUrl;
+            }
+
             return publicUrl;
           } catch (error) {
             console.error('Error processing image:', error);
@@ -557,6 +604,14 @@ export default function ImportProduct() {
         });
 
         await Promise.all(imagePromises);
+
+        // تحديث image_url في جدول products للصورة الرئيسية
+        if (primaryImageUrl) {
+          await supabase
+            .from('products')
+            .update({ image_url: primaryImageUrl })
+            .eq('id', product.id);
+        }
       }
 
       toast({
@@ -800,6 +855,7 @@ export default function ImportProduct() {
           if (productError) throw productError;
 
           // حفظ الصور
+          let primaryImageUrl: string | null = null;
           if (product.images && product.images.length > 0) {
             // ترتيب الصور: الصورة الرئيسية أولاً
             const sortedImages = [...product.images].sort((a, b) => 
@@ -832,6 +888,11 @@ export default function ImportProduct() {
                   display_order: imgIndex,
                 });
 
+                // حفظ رابط الصورة الرئيسية
+                if (img.isPrimary) {
+                  primaryImageUrl = publicUrl;
+                }
+
                 return publicUrl;
               } catch (error) {
                 console.error('Error processing image:', error);
@@ -840,6 +901,14 @@ export default function ImportProduct() {
             });
 
             await Promise.all(imagePromises);
+
+            // تحديث image_url في جدول products للصورة الرئيسية
+            if (primaryImageUrl) {
+              await supabase
+                .from('products')
+                .update({ image_url: primaryImageUrl })
+                .eq('id', savedProduct.id);
+            }
           }
 
           successCount++;
@@ -1341,19 +1410,40 @@ export default function ImportProduct() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <Label htmlFor="name">اسم المنتج *</Label>
-                    {/* خيار تحسين اسم المنتج بالذكاء الاصطناعي */}
                     <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="optimize-name"
-                        checked={optimizeProductName}
-                        onChange={(e) => setOptimizeProductName(e.target.checked)}
-                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                      />
-                      <label htmlFor="optimize-name" className="cursor-pointer flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                        <span className="text-xs font-medium">تحسين بالذكاء الاصطناعي</span>
-                      </label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleOptimizeProductName}
+                        disabled={!formData.name_ar || isOptimizingNameManual}
+                      >
+                        {isOptimizingNameManual ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                            جاري التحسين...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 ml-2" />
+                            تحسين الاسم
+                          </>
+                        )}
+                      </Button>
+                      {/* خيار تحسين اسم المنتج بالذكاء الاصطناعي تلقائياً */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="optimize-name"
+                          checked={optimizeProductName}
+                          onChange={(e) => setOptimizeProductName(e.target.checked)}
+                          className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        />
+                        <label htmlFor="optimize-name" className="cursor-pointer flex items-center gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                          <span className="text-xs font-medium">تلقائي</span>
+                        </label>
+                      </div>
                     </div>
                   </div>
                   <Input
@@ -1364,7 +1454,7 @@ export default function ImportProduct() {
                   />
                   {optimizeProductName && (
                     <p className="text-xs text-muted-foreground mt-1.5">
-                      ✨ سيتم تحويل الاسم إلى عربي مختصر وصديق لمحركات البحث SEO
+                      ✨ سيتم تحويل الاسم تلقائياً إلى عربي مختصر وصديق لمحركات البحث SEO عند الاستيراد
                     </p>
                   )}
                 </div>
