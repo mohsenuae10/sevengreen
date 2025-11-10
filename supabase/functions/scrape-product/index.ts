@@ -154,10 +154,15 @@ async function tryAliExpressAPI(productId: string): Promise<Partial<ProductData>
 
 // دالة لتحويل رابط AliExpress إلى نسخة الموبايل
 function convertToMobileUrl(url: string): string {
-  return url
-    .replace('www.aliexpress.com', 'm.aliexpress.com')
-    .replace('ar.aliexpress.com', 'm.arabic.aliexpress.com')
-    .replace('aliexpress.com', 'm.aliexpress.com');
+  // استخدام regex لتجنب التكرار
+  if (url.includes('ar.aliexpress.com')) {
+    return url.replace('ar.aliexpress.com', 'm.arabic.aliexpress.com');
+  } else if (url.includes('www.aliexpress.com')) {
+    return url.replace('www.aliexpress.com', 'm.aliexpress.com');
+  } else if (url.includes('aliexpress.com') && !url.includes('m.')) {
+    return url.replace(/([^.]+)\.aliexpress\.com/, 'm.aliexpress.com');
+  }
+  return url;
 }
 
 // دالة لمتابعة Redirects يدوياً مع محاولات متعددة واستراتيجيات بديلة
