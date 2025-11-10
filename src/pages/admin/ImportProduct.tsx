@@ -984,26 +984,6 @@ export default function ImportProduct() {
                 </div>
               )}
               
-              {/* خيار تحسين اسم المنتج بالذكاء الاصطناعي */}
-              <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 border border-purple-200 dark:border-purple-800 rounded-lg">
-                <input
-                  type="checkbox"
-                  id="optimize-name"
-                  checked={optimizeProductName}
-                  onChange={(e) => setOptimizeProductName(e.target.checked)}
-                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                />
-                <label htmlFor="optimize-name" className="flex-1 cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    <span className="font-semibold text-sm">تحسين اسم المنتج بالذكاء الاصطناعي</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    تحويل الاسم إلى عربي مختصر وصديق لمحركات البحث SEO
-                  </p>
-                </label>
-              </div>
-              
               <div className="flex gap-2">
                 <Input
                   placeholder="https://www.aliexpress.com/item/..."
@@ -1359,13 +1339,34 @@ export default function ImportProduct() {
 
               <div className="grid gap-4">
                 <div>
-                  <Label htmlFor="name">اسم المنتج *</Label>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="name">اسم المنتج *</Label>
+                    {/* خيار تحسين اسم المنتج بالذكاء الاصطناعي */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="optimize-name"
+                        checked={optimizeProductName}
+                        onChange={(e) => setOptimizeProductName(e.target.checked)}
+                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                      />
+                      <label htmlFor="optimize-name" className="cursor-pointer flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                        <span className="text-xs font-medium">تحسين بالذكاء الاصطناعي</span>
+                      </label>
+                    </div>
+                  </div>
                   <Input
                     id="name"
                     value={formData.name_ar}
                     onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
                     placeholder="اسم المنتج بالعربية"
                   />
+                  {optimizeProductName && (
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      ✨ سيتم تحويل الاسم إلى عربي مختصر وصديق لمحركات البحث SEO
+                    </p>
+                  )}
                 </div>
 
                 <div>
