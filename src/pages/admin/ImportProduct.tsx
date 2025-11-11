@@ -550,7 +550,7 @@ export default function ImportProduct() {
 
       if (productError) throw productError;
 
-      // حفظ الصور عبر وظيفة خلفية لتفادي قيود CORS
+      // حفظ الصور
       let primaryImageUrl: string | null = null;
       if (scrapedData?.images && scrapedData.images.length > 0) {
         // ترتيب الصور: الصورة الرئيسية أولاً
@@ -558,26 +558,54 @@ export default function ImportProduct() {
           (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0)
         );
 
-        const { data: uploadRes, error: uploadErr } = await supabase.functions.invoke('save-product-images', {
-          body: {
-            productId: product.id,
-            images: sortedImages.map((img, index) => ({
-              url: img.url,
-              isPrimary: img.isPrimary,
-              displayOrder: index,
-            })),
-          },
+        const imagePromises = sortedImages.map(async (img, index) => {
+          try {
+            // تحميل الصورة من الرابط الأصلي
+            const imageResponse = await fetch(img.url);
+            const imageBlob = await imageResponse.blob();
+            
+            // رفع الصورة إلى Supabase Storage
+            const fileName = `${product.id}-${index}-${Date.now()}.jpg`;
+            const { error: uploadError } = await supabase.storage
+              .from('product-images')
+              .upload(fileName, imageBlob, {
+                contentType: 'image/jpeg',
+                upsert: false,
+              });
+
+            if (uploadError) {
+              console.error('Error uploading image:', uploadError);
+              return null;
+            }
+
+            // الحصول على الرابط العام للصورة
+            const { data: { publicUrl } } = supabase.storage
+              .from('product-images')
+              .getPublicUrl(fileName);
+
+            // إضافة سجل الصورة في قاعدة البيانات
+            await supabase.from('product_images').insert({
+              product_id: product.id,
+              image_url: publicUrl,
+              is_primary: img.isPrimary,
+              display_order: index,
+            });
+
+            // حفظ رابط الصورة الرئيسية
+            if (img.isPrimary) {
+              primaryImageUrl = publicUrl;
+            }
+
+            return publicUrl;
+          } catch (error) {
+            console.error('Error processing image:', error);
+            return null;
+          }
         });
 
-        if (uploadErr) {
-          console.error('save-product-images error:', uploadErr);
-        }
+        await Promise.all(imagePromises);
 
-        if (uploadRes?.primaryImageUrl) {
-          primaryImageUrl = uploadRes.primaryImageUrl;
-        }
-
-        // تحديث image_url في جدول products للصورة الرئيسية (احتياطيًا)
+        // تحديث image_url في جدول products للصورة الرئيسية
         if (primaryImageUrl) {
           await supabase
             .from('products')
@@ -826,32 +854,55 @@ export default function ImportProduct() {
 
           if (productError) throw productError;
 
-          // حفظ الصور عبر وظيفة خلفية لتفادي قيود CORS
+          // حفظ الصور
           let primaryImageUrl: string | null = null;
           if (product.images && product.images.length > 0) {
+            // ترتيب الصور: الصورة الرئيسية أولاً
             const sortedImages = [...product.images].sort((a, b) => 
               (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0)
             );
 
-            const { data: uploadRes, error: uploadErr } = await supabase.functions.invoke('save-product-images', {
-              body: {
-                productId: savedProduct.id,
-                images: sortedImages.slice(0, 5).map((img, imgIndex) => ({
-                  url: img.url,
-                  isPrimary: img.isPrimary,
-                  displayOrder: imgIndex,
-                })),
-              },
+            const imagePromises = sortedImages.slice(0, 5).map(async (img, imgIndex) => {
+              try {
+                const imageResponse = await fetch(img.url);
+                const imageBlob = await imageResponse.blob();
+                
+                const fileName = `${savedProduct.id}-${imgIndex}-${Date.now()}.jpg`;
+                const { error: uploadError } = await supabase.storage
+                  .from('product-images')
+                  .upload(fileName, imageBlob, {
+                    contentType: 'image/jpeg',
+                    upsert: false,
+                  });
+
+                if (uploadError) return null;
+
+                const { data: { publicUrl } } = supabase.storage
+                  .from('product-images')
+                  .getPublicUrl(fileName);
+
+                await supabase.from('product_images').insert({
+                  product_id: savedProduct.id,
+                  image_url: publicUrl,
+                  is_primary: img.isPrimary,
+                  display_order: imgIndex,
+                });
+
+                // حفظ رابط الصورة الرئيسية
+                if (img.isPrimary) {
+                  primaryImageUrl = publicUrl;
+                }
+
+                return publicUrl;
+              } catch (error) {
+                console.error('Error processing image:', error);
+                return null;
+              }
             });
 
-            if (uploadErr) {
-              console.error('save-product-images error (bulk):', uploadErr);
-            }
+            await Promise.all(imagePromises);
 
-            if (uploadRes?.primaryImageUrl) {
-              primaryImageUrl = uploadRes.primaryImageUrl;
-            }
-
+            // تحديث image_url في جدول products للصورة الرئيسية
             if (primaryImageUrl) {
               await supabase
                 .from('products')
