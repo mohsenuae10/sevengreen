@@ -154,9 +154,11 @@ async function tryAliExpressAPI(productId: string): Promise<Partial<ProductData>
 
 // دالة لتحويل رابط AliExpress إلى نسخة الموبايل
 function convertToMobileUrl(url: string): string {
-  // استخدام regex لتجنب التكرار
+  // Avoid m.arabic.aliexpress.com due to TLS issues; use m.aliexpress.com instead
   if (url.includes('ar.aliexpress.com')) {
-    return url.replace('ar.aliexpress.com', 'm.arabic.aliexpress.com');
+    return url.replace('ar.aliexpress.com', 'm.aliexpress.com');
+  } else if (url.includes('m.arabic.aliexpress.com')) {
+    return url.replace('m.arabic.aliexpress.com', 'm.aliexpress.com');
   } else if (url.includes('www.aliexpress.com')) {
     return url.replace('www.aliexpress.com', 'm.aliexpress.com');
   } else if (url.includes('aliexpress.com') && !url.includes('m.')) {
