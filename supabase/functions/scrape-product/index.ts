@@ -66,12 +66,16 @@ const getBrowserHeaders = (url?: string, referer?: string, attemptNumber = 0) =>
   
   // لـ AliExpress: إضافة cookies أساسية لمحاكاة جلسة حقيقية
   if (isAliExpress) {
+    const sessionId = Math.random().toString(36).substring(2, 15);
     const cookies = [
       'aep_usuc_f=site=sau&c_tp=SAR&region=SA&b_locale=ar_MA',
       'intl_locale=ar_MA',
       'xman_us_f=x_locale=ar_MA&x_l=1',
-      'xman_t=g9PMmPRqzwQpFT2w2h8aKTCT3gUCb3XUqxmJyH7ZHQiN8pXQXZ0K8F5gYyJmEqNQ',
+      `xman_t=${sessionId}`,
       `aep_history=keywords%5E&product%5E${Date.now()}`,
+      'ali_apache_id=' + Math.random().toString(36).substring(2, 15),
+      '_m_h5_tk=' + Math.random().toString(36).substring(2, 15) + '_' + Date.now(),
+      '_m_h5_tk_enc=' + Math.random().toString(36).substring(2, 15),
     ];
     headers['Cookie'] = cookies.join('; ');
   }
@@ -184,9 +188,13 @@ async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, 
     // محاولات متعددة لكل رابط
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
-        if (attempt > 0) {
-          const delay = 1000 * (attempt + 1); // 1s, 2s, 3s
-          console.log(`⏳ محاولة ${attempt + 1}/${maxAttempts} للرابط: ${currentTryUrl.substring(0, 60)}...`);
+        // تأخير قبل كل محاولة (حتى الأولى) لتجنب الكشف
+        const baseDelay = isAliExpress ? 3000 : 500; // 3s base for AliExpress even on first attempt
+        const randomDelay = Math.floor(Math.random() * 1500); // 0-1.5s random
+        const delay = attempt === 0 ? baseDelay + randomDelay : baseDelay * (attempt + 2) + randomDelay;
+        
+        if (delay > 0) {
+          console.log(`⏳ محاولة ${attempt + 1}/${maxAttempts} للرابط: ${currentTryUrl.substring(0, 60)}... (انتظار ${Math.floor(delay/1000)}ث)`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
         
@@ -214,8 +222,9 @@ async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, 
             
             redirectCount++;
             
-            // تأخير أطول لـ AliExpress
-            await new Promise(resolve => setTimeout(resolve, isAliExpress ? 700 : 200));
+            // تأخير أطول وعشوائي لـ AliExpress لتجنب الكشف
+            const redirectDelay = isAliExpress ? 1000 + Math.floor(Math.random() * 500) : 200;
+            await new Promise(resolve => setTimeout(resolve, redirectDelay));
             continue;
           }
 
@@ -230,7 +239,14 @@ async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, 
           // للتحقق من أن الصفحة ليست محمية أو فارغة
           if (isAliExpress && html.length < 5000) {
             console.log(`⚠️ المحتوى صغير جداً (${html.length} حرف)، قد تكون الصفحة محمية بواسطة anti-bot`);
-            throw new Error(`AliExpress blocked the request. Content too small (${html.length} chars). This usually happens when AliExpress detects automated scraping. Try using a direct product link or import from a different source.`);
+            
+            // نصيحة إضافية للمستخدم
+            const productId = extractAliExpressProductId(currentUrl);
+            const suggestion = productId 
+              ? `جرب فتح المنتج في متصفح جديد أو استخدم رابط مباشر آخر. رقم المنتج: ${productId}`
+              : 'جرب فتح المنتج في متصفح جديد أو استخدم رابط مباشر آخر.';
+            
+            throw new Error(`AliExpress قام بحظر الطلب بسبب اكتشاف scraping آلي (حجم المحتوى: ${html.length} حرف فقط). ${suggestion} أو يمكنك إدخال بيانات المنتج يدوياً.`);
           }
           
           return { html, finalUrl: currentUrl };
