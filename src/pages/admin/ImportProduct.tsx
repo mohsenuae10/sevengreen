@@ -560,46 +560,68 @@ export default function ImportProduct() {
 
         const imagePromises = sortedImages.map(async (img, index) => {
           try {
-            // تحميل الصورة من الرابط الأصلي
+            // محاولة تحميل الصورة ورفعها إلى التخزين
             const imageResponse = await fetch(img.url);
+            if (!imageResponse.ok) {
+              throw new Error(`Failed to fetch image (status ${imageResponse.status})`);
+            }
+
+            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+            const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
             const imageBlob = await imageResponse.blob();
             
-            // رفع الصورة إلى Supabase Storage
-            const fileName = `${product.id}-${index}-${Date.now()}.jpg`;
+            // رفع الصورة إلى التخزين
+            const fileName = `${product.id}-${index}-${Date.now()}.${ext}`;
             const { error: uploadError } = await supabase.storage
               .from('product-images')
               .upload(fileName, imageBlob, {
-                contentType: 'image/jpeg',
+                contentType,
                 upsert: false,
               });
 
+            let finalUrl: string;
             if (uploadError) {
-              console.error('Error uploading image:', uploadError);
-              return null;
+              console.error('Error uploading image, falling back to external URL:', uploadError);
+              finalUrl = img.url; // استخدام رابط خارجي عند الفشل
+            } else {
+              const { data: { publicUrl } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(fileName);
+              finalUrl = publicUrl;
             }
 
-            // الحصول على الرابط العام للصورة
-            const { data: { publicUrl } } = supabase.storage
-              .from('product-images')
-              .getPublicUrl(fileName);
-
-            // إضافة سجل الصورة في قاعدة البيانات
+            // إضافة سجل الصورة في قاعدة البيانات بالرابط النهائي (محلّي أو خارجي)
             await supabase.from('product_images').insert({
               product_id: product.id,
-              image_url: publicUrl,
+              image_url: finalUrl,
               is_primary: img.isPrimary,
               display_order: index,
             });
 
             // حفظ رابط الصورة الرئيسية
             if (img.isPrimary) {
-              primaryImageUrl = publicUrl;
+              primaryImageUrl = finalUrl;
             }
 
-            return publicUrl;
+            return finalUrl;
           } catch (error) {
-            console.error('Error processing image:', error);
-            return null;
+            console.error('Error processing image, saving external URL as fallback:', error);
+            try {
+              // إدراج بالرابط الخارجي كحل احتياطي
+              await supabase.from('product_images').insert({
+                product_id: product.id,
+                image_url: img.url,
+                is_primary: img.isPrimary,
+                display_order: index,
+              });
+              if (img.isPrimary) {
+                primaryImageUrl = img.url;
+              }
+              return img.url;
+            } catch (insertErr) {
+              console.error('Error saving external image URL:', insertErr);
+              return null;
+            }
           }
         });
 
