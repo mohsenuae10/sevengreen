@@ -1,0 +1,36 @@
+{
+  "name": "متجر سفن جرين - Seven Green Store",
+  "short_name": "سفن جرين",
+  "description": "متجر سفن جرين - أفضل منتجات العناية الطبيعية للشعر والبشرة في السعودية",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#16a34a",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "المنتجات",
+      "short_name": "المنتجات",
+      "description": "تصفح جميع المنتجات",
+      "url": "/products",
+      "icons": []
+    },
+    {
+      "name": "سلة التسوق",
+      "short_name": "السلة",
+      "description": "عرض سلة التسوق",
+      "url": "/cart",
+      "icons": []
+    }
+  ]
+}
