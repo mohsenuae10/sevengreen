@@ -1,0 +1,4 @@
+Contact: https://sevengreenstore.com/contact
+Expires: 2026-11-11T00:00:00.000Z
+Preferred-Languages: ar, en
+Canonical: https://sevengreenstore.com/.well-known/security.txt

@@ -1,0 +1,10 @@
+/* TEAM */
+متجر سفن جرين - Seven Green Store
+المملكة العربية السعودية
+
+/* SITE */
+Last update: 2025/11/11
+Language: العربية / Arabic
+Standards: HTML5, CSS3, JavaScript
+Components: React, TypeScript, Vite
+SEO: Optimized for search engines
