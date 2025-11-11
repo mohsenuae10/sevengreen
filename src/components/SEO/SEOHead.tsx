@@ -24,7 +24,16 @@ export const SEOHead = ({
   availability,
 }: SEOHeadProps) => {
   const fullTitle = `${title} | متجر سفن جرين`;
-  const currentUrl = url || `https://sevengreenstore.com${window.location.pathname}`;
+  const currentUrl = url || (typeof window !== 'undefined' ? `https://sevengreenstore.com${window.location.pathname}` : 'https://sevengreenstore.com');
+  
+  // Map availability values for Open Graph
+  const ogAvailabilityMap: Record<string, string> = {
+    'instock': 'instock',
+    'outofstock': 'oos',
+    'preorder': 'preorder'
+  };
+  
+  const ogAvailability = availability ? ogAvailabilityMap[availability] || availability : undefined;
 
   return (
     <Helmet>
@@ -55,8 +64,8 @@ export const SEOHead = ({
         <>
           <meta property="product:price:amount" content={price.toString()} />
           <meta property="product:price:currency" content={currency} />
-          {availability && (
-            <meta property="product:availability" content={availability} />
+          {ogAvailability && (
+            <meta property="product:availability" content={ogAvailability} />
           )}
         </>
       )}
