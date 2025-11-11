@@ -69,7 +69,6 @@ export const ProductSchema = ({
       url: productUrl,
       priceCurrency: currency,
       price: price.toString(),
-      priceValidUntil: '2025-12-31',
       availability: `https://schema.org/${availability}`,
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
