@@ -1402,22 +1402,14 @@ Deno.serve(async (req) => {
 
     // التحقق من صحة الرابط
     let parsedUrl: URL;
-    let normalizedUrl = url.trim();
-    
-    // إضافة https:// إذا لم يكن الرابط يحتوي على بروتوكول
-    if (!normalizedUrl.match(/^https?:\/\//i)) {
-      normalizedUrl = 'https://' + normalizedUrl;
-      console.log('تم إضافة https:// للرابط:', normalizedUrl);
-    }
-    
     try {
-      parsedUrl = new URL(normalizedUrl);
-    } catch (e) {
+      parsedUrl = new URL(url);
+    } catch {
       return new Response(
         JSON.stringify({
           success: false,
           error: 'INVALID_URL',
-          message: 'Invalid URL format. Please provide a valid product URL.',
+          message: 'Invalid URL format',
         }),
         {
           status: 400,
@@ -1425,9 +1417,6 @@ Deno.serve(async (req) => {
         }
       );
     }
-    
-    // استخدام الرابط المُطبّع في باقي الدالة
-    const finalUrl = normalizedUrl;
 
     // الحماية من SSRF
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
@@ -1444,7 +1433,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('Fetching product from:', finalUrl);
+    console.log('Fetching product from:', url);
 
     const hostname = parsedUrl.hostname.toLowerCase();
     const baseUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
@@ -1453,7 +1442,7 @@ Deno.serve(async (req) => {
     if (imagesOnly) {
       console.log('🖼️ وضع جلب الصور فقط - تنفيذ سريع');
       
-      const { html, finalUrl: redirectedUrl } = await followRedirects(finalUrl);
+      const { html, finalUrl } = await followRedirects(url);
       
       // استخراج الصور فقط
       let allImages: string[] = [];
@@ -1504,7 +1493,7 @@ Deno.serve(async (req) => {
     }
     
     // ============ اكتشاف نوع الرابط ============
-    const isCategoryPage = isCategoryUrl(finalUrl, hostname);
+    const isCategoryPage = isCategoryUrl(url, hostname);
     
     if (isCategoryPage) {
       // ====== معالجة Category URL (Bulk Import) ======
@@ -1512,7 +1501,7 @@ Deno.serve(async (req) => {
       
       let result;
       try {
-        result = await followRedirects(finalUrl);
+        result = await followRedirects(url);
       } catch (error) {
         console.error('Error fetching category page:', error);
         return new Response(
@@ -1577,7 +1566,7 @@ Deno.serve(async (req) => {
       // ====== معالجة Product URL العادي (Single Import) ======
       console.log('Detected product URL, scraping single product...');
       
-      const result = await scrapeProductData(finalUrl);
+      const result = await scrapeProductData(url);
       
       if (!result.success) {
         return new Response(
