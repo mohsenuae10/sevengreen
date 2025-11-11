@@ -168,7 +168,7 @@ function convertToMobileUrl(url: string): string {
 }
 
 // دالة لمتابعة Redirects يدوياً مع محاولات متعددة واستراتيجيات بديلة
-async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, tryMobile = true): Promise<{ html: string; finalUrl: string }> {
+async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, tryMobile = false): Promise<{ html: string; finalUrl: string }> {
   // معالجة روابط AliExpress الخاصة
   url = await resolveAliExpressUrl(url);
   
@@ -176,14 +176,8 @@ async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, 
   let lastError: Error | null = null;
   const urlsToTry: string[] = [url];
   
-  // إذا كان AliExpress، أضف نسخة الموبايل كـ fallback
-  if (isAliExpress && tryMobile) {
-    const mobileUrl = convertToMobileUrl(url);
-    if (mobileUrl !== url) {
-      urlsToTry.push(mobileUrl);
-      console.log('🔄 سنجرب نسخة الموبايل أيضاً:', mobileUrl);
-    }
-  }
+  // تعطيل المحاولة مع الموبايل لتجنب مشاكل TLS
+  // Mobile fallback disabled due to TLS certificate issues
   
   // جرب كل رابط في القائمة
   for (const currentTryUrl of urlsToTry) {
@@ -235,8 +229,8 @@ async function followRedirects(url: string, maxRedirects = 30, maxAttempts = 3, 
           
           // للتحقق من أن الصفحة ليست محمية أو فارغة
           if (isAliExpress && html.length < 5000) {
-            console.log('⚠️ المحتوى صغير جداً، قد تكون الصفحة محمية');
-            throw new Error('محتوى صغير جداً - الصفحة قد تكون محمية');
+            console.log(`⚠️ المحتوى صغير جداً (${html.length} حرف)، قد تكون الصفحة محمية بواسطة anti-bot`);
+            throw new Error(`AliExpress blocked the request. Content too small (${html.length} chars). This usually happens when AliExpress detects automated scraping. Try using a direct product link or import from a different source.`);
           }
           
           return { html, finalUrl: currentUrl };
