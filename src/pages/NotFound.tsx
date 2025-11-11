@@ -7,6 +7,7 @@ import { BreadcrumbSchema } from "@/components/SEO/BreadcrumbSchema";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { Home, Search, Package } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 const NotFound = () => {
   const location = useLocation();
@@ -35,6 +36,9 @@ const NotFound = () => {
         title="الصفحة غير موجودة - 404"
         description="عذراً، الصفحة التي تبحث عنها غير موجودة. تصفح منتجاتنا الطبيعية أو عد للصفحة الرئيسية."
       />
+      <Helmet>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' },
