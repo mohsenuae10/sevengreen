@@ -49,5 +49,11 @@ Disallow: /order-success/
 Disallow: /*.json$
 
 # Sitemaps
-Sitemap: https://sevengreenstore.com/sitemap.xml
-Sitemap: https://sevengreenstore.com/api/sitemap-products
+# Dynamic sitemaps with current dates and real-time product data
+Sitemap: https://sevengreenstore.com/functions/v1/generate-sitemap
+Sitemap: https://sevengreenstore.com/functions/v1/generate-product-sitemap
+
+# Static fallback sitemaps
+# Note: Use dynamic sitemaps above for best SEO results
+# Sitemap: https://sevengreenstore.com/sitemap.xml
+# Sitemap: https://sevengreenstore.com/sitemap-products.xml
