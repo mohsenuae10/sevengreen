@@ -11,8 +11,6 @@ interface ProductSchemaProps {
   availability: 'InStock' | 'OutOfStock';
   category?: string;
   brand?: string;
-  rating?: number;
-  reviewCount?: number;
   gtin?: string;
   mpn?: string;
   slug?: string | null;
@@ -37,8 +35,6 @@ export const ProductSchema = ({
   availability,
   category,
   brand = 'متجر سفن جرين',
-  rating,
-  reviewCount,
   gtin,
   mpn,
   slug,
@@ -130,15 +126,7 @@ export const ProductSchema = ({
         },
       },
     }),
-    ...(rating && reviewCount && reviewCount > 0 && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: rating.toString(),
-        reviewCount: reviewCount.toString(),
-        bestRating: '5',
-        worstRating: '1',
-      },
-    }),
+    // Note: aggregateRating removed - only add when you have real reviews
     audience: {
       '@type': 'PeopleAudience',
       geographicArea: {

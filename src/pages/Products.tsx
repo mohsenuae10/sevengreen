@@ -55,19 +55,24 @@ export default function Products() {
     ? `تصفح مجموعة ${selectedCategory} من سفن جرين - منتجات طبيعية 100% للعناية بالشعر والجسم`
     : 'تصفح جميع منتجات سفن جرين الطبيعية - شامبو صلب، صابون، ومنتجات العناية الطبيعية';
 
+  const canonicalUrl = selectedCategory 
+    ? `https://sevengreenstore.com/products?category=${encodeURIComponent(selectedCategory)}`
+    : 'https://sevengreenstore.com/products';
+
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title="جميع المنتجات - منتجات طبيعية للعناية بالشعر والبشرة"
-        description="تصفح مجموعتنا الكاملة من المنتجات الطبيعية للعناية بالشعر والبشرة. بار شامبو طبيعي، سيروم فيتامين سي، منتجات للرجال، هدايا طبيعية. توصيل سريع لجميع مناطق السعودية. منتجات عضوية 100% بدون كيماويات."
-        keywords="منتجات طبيعية السعودية, بار شامبو, شامبو صلب, سيروم فيتامين سي, العناية بالشعر, العناية بالبشرة, منتجات عضوية, متجر سفن جرين, منتجات طبيعية للرجال, هدايا طبيعية"
+        title={selectedCategory ? `${selectedCategory} - منتجات سفن جرين` : 'جميع المنتجات - متجر سفن جرين'}
+        description={selectedCategory ? `تصفح جميع منتجات ${selectedCategory} الطبيعية 100% من سفن جرين. أفضل منتجات العناية الطبيعية في السعودية مع توصيل سريع.` : 'تصفح جميع منتجات العناية الطبيعية من سفن جرين. بار شامبو طبيعي، سيروم فيتامين سي، ومنتجات عضوية 100% مع شحن مجاني داخل السعودية.'}
+        keywords={selectedCategory ? `${selectedCategory}, منتجات طبيعية, سفن جرين, منتجات عضوية السعودية` : 'منتجات طبيعية, بار شامبو, سيروم فيتامين سي, العناية بالبشرة, العناية بالشعر, سفن جرين, منتجات عضوية السعودية'}
         type="website"
-        url="/products"
+        url={canonicalUrl}
       />
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' },
           { name: 'المنتجات', url: '/products' },
+          ...(selectedCategory ? [{ name: selectedCategory, url: `/products?category=${selectedCategory}` }] : []),
         ]}
       />
       <div className="mb-8 space-y-4">

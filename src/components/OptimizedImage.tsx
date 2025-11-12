@@ -32,6 +32,10 @@ export const OptimizedImage = ({
     setHasError(true);
   };
 
+  // Calculate dimensions if not provided
+  const calculatedWidth = width || 800;
+  const calculatedHeight = height || (aspectRatio ? calculatedWidth / parseFloat(aspectRatio.replace('/', ' / ')) : calculatedWidth);
+
   return (
     <div className={cn('relative overflow-hidden', className)} style={{ aspectRatio }}>
       {isLoading && (
@@ -40,6 +44,8 @@ export const OptimizedImage = ({
       <img
         src={hasError ? '/placeholder.svg' : src}
         alt={alt}
+        width={calculatedWidth}
+        height={calculatedHeight}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
@@ -49,8 +55,6 @@ export const OptimizedImage = ({
           'w-full h-full object-cover transition-opacity duration-300',
           isLoading ? 'opacity-0' : 'opacity-100'
         )}
-        {...(width && { width })}
-        {...(height && { height })}
       />
     </div>
   );

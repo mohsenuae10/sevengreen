@@ -46,10 +46,6 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   const badgeIndex = Math.floor(seededRandom(id + 'badgeType', badges.length));
   const randomBadge = badges[badgeIndex];
 
-  const ratingSeed = seededRandom(id + 'rating');
-  const rating = Number((ratingSeed * 1 + 4).toFixed(1));
-  const reviewCount = Math.floor(seededRandom(id + 'reviews', 150)) + 10;
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     if (stock_quantity <= 0) {
@@ -138,15 +134,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           </h3>
         </Link>
 
-        {/* التقييم */}
-        <div className="flex justify-center">
-          <ProductRating 
-            rating={rating} 
-            reviewCount={reviewCount} 
-            showCount={true} 
-            size="sm" 
-          />
-        </div>
+        {/* التقييم - محذوف لأنه كان يستخدم أرقام مزيفة */}
 
         {/* قسم السعر */}
         <div className="text-center space-y-1 py-2">

@@ -1,46 +1,53 @@
 # Robots.txt for Seven Green Store
-# Last updated: 2025-11-11
+# Last updated: 2025-11-12
 
 # Googlebot
 User-agent: Googlebot
 Allow: /
+Allow: /products
+Allow: /product/
+Allow: /about
+Allow: /contact
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
-Crawl-delay: 1
 
-# Googlebot Images
+# Googlebot Images - allow all images
 User-agent: Googlebot-Image
 Allow: /
 
 # Bingbot
 User-agent: Bingbot
 Allow: /
+Allow: /products
+Allow: /product/
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
-Crawl-delay: 1
 
-# Social Media Crawlers
+# Social Media Crawlers - full access
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: Whatsapp
+Allow: /
+
 # All other bots
 User-agent: *
 Allow: /
+Allow: /products
+Allow: /product/
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
 Disallow: /*.json$
-Disallow: /api/
-Crawl-delay: 2
 
-# خريطة الموقع الرئيسية
+# Sitemaps
 Sitemap: https://sevengreenstore.com/sitemap.xml
-Sitemap: https://sevengreenstore.com/sitemap-products.xml
+Sitemap: https://sevengreenstore.com/api/sitemap-products

@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.send-tracking-email]
 verify_jwt = false
 
+[functions.send-payment-reminder]
+verify_jwt = false
+
 [functions.sales-stats]
 verify_jwt = false
 
@@ -25,4 +28,13 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.generate-promotional-banner]
+verify_jwt = false
+
+[functions.scrape-product]
+verify_jwt = false
+
+[functions.generate-sitemap]
+verify_jwt = false
+
+[functions.generate-product-sitemap]
 verify_jwt = false

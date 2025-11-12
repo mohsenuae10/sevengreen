@@ -213,8 +213,6 @@ export default function ProductDetail() {
         availability={isInStock ? 'InStock' : 'OutOfStock'}
         category={product.category}
         slug={product.slug}
-        rating={4.5}
-        reviewCount={128}
         madeIn={product.made_in}
         shippingDays={3}
         returnDays={14}
@@ -264,8 +262,7 @@ export default function ProductDetail() {
               {product.name_ar}
             </h1>
             
-            {/* Rating */}
-            <ProductRating rating={4.5} reviewCount={128} />
+            {/* Rating - محذوف لأنه كان يستخدم أرقام مزيفة */}
             
             {/* SKU */}
             <p className="text-sm text-muted-foreground">
