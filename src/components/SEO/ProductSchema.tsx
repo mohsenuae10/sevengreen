@@ -49,6 +49,11 @@ export const ProductSchema = ({
 }: ProductSchemaProps) => {
   const productUrl = `https://sevengreenstore.com/product/${slug || sku}`;
   
+  // Generate dynamic priceValidUntil date (1 year from now)
+  const priceValidUntil = new Date();
+  priceValidUntil.setFullYear(priceValidUntil.getFullYear() + 1);
+  const priceValidUntilString = priceValidUntil.toISOString().split('T')[0];
+  
   const schema = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
@@ -65,7 +70,7 @@ export const ProductSchema = ({
       url: productUrl,
       priceCurrency: currency,
       price: price.toString(),
-      priceValidUntil: '2025-12-31',
+      priceValidUntil: priceValidUntilString,
       availability: `https://schema.org/${availability}`,
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
