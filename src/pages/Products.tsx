@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+import { ItemListSchema } from '@/components/SEO/ItemListSchema';
 import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -75,6 +76,13 @@ export default function Products() {
           ...(selectedCategory ? [{ name: selectedCategory, url: `/products?category=${selectedCategory}` }] : []),
         ]}
       />
+      {products && products.length > 0 && (
+        <ItemListSchema
+          products={products}
+          listName={selectedCategory ? `منتجات ${selectedCategory}` : 'جميع منتجات سفن جرين'}
+          category={selectedCategory || undefined}
+        />
+      )}
       <div className="mb-8 space-y-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">منتجاتنا</h1>

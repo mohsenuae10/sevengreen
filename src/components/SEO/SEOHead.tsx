@@ -76,6 +76,7 @@ export const SEOHead = ({
           {availability && (
             <meta property="product:availability" content={availability} />
           )}
+          {modifiedTime && <meta property="og:updated_time" content={modifiedTime} />}
         </>
       )}
 
