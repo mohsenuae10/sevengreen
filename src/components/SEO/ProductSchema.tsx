@@ -22,6 +22,8 @@ interface ProductSchemaProps {
   shippingDays?: number;
   returnDays?: number;
   madeIn?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const ProductSchema = ({
@@ -46,6 +48,8 @@ export const ProductSchema = ({
   shippingDays = 3,
   returnDays = 14,
   madeIn,
+  createdAt,
+  updatedAt,
 }: ProductSchemaProps) => {
   const productUrl = `https://sevengreenstore.com/product/${slug || sku}`;
   
@@ -65,6 +69,9 @@ export const ProductSchema = ({
       '@type': 'Brand',
       name: brand,
     },
+    // SEO: Add publish and modification dates for freshness signals
+    ...(createdAt && { datePublished: createdAt }),
+    ...(updatedAt && { dateModified: updatedAt }),
     offers: {
       '@type': 'Offer',
       url: productUrl,
@@ -72,6 +79,7 @@ export const ProductSchema = ({
       price: price.toString(),
       priceValidUntil: priceValidUntilString,
       availability: `https://schema.org/${availability}`,
+      ...(createdAt && { availabilityStarts: createdAt }),
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',

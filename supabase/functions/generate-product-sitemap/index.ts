@@ -49,7 +49,8 @@ Deno.serve(async (req) => {
 
     products?.forEach((product) => {
       const productUrl = `https://sevengreenstore.com/product/${product.slug || product.id}`;
-      const lastmod = new Date(product.updated_at).toISOString().split('T')[0];
+      // Use full ISO timestamp for better precision
+      const lastmod = new Date(product.updated_at).toISOString();
       
       // Calculate priority based on price (higher price = higher priority, max 0.9)
       const priority = Math.min(0.9, 0.6 + (product.price / 500) * 0.3).toFixed(1);

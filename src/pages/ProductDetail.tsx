@@ -37,6 +37,7 @@ export default function ProductDetail() {
     queryKey: ['product', id],
     queryFn: async () => {
       let query;
+      let redirectChecked = false;
       
       // التحقق إذا كان id هو UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '');
@@ -48,11 +49,33 @@ export default function ProductDetail() {
           .select('*')
           .eq('id', id);
       } else {
-        // جلب بواسطة Slug (الروابط الجديدة)
-        query = supabase
-          .from('products')
-          .select('*')
-          .eq('slug', id);
+        // التحقق من الـ redirects أولاً
+        const { data: redirect } = await supabase
+          .from('url_redirects')
+          .select('new_slug, product_id')
+          .eq('old_slug', id)
+          .maybeSingle();
+        
+        if (redirect) {
+          // تحديث عداد الاستخدام
+          await supabase
+            .from('url_redirects')
+            .update({ last_used_at: new Date().toISOString() })
+            .eq('old_slug', id);
+          
+          // جلب المنتج من الـ slug الجديد
+          query = supabase
+            .from('products')
+            .select('*')
+            .eq('slug', redirect.new_slug);
+          redirectChecked = true;
+        } else {
+          // جلب بواسطة Slug (الروابط الجديدة)
+          query = supabase
+            .from('products')
+            .select('*')
+            .eq('slug', id);
+        }
       }
       
       const { data: productData, error: productError } = await query.maybeSingle();
@@ -216,6 +239,8 @@ export default function ProductDetail() {
         madeIn={product.made_in}
         shippingDays={3}
         returnDays={14}
+        createdAt={product.created_at}
+        updatedAt={product.updated_at}
       />
       <FAQSchema faqs={productFAQs} />
       <BreadcrumbSchema
