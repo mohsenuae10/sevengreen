@@ -63,8 +63,8 @@ export default function Products() {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={selectedCategory ? `${selectedCategory} - منتجات سفن جرين` : 'جميع المنتجات - متجر سفن جرين'}
-        description={selectedCategory ? `تصفح جميع منتجات ${selectedCategory} الطبيعية 100% من سفن جرين. أفضل منتجات العناية الطبيعية في السعودية مع توصيل سريع.` : 'تصفح جميع منتجات العناية الطبيعية من سفن جرين. بار شامبو طبيعي، سيروم فيتامين سي، ومنتجات عضوية 100% مع شحن مجاني داخل السعودية.'}
+        title={selectedCategory ? `${selectedCategory} - سفن جرين` : 'جميع المنتجات - سفن جرين'}
+        description={selectedCategory ? `منتجات ${selectedCategory} طبيعية 100%. أفضل العناية الطبيعية في السعودية مع توصيل سريع.` : 'منتجات عناية طبيعية. بار شامبو، سيروم فيتامين سي، عضوية 100%. شحن مجاني داخل السعودية.'}
         keywords={selectedCategory ? `${selectedCategory}, منتجات طبيعية, سفن جرين, منتجات عضوية السعودية` : 'منتجات طبيعية, بار شامبو, سيروم فيتامين سي, العناية بالبشرة, العناية بالشعر, سفن جرين, منتجات عضوية السعودية'}
         type="website"
         url={canonicalUrl}

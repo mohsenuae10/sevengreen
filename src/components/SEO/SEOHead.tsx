@@ -27,7 +27,15 @@ export const SEOHead = ({
   publishedTime,
   modifiedTime,
 }: SEOHeadProps) => {
-  const fullTitle = `${title} | متجر سفن جرين`;
+  // Optimize title (max 60 chars)
+  const optimizedTitle = title.length > 55 ? title.substring(0, 52) + '...' : title;
+  const fullTitle = `${optimizedTitle} | متجر سفن جرين`;
+  
+  // Optimize description (max 160 chars)
+  const optimizedDescription = description.length > 160 
+    ? description.substring(0, 157) + '...'
+    : description;
+  
   const currentUrl = url ? `https://sevengreenstore.com${url}` : `https://sevengreenstore.com${window.location.pathname}`;
 
   return (
@@ -35,7 +43,7 @@ export const SEOHead = ({
       {/* Primary Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
-      <meta name="description" content={description} />
+      <meta name="description" content={optimizedDescription} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="application-name" content="متجر سفن جرين" />
       <meta name="author" content="متجر سفن جرين" />
@@ -43,13 +51,19 @@ export const SEOHead = ({
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="googlebot" content="index, follow" />
       <meta httpEquiv="content-language" content="ar-SA" />
+      <meta name="language" content="Arabic" />
+      
+      {/* Canonical & Alternate Languages */}
       <link rel="canonical" href={currentUrl} />
+      <link rel="alternate" hrefLang="ar" href={currentUrl} />
+      <link rel="alternate" hrefLang="ar-SA" href={currentUrl} />
+      <link rel="alternate" hrefLang="x-default" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:url" content={currentUrl} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      <meta property="og:description" content={optimizedDescription} />
       <meta property="og:image" content={image} />
       <meta property="og:image:secure_url" content={image} />
       <meta property="og:image:type" content="image/jpeg" />
@@ -84,7 +98,7 @@ export const SEOHead = ({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={currentUrl} />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      <meta name="twitter:description" content={optimizedDescription} />
       <meta name="twitter:image" content={image} />
       <meta name="twitter:image:alt" content={title} />
       <meta name="twitter:domain" content="sevengreenstore.com" />

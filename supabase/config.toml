@@ -39,5 +39,8 @@ verify_jwt = false
 [functions.generate-product-sitemap]
 verify_jwt = false
 
+[functions.migrate-product-images]
+verify_jwt = false
+
 [functions.update-product-slugs]
 verify_jwt = false
