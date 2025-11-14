@@ -426,6 +426,44 @@ export type Database = {
         }
         Relationships: []
       }
+      url_redirects: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_used_at: string | null
+          new_slug: string
+          old_slug: string
+          product_id: string | null
+          redirect_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          new_slug: string
+          old_slug: string
+          product_id?: string | null
+          redirect_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          new_slug?: string
+          old_slug?: string
+          product_id?: string | null
+          redirect_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "url_redirects_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -453,10 +491,7 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
-      generate_slug: {
-        Args: { text_input: string }
-        Returns: string
-      }
+      generate_slug: { Args: { text_input: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
