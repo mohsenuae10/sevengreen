@@ -22,32 +22,52 @@ serve(async (req) => {
     }
 
     // Build the prompt based on user's detailed description
-    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for an Arabic e-commerce store called "لمسة الجمال | Lamset Beauty" (natural cosmetics).
+    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for "لمسة الجمال | Lamset Beauty" - a premium Arabic natural cosmetics e-commerce store.
+
+BRAND IDENTITY (STRICTLY FOLLOW):
+- Primary Color: Elegant Mauve #B04D8C (sophisticated purple-pink)
+- Accent Color: Creamy Gold #EAD5BA (warm luxury)
+- Secondary: Soft Mauve #F5F0F3 (delicate background)
+- Brand Style: Modern elegance meets natural beauty
+- Mood: Sophisticated, feminine, luxurious
 
 Banner Description (follow this exactly): ${bannerDescription}
 
-Design requirements:
-- Size: 1536x512 pixels (wide banner format - landscape orientation)
-- The banner MUST be 1536 pixels wide and 512 pixels tall
-- DO NOT include any text, words, numbers, or letters in the image
+STRICT Design Requirements:
+- Dimensions: 1536x512 pixels (WIDE banner format - landscape orientation)
+- The banner MUST be exactly 1536 pixels wide and 512 pixels tall
+- Color Palette: 
+  * Primary: Mauve tones (#B04D8C, #CC80B3, #7A3359)
+  * Accent: Creamy gold (#EAD5BA)
+  * Background: Soft mauve gradients (#F5F0F3 to #EDE5EA)
+- Use gradient effects: light to dark mauve transitions
+- NO text, words, numbers, or letters in the image
 - NO TEXT AT ALL - only visual elements, colors, and graphics
-- Leave space in the design for text to be added later programmatically
-- Professional, clean, and attractive design
-- High contrast for readability
-- Modern, elegant aesthetic matching a natural cosmetics brand
-- Ultra high resolution`;
+- Leave strategic space for text overlay (usually center or left/right thirds)
+- Professional, elegant, luxury design
+- High contrast between elements for visual impact
+- Include subtle botanical elements in purple/lavender tones if relevant
+- Modern, sophisticated aesthetic matching a premium cosmetics brand
+- Ultra high resolution with sharp details`;
 
     if (productInfo) {
-      prompt += `\n\nProduct to feature (if relevant to description): ${productInfo.name}
-Use natural, organic color schemes that complement the product.`;
+      prompt += `\n\nProduct to Feature: ${productInfo.name}
+  
+Product Integration:
+- Integrate product naturally into the mauve/gold color scheme
+- Maintain elegant, sophisticated presentation
+- Ensure product stands out against mauve gradient background
+- Use gold accents to highlight premium quality`;
     }
 
-    prompt += `\n\nIMPORTANT: 
-- Follow the user's description precisely
-- Maintain aspect ratio: WIDE banner (1536x512)
-- DO NOT add any text, numbers, or Arabic/English letters to the image
-- The image should be a clean background/design ready for text overlay
-- Make it visually stunning and professional`;
+    prompt += `\n\nCRITICAL REQUIREMENTS:
+- Follow the user's description precisely while maintaining brand colors
+- Aspect ratio: WIDE banner (1536x512) - horizontal format only
+- DO NOT add any text, numbers, Arabic/English letters, or symbols
+- Background should feature mauve gradients with gold/cream accents
+- The image should be a clean, elegant design ready for text overlay
+- Make it visually stunning, luxurious, and professionally sophisticated
+- Any natural elements (flowers, plants) MUST be in purple/lavender/mauve tones to match brand identity`;
 
     console.log('AI Prompt:', prompt);
 

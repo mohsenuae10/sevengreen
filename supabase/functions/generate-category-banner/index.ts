@@ -20,7 +20,24 @@ serve(async (req) => {
     }
 
     // Step 1: Analyze existing categories to extract visual identity
-    const analysisPrompt = `Analyze the visual identity of a natural cosmetics store based on existing categories:
+    const analysisPrompt = `Analyze the visual identity of "لمسة الجمال | Lamset Beauty" - a premium Arabic natural cosmetics store with a sophisticated modern aesthetic.
+
+Brand Identity:
+- Primary Color: Elegant Mauve (#B04D8C) - A sophisticated purple-pink tone
+- Accent Color: Creamy Gold (#EAD5BA) - Warm, luxurious complement
+- Secondary: Soft Mauve (#F5F0F3) - Delicate, feminine background
+- Style: Modern elegance meets natural beauty
+- Mood: Sophisticated, feminine, luxurious yet approachable
+
+Visual Characteristics:
+- Gradient effects from light to dark mauve tones
+- Gold/cream accents for luxury touch
+- Clean, minimalist compositions
+- Natural botanical elements in mauve/purple tones (lavender, purple flowers)
+- Soft lighting with a dreamy, elegant atmosphere
+- Professional photography with a premium feel
+
+Existing Categories:
 - العناية بالشعر (Hair Care)
 - العناية بالبشرة (Skincare)
 - الصحة والعافية (Wellness)
@@ -28,8 +45,7 @@ serve(async (req) => {
 - العناية بالرجال (Men's Care)
 - الهدايا والمجموعات (Gifts & Sets)
 
-The store focuses on natural, organic products with a clean, wellness-focused aesthetic.
-Describe the visual style, color palette, and key elements that should be present in category banners.`;
+Describe how to maintain visual consistency while representing the new category.`;
 
     const analysisResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -55,27 +71,35 @@ Describe the visual style, color palette, and key elements that should be presen
     const visualIdentity = analysisData.choices[0].message.content;
 
     // Step 2: Generate intelligent prompt for image generation
-    const imagePrompt = `Create a professional, clean banner image for a natural cosmetics store category.
+    const imagePrompt = `Create a professional, elegant banner image for "لمسة الجمال | Lamset Beauty" - a premium natural cosmetics store.
 
-Visual Identity Guidelines:
+Visual Identity Guidelines (MUST FOLLOW):
 ${visualIdentity}
 
 New Category Details:
 - Name: ${categoryName}
 - Description: ${categoryDescription}
 
-Requirements:
+STRICT Design Requirements:
 - Dimensions: 1920x640 pixels (landscape banner format)
-- Style: Natural, organic, wellness-focused
-- Color palette: Soft greens, whites, beige, natural earth tones
-- Include subtle botanical elements (leaves, plants, natural textures)
-- Professional photography style with natural lighting
-- Clean, minimalist composition
-- NO text, logos, or written content
-- High quality, suitable for e-commerce
-- Match the aesthetic of a premium natural cosmetics brand
+- Primary Colors: Mauve/Purple tones (#B04D8C, #CC80B3, #7A3359)
+- Accent Colors: Creamy Gold (#EAD5BA), Soft Mauve (#F5F0F3)
+- Use gradient effects: light to dark mauve transitions
+- Include elegant botanical elements in purple/mauve tones (lavender, purple flowers, soft petals)
+- Lighting: Soft, dreamy, with a sophisticated atmosphere
+- Style: Modern luxury meets natural elegance
+- Composition: Clean, minimalist, premium aesthetic
+- NO text, logos, or written content whatsoever
+- High quality professional photography style
+- Match the sophisticated, feminine luxury brand aesthetic
 
-The image should feel calming, natural, and premium while clearly representing the ${categoryName} category.`;
+The image should evoke:
+✨ Elegance and sophistication
+💜 Feminine luxury in mauve tones
+🌸 Natural beauty with purple/lavender botanicals
+✨ Premium, high-end cosmetics brand
+
+Background should feature mauve gradients with gold accents. Any natural elements (flowers, leaves) should be in complementary purple/lavender tones.`;
 
     // Step 3: Generate the image
     const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
