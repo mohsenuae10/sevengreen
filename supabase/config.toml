@@ -44,3 +44,9 @@ verify_jwt = false
 
 [functions.update-product-slugs]
 verify_jwt = false
+
+[functions.enrich-product-content]
+verify_jwt = false
+
+[functions.update-sitemap-daily]
+verify_jwt = false

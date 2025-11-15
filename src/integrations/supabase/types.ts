@@ -217,11 +217,14 @@ export type Database = {
           category: string
           created_at: string | null
           description_ar: string | null
+          faqs: Json | null
           how_to_use_ar: string | null
           id: string
           image_url: string | null
           ingredients_ar: string | null
           is_active: boolean | null
+          key_features: Json | null
+          long_description_ar: string | null
           made_in: string | null
           name_ar: string
           price: number
@@ -233,17 +236,21 @@ export type Database = {
           stock_quantity: number
           updated_at: string | null
           warnings_ar: string | null
+          why_choose: Json | null
         }
         Insert: {
           benefits_ar?: string | null
           category: string
           created_at?: string | null
           description_ar?: string | null
+          faqs?: Json | null
           how_to_use_ar?: string | null
           id?: string
           image_url?: string | null
           ingredients_ar?: string | null
           is_active?: boolean | null
+          key_features?: Json | null
+          long_description_ar?: string | null
           made_in?: string | null
           name_ar: string
           price: number
@@ -255,17 +262,21 @@ export type Database = {
           stock_quantity?: number
           updated_at?: string | null
           warnings_ar?: string | null
+          why_choose?: Json | null
         }
         Update: {
           benefits_ar?: string | null
           category?: string
           created_at?: string | null
           description_ar?: string | null
+          faqs?: Json | null
           how_to_use_ar?: string | null
           id?: string
           image_url?: string | null
           ingredients_ar?: string | null
           is_active?: boolean | null
+          key_features?: Json | null
+          long_description_ar?: string | null
           made_in?: string | null
           name_ar?: string
           price?: number
@@ -277,6 +288,7 @@ export type Database = {
           stock_quantity?: number
           updated_at?: string | null
           warnings_ar?: string | null
+          why_choose?: Json | null
         }
         Relationships: []
       }
@@ -371,6 +383,56 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          helpful_count: number | null
+          id: string
+          is_approved: boolean | null
+          is_verified: boolean | null
+          product_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          helpful_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          is_verified?: boolean | null
+          product_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          helpful_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          is_verified?: boolean | null
+          product_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
@@ -492,6 +554,13 @@ export type Database = {
         Returns: undefined
       }
       generate_slug: { Args: { text_input: string }; Returns: string }
+      get_product_rating: {
+        Args: { product_uuid: string }
+        Returns: {
+          average_rating: number
+          review_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
