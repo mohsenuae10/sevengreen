@@ -129,7 +129,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       <CardContent className="p-3 md:p-4 flex-1 flex flex-col justify-between gap-2">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-xs md:text-sm text-center hover:text-primary transition-all duration-300 line-clamp-2 min-h-[2.5rem] leading-tight flex items-center justify-center px-1 group-hover:scale-105">
+          <h3 className="font-bold text-xs md:text-sm text-center text-primary hover:text-primary/80 transition-all duration-300 line-clamp-2 min-h-[2.5rem] leading-tight flex items-center justify-center px-1 group-hover:scale-105">
             {name_ar}
           </h3>
         </Link>
