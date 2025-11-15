@@ -13,10 +13,10 @@ export default function ReturnPolicy() {
   return (
     <>
       <SEOHead
-        title="سياسة الإرجاع والاستبدال - Seven Green | سفن جرين"
-        description="سياسة الإرجاع والاستبدال لمنتجات Seven Green. تعرف على شروط وإجراءات إرجاع المنتجات واسترداد الأموال."
-        keywords="سياسة الإرجاع, الاستبدال, استرداد الأموال"
-        url="/return-policy"
+        title="سياسة الإرجاع والاستبدال - لمسة الجمال | Lamset Beauty"
+        description="سياسة الإرجاع والاستبدال لمنتجات لمسة الجمال. تعرف على شروط وإجراءات إرجاع المنتجات واسترداد الأموال."
+        keywords="سياسة الإرجاع, الاستبدال, استرداد الأموال, لمسة الجمال"
+        url="https://lamsetbeauty.com/return-policy"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />

@@ -13,10 +13,10 @@ export default function ShippingPolicy() {
   return (
     <>
       <SEOHead
-        title="سياسة الشحن والتوصيل - Seven Green | سفن جرين"
-        description="تعرف على سياسة الشحن والتوصيل في Seven Green، مدة التوصيل، تكاليف الشحن، ومناطق التغطية."
-        keywords="سياسة الشحن, التوصيل, مدة الشحن, تكلفة الشحن"
-        url="/shipping-policy"
+        title="سياسة الشحن والتوصيل - لمسة الجمال | Lamset Beauty"
+        description="تعرف على سياسة الشحن والتوصيل في لمسة الجمال، مدة التوصيل، تكاليف الشحن، ومناطق التغطية."
+        keywords="سياسة الشحن, التوصيل, مدة الشحن, تكلفة الشحن, لمسة الجمال"
+        url="https://lamsetbeauty.com/shipping-policy"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />

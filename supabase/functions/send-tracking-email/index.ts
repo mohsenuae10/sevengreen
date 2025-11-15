@@ -29,8 +29,8 @@ serve(async (req) => {
       .select("store_name, store_url")
       .single();
 
-    const storeName = settings?.store_name || "Seven Green";
-    const storeUrl = settings?.store_url || "https://sevengreenstore.com";
+    const storeName = settings?.store_name || "لمسة الجمال";
+    const storeUrl = settings?.store_url || "https://lamsetbeauty.com";
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -59,7 +59,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `Seven Green - سفن جرين <order@sevengreenstore.com>`,
+        from: `لمسة الجمال - Lamset Beauty <noreply@lamsetbeauty.com>`,
         to: [order.customer_email],
         subject: `🚚 شحنة في الطريق إليك! - رقم التتبع: ${tracking_number}`,
         html: `
@@ -68,36 +68,36 @@ serve(async (req) => {
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: 'Tajawal', Arial, sans-serif; }
+            body { font-family: 'Cairo', Arial, sans-serif; }
           </style>
         </head>
         <body style="margin: 0; padding: 20px; background-color: #f5f5f5;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #2d5016; margin: 0;">${storeName}</h1>
-              <p style="color: #d4a85c; margin: 5px 0;">
-                <a href="${storeUrl}" style="color: #d4a85c; text-decoration: none;">${storeUrl.replace('https://', '')}</a>
+              <h1 style="color: #996B99; margin: 0;">${storeName}</h1>
+              <p style="color: #C8A8D4; margin: 5px 0;">
+                <a href="${storeUrl}" style="color: #C8A8D4; text-decoration: none;">${storeUrl.replace('https://', '')}</a>
               </p>
             </div>
             
-            <h2 style="color: #2d5016;">تم شحن طلبك! 📦</h2>
+            <h2 style="color: #996B99;">تم شحن طلبك! 📦</h2>
             <p>عزيزي/عزيزتي ${order.customer_name}،</p>
             <p>نود إعلامك بأن طلبك قد تم شحنه وهو في طريقه إليك.</p>
             
-            <div style="background-color: #f0f7e9; padding: 20px; border-radius: 8px; margin: 25px 0; border-right: 4px solid #2d5016;">
-              <h3 style="color: #2d5016; margin-top: 0;">رقم التتبع</h3>
-              <p style="font-size: 24px; font-weight: bold; color: #2d5016; margin: 10px 0; letter-spacing: 1px;">
+            <div style="background-color: #FAF5FB; padding: 20px; border-radius: 8px; margin: 25px 0; border-right: 4px solid #996B99;">
+              <h3 style="color: #996B99; margin-top: 0;">رقم التتبع</h3>
+              <p style="font-size: 24px; font-weight: bold; color: #996B99; margin: 10px 0; letter-spacing: 1px;">
                 ${tracking_number}
               </p>
             </div>
 
             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #2d5016; margin-top: 0;">معلومات الطلب</h3>
+              <h3 style="color: #996B99; margin-top: 0;">معلومات الطلب</h3>
               <p><strong>رقم الطلب:</strong> ${order.order_number}</p>
               <p><strong>المبلغ الإجمالي:</strong> ${order.total_amount.toFixed(2)} ريال</p>
             </div>
 
-            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-right: 4px solid #d4a85c;">
+            <div style="background-color: #F9F3FA; padding: 15px; border-radius: 8px; margin: 20px 0; border-right: 4px solid #C8A8D4;">
               <p style="margin: 0;"><strong>ملاحظة:</strong> يمكنك استخدام رقم التتبع أعلاه لمتابعة حالة الشحنة مع شركة الشحن.</p>
             </div>
 

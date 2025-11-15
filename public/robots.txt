@@ -50,10 +50,10 @@ Disallow: /*.json$
 
 # Sitemaps
 # Dynamic sitemaps with current dates and real-time product data
-Sitemap: https://sevengreenstore.com/functions/v1/generate-sitemap
-Sitemap: https://sevengreenstore.com/functions/v1/generate-product-sitemap
+Sitemap: https://lamsetbeauty.com/functions/v1/generate-sitemap
+Sitemap: https://lamsetbeauty.com/functions/v1/generate-product-sitemap
 
 # Static fallback sitemaps
 # Note: Use dynamic sitemaps above for best SEO results
-# Sitemap: https://sevengreenstore.com/sitemap.xml
-# Sitemap: https://sevengreenstore.com/sitemap-products.xml
+# Sitemap: https://lamsetbeauty.com/sitemap.xml
+# Sitemap: https://lamsetbeauty.com/sitemap-products.xml
