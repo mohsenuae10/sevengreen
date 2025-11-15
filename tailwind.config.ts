@@ -110,12 +110,15 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
       },
       boxShadow: {
-        'soft': '0 4px 20px -4px hsl(100 28% 36% / 0.15)',
-        'card': '0 8px 30px -6px hsl(100 28% 36% / 0.2)',
+        'soft': '0 4px 20px -4px hsl(320 30% 50% / 0.15)',
+        'card': '0 8px 30px -6px hsl(320 30% 50% / 0.2)',
+        'luxury': '0 12px 40px -8px hsl(320 30% 50% / 0.25)',
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, hsl(100 28% 36%), hsl(100 35% 55%))',
-        'gradient-hero': 'linear-gradient(180deg, hsl(100 40% 97%), hsl(0 0% 100%))',
+        'gradient-primary': 'linear-gradient(135deg, hsl(320 35% 65%), hsl(320 30% 50%))',
+        'gradient-hero': 'linear-gradient(180deg, hsl(320 15% 98%), hsl(0 0% 100%))',
+        'gradient-soft': 'linear-gradient(135deg, hsl(320 35% 65%), hsl(320 40% 70%))',
+        'gradient-card': 'linear-gradient(135deg, hsl(320 15% 98%), hsl(320 10% 95%))',
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
