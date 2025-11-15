@@ -40,7 +40,7 @@ export const ProductSchema = ({
   sku,
   availability,
   category,
-  brand = 'متجر سفن جرين',
+  brand = 'لمسة الجمال',
   gtin,
   mpn,
   slug,
@@ -56,7 +56,7 @@ export const ProductSchema = ({
   updatedAt,
   aggregateRating,
 }: ProductSchemaProps) => {
-  const productUrl = `https://sevengreenstore.com/product/${slug || sku}`;
+  const productUrl = `https://lamsetbeauty.com/product/${slug || sku}`;
   
   // Generate dynamic priceValidUntil date (1 year from now)
   const priceValidUntil = new Date();
@@ -88,8 +88,8 @@ export const ProductSchema = ({
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',
-        name: 'متجر سفن جرين',
-        url: 'https://sevengreenstore.com',
+        name: 'لمسة الجمال',
+        url: 'https://lamsetbeauty.com',
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',

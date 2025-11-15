@@ -7,7 +7,7 @@
     This static file serves as a fallback. For the most up-to-date product sitemap
     with current dates and all active products, use the dynamic edge function:
     
-    https://sevengreenstore.com/functions/v1/generate-product-sitemap
+    https://lamsetbeauty.com/functions/v1/generate-product-sitemap
     
     The dynamic sitemap includes:
     - All active products with their slugs

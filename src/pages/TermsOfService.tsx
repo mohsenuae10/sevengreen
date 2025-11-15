@@ -39,7 +39,7 @@ export default function TermsOfService() {
                   <div>
                     <h2 className="text-2xl font-bold mb-3 text-primary">الموافقة على الشروط</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      باستخدام موقع Seven Green، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي جزء من هذه الشروط، فيرجى عدم استخدام موقعنا.
+                      باستخدام موقع لمسة الجمال، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي جزء من هذه الشروط، فيرجى عدم استخدام موقعنا.
                     </p>
                   </div>
 
@@ -73,7 +73,7 @@ export default function TermsOfService() {
                   <div>
                     <h2 className="text-2xl font-bold mb-3 text-primary">الملكية الفكرية</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      جميع المحتويات على هذا الموقع، بما في ذلك النصوص والصور والشعارات، هي ملك لـ Seven Green ومحمية بموجب قوانين حقوق النشر والملكية الفكرية.
+                      جميع المحتويات على هذا الموقع، بما في ذلك النصوص والصور والشعارات، هي ملك لـ لمسة الجمال ومحمية بموجب قوانين حقوق النشر والملكية الفكرية.
                     </p>
                   </div>
 
