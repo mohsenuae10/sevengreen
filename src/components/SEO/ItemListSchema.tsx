@@ -18,18 +18,18 @@ interface ItemListSchemaProps {
 
 export const ItemListSchema = ({
   products,
-  listName = 'منتجات سفن جرين',
+  listName = 'منتجات لمسة الجمال',
   category,
 }: ItemListSchemaProps) => {
-  const baseUrl = 'https://sevengreenstore.com';
+  const baseUrl = 'https://lamsetbeauty.com';
   
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: category ? `${category} - ${listName}` : listName,
     description: category 
-      ? `تسوق أفضل منتجات ${category} الطبيعية من سفن جرين`
-      : 'تسوق منتجات العناية الطبيعية من سفن جرين - شحن مجاني في السعودية',
+      ? `تسوق أفضل منتجات ${category} من لمسة الجمال`
+      : 'تسوق منتجات العناية الفاخرة من لمسة الجمال - شحن مجاني في السعودية',
     numberOfItems: products.length,
     itemListElement: products.map((product, index) => ({
       '@type': 'ListItem',

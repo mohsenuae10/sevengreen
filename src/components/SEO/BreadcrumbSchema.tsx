@@ -17,7 +17,7 @@ export const BreadcrumbSchema = ({ items }: BreadcrumbSchemaProps) => {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `https://sevengreenstore.com${item.url}`,
+      item: `https://lamsetbeauty.com${item.url}`,
     })),
   };
 
