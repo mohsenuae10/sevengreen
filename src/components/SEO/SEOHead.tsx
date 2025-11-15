@@ -18,7 +18,7 @@ export const SEOHead = ({
   title,
   description,
   keywords,
-  image = 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/social-images/social-1760543856406-d145a275-c3fb-4f7c-b8e7-6a240c841ffc.jpeg',
+  image = 'https://lamsetbeauty.com/logo.png',
   url,
   type = 'website',
   price,
