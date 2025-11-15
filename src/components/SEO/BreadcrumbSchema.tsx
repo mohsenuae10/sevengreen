@@ -17,7 +17,8 @@ export const BreadcrumbSchema = ({ items }: BreadcrumbSchemaProps) => {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `https://lamsetbeauty.com${item.url}`,
+      // Decode Arabic URLs properly for SEO
+      item: `https://lamsetbeauty.com${decodeURIComponent(item.url)}`,
     })),
   };
 
