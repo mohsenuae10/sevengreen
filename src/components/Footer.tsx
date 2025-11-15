@@ -41,10 +41,10 @@ export const Footer = () => {
           <div className="space-y-4">
             <div>
               <h3 className="text-xl font-bold text-primary mb-2">
-                {settings?.store_name || 'Seven Green'}
+                {settings?.store_name || 'لمسة الجمال'}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                متجرك المتخصص في منتجات العناية الطبيعية - صوابين، شامبو، ومنتجات التجميل الطبيعية 100%
+                متجرك المتخصص في منتجات الجمال والعناية الفاخرة - مستحضرات تجميل أصلية ومنتجات عناية مميزة 100%
               </p>
             </div>
             

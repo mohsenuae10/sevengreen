@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Leaf, Menu } from 'lucide-react';
+import { ShoppingCart, Sparkles, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Badge } from './ui/badge';
@@ -159,10 +159,10 @@ export const Header = () => {
 
           {/* Logo in Center */}
           <Link to="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-            <Leaf className="h-8 w-8 text-primary" />
+            <Sparkles className="h-8 w-8 text-primary" />
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-primary">Seven Green</span>
-              <span className="text-xs text-muted-foreground font-medium">سفن جرين</span>
+              <span className="text-xl font-bold text-primary">لمسة الجمال</span>
+              <span className="text-xs text-muted-foreground font-medium">Lamset Beauty</span>
             </div>
           </Link>
 

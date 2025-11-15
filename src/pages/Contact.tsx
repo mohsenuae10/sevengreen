@@ -95,9 +95,9 @@ export default function Contact() {
   return (
     <>
       <SEOHead
-        title="اتصل بنا - Seven Green | سفن جرين"
-        description="تواصل مع فريق Seven Green. نحن هنا للإجابة على استفساراتك حول منتجاتنا الطبيعية والإجابة على جميع أسئلتك."
-        keywords="اتصل بنا, تواصل معنا, خدمة العملاء, سفن جرين"
+        title="اتصل بنا - لمسة الجمال | Lamset Beauty"
+        description="تواصلي مع فريق لمسة الجمال. نحن هنا للإجابة على استفساراتك حول منتجاتنا والإجابة على جميع أسئلتك."
+        keywords="اتصل بنا, تواصل معنا, خدمة العملاء, لمسة الجمال"
         url="/contact"
         type="website"
       />

@@ -1,9 +1,9 @@
 /* TEAM */
-متجر سفن جرين - Seven Green Store
+لمسة الجمال - Lamset Beauty
 المملكة العربية السعودية
 
 /* SITE */
-Last update: 2025/11/11
+Last update: 2025/11/15
 Language: العربية / Arabic
 Standards: HTML5, CSS3, JavaScript
 Components: React, TypeScript, Vite

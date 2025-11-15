@@ -53,19 +53,19 @@ export default function Products() {
     : 'جميع المنتجات';
   
   const seoDescription = selectedCategory
-    ? `تصفح مجموعة ${selectedCategory} من سفن جرين - منتجات طبيعية 100% للعناية بالشعر والجسم`
-    : 'تصفح جميع منتجات سفن جرين الطبيعية - شامبو صلب، صابون، ومنتجات العناية الطبيعية';
+    ? `تصفح مجموعة ${selectedCategory} من لمسة الجمال - منتجات فاخرة للعناية بالبشرة والشعر`
+    : 'تصفح جميع منتجات لمسة الجمال الفاخرة - مستحضرات تجميل ومنتجات العناية الأصلية';
 
   const canonicalUrl = selectedCategory 
-    ? `https://sevengreenstore.com/products?category=${encodeURIComponent(selectedCategory)}`
-    : 'https://sevengreenstore.com/products';
+    ? `https://lamsetbeauty.com/products?category=${encodeURIComponent(selectedCategory)}`
+    : 'https://lamsetbeauty.com/products';
 
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={selectedCategory ? `${selectedCategory} - سفن جرين` : 'جميع المنتجات - سفن جرين'}
-        description={selectedCategory ? `منتجات ${selectedCategory} طبيعية 100%. أفضل العناية الطبيعية في السعودية مع توصيل سريع.` : 'منتجات عناية طبيعية. بار شامبو، سيروم فيتامين سي، عضوية 100%. شحن مجاني داخل السعودية.'}
-        keywords={selectedCategory ? `${selectedCategory}, منتجات طبيعية, سفن جرين, منتجات عضوية السعودية` : 'منتجات طبيعية, بار شامبو, سيروم فيتامين سي, العناية بالبشرة, العناية بالشعر, سفن جرين, منتجات عضوية السعودية'}
+        title={selectedCategory ? `${selectedCategory} - لمسة الجمال` : 'جميع المنتجات - لمسة الجمال'}
+        description={selectedCategory ? `منتجات ${selectedCategory} فاخرة 100%. أفضل العناية في السعودية مع توصيل سريع.` : 'منتجات جمال فاخرة. مستحضرات تجميل أصلية، عناية بالبشرة والشعر. شحن مجاني داخل السعودية.'}
+        keywords={selectedCategory ? `${selectedCategory}, منتجات جمال, لمسة الجمال, مستحضرات تجميل السعودية` : 'منتجات جمال, مستحضرات تجميل, عناية بالبشرة, عناية بالشعر, لمسة الجمال, السعودية'}
         type="website"
         url={canonicalUrl}
       />
@@ -79,7 +79,7 @@ export default function Products() {
       {products && products.length > 0 && (
         <ItemListSchema
           products={products}
-          listName={selectedCategory ? `منتجات ${selectedCategory}` : 'جميع منتجات سفن جرين'}
+          listName={selectedCategory ? `منتجات ${selectedCategory}` : 'جميع منتجات لمسة الجمال'}
           category={selectedCategory || undefined}
         />
       )}

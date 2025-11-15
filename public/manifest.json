@@ -1,12 +1,12 @@
 {
-  "name": "متجر سفن جرين - Seven Green Store",
-  "short_name": "سفن جرين",
-  "description": "متجر سفن جرين - أفضل منتجات العناية الطبيعية للشعر والبشرة في السعودية",
+  "name": "لمسة الجمال - Lamset Beauty",
+  "short_name": "لمسة الجمال",
+  "description": "لمسة الجمال - متجرك المتخصص في منتجات الجمال والعناية الفاخرة في السعودية",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#16a34a",
+  "theme_color": "#E95C89",
   "background_color": "#ffffff",
   "orientation": "portrait",
   "icons": [

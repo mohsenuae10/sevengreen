@@ -12,15 +12,15 @@ export const CTASection = () => {
         <div className="max-w-3xl mx-auto text-center text-white space-y-8 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
             <Sparkles className="h-5 w-5 text-accent" />
-            <span className="font-medium">ابدأ رحلتك مع Seven Green</span>
+            <span className="font-medium">ابدأ رحلتك مع لمسة الجمال</span>
           </div>
           
           <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-            جاهز لتجربة العناية الطبيعية؟
+            جاهزة لتجربة الجمال الفاخر؟
           </h2>
           
           <p className="text-xl text-white/90 leading-relaxed">
-            انضم إلى آلاف العملاء السعداء واكتشف جمال المنتجات الطبيعية
+            انضمي إلى آلاف العملاء السعداء واكتشفي سر الجمال الدائم
           </p>
           
           <div className="flex flex-wrap gap-4 justify-center pt-4">

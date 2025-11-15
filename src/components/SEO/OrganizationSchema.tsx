@@ -11,9 +11,9 @@ interface OrganizationSchemaProps {
 }
 
 export const OrganizationSchema = ({
-  name = 'متجر سفن جرين',
+  name = 'لمسة الجمال',
   logo = 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/uploads/1760543849788-IMG_1206.jpeg',
-  url = 'https://sevengreenstore.com',
+  url = 'https://lamsetbeauty.com',
   email,
   phone,
   facebook,
@@ -23,7 +23,7 @@ export const OrganizationSchema = ({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name,
-    alternateName: 'Seven Green Store',
+    alternateName: 'Lamset Beauty',
     url,
     logo,
     ...(email && { email }),
