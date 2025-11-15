@@ -210,7 +210,13 @@ export default function ProductDetail() {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={product.seo_title || product.name_ar}
+        title={
+          product.seo_title 
+            ? product.seo_title.length > 60 
+              ? `${product.name_ar} | لمسة الجمال` 
+              : product.seo_title
+            : `${product.name_ar} | لمسة الجمال`
+        }
         description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة الجمال - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
         keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة الجمال, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}

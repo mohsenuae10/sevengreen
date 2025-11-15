@@ -49,10 +49,8 @@ Disallow: /order-success/
 Disallow: /*.json$
 
 # Sitemaps
-# Dynamic sitemaps with current dates and real-time product data
-# Using direct Supabase Function URLs for reliable access
-Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-sitemap
-Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
+# Dynamic sitemaps served from the site domain
+Sitemap: https://lamsetbeauty.com/sitemap.xml
+Sitemap: https://lamsetbeauty.com/sitemap-products.xml
 
-# Note: Once custom domain is connected, these URLs will still work
-# Sitemaps are automatically cached and updated daily
+# Sitemaps are automatically generated from database and cached
