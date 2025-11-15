@@ -231,7 +231,7 @@ export default function ProductDetail() {
         currency="SAR"
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
-        category={product.category}
+        category={product.category_ar || product.category}
         brand="لمسة الجمال"
         gtin={product.gtin}
         mpn={product.mpn}
@@ -257,7 +257,7 @@ export default function ProductDetail() {
         items={[
           { name: 'الرئيسية', url: '/' },
           { name: 'المنتجات', url: '/products' },
-          { name: product.category, url: `/products?category=${product.category}` },
+          { name: product.category_ar || product.category, url: `/products?category=${product.category}` },
           { name: product.name_ar, url: productUrl },
         ]}
       />

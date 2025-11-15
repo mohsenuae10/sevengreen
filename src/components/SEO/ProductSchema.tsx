@@ -56,7 +56,8 @@ export const ProductSchema = ({
   updatedAt,
   aggregateRating,
 }: ProductSchemaProps) => {
-  const productUrl = `https://lamsetbeauty.com/product/${slug || sku}`;
+  // Decode URL properly for Arabic slugs
+  const productUrl = `https://lamsetbeauty.com/product/${slug ? decodeURIComponent(slug) : sku}`;
   
   // Generate dynamic priceValidUntil date (1 year from now)
   const priceValidUntil = new Date();
@@ -135,11 +136,11 @@ export const ProductSchema = ({
     ...(color && { color }),
     ...(material && { material }),
     ...(madeIn && { countryOfOrigin: madeIn }),
-    // SEO: Add aggregate rating if available for rich snippets
+    // SEO: Add aggregate rating with proper validation for rich snippets
     ...(aggregateRating && aggregateRating.reviewCount > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
-        ratingValue: aggregateRating.ratingValue.toString(),
+        ratingValue: Number(aggregateRating.ratingValue).toFixed(1),
         reviewCount: aggregateRating.reviewCount.toString(),
         bestRating: '5',
         worstRating: '1',
@@ -152,16 +153,6 @@ export const ProductSchema = ({
           '@type': 'QuantitativeValue',
           value: warranty,
         },
-      },
-    }),
-    // Add aggregate rating if reviews exist
-    ...(aggregateRating && aggregateRating.reviewCount > 0 && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: aggregateRating.ratingValue.toString(),
-        reviewCount: aggregateRating.reviewCount.toString(),
-        bestRating: '5',
-        worstRating: '1',
       },
     }),
     audience: {

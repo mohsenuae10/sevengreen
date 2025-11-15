@@ -215,6 +215,7 @@ export type Database = {
         Row: {
           benefits_ar: string | null
           category: string
+          category_ar: string | null
           created_at: string | null
           description_ar: string | null
           faqs: Json | null
@@ -243,6 +244,7 @@ export type Database = {
         Insert: {
           benefits_ar?: string | null
           category: string
+          category_ar?: string | null
           created_at?: string | null
           description_ar?: string | null
           faqs?: Json | null
@@ -271,6 +273,7 @@ export type Database = {
         Update: {
           benefits_ar?: string | null
           category?: string
+          category_ar?: string | null
           created_at?: string | null
           description_ar?: string | null
           faqs?: Json | null
