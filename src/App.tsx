@@ -7,6 +7,8 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
+import { SplashScreen } from '@/components/SplashScreen';
+import { useState, useEffect } from 'react';
 import Home from '@/pages/Home';
 import Products from '@/pages/Products';
 import ProductDetail from '@/pages/ProductDetail';
@@ -47,8 +49,28 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [hasShownSplash, setHasShownSplash] = useState(false);
+
+  useEffect(() => {
+    // Check if splash was already shown in this session
+    const splashShown = sessionStorage.getItem('splashShown');
+    if (splashShown) {
+      setShowSplash(false);
+      setHasShownSplash(true);
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    setHasShownSplash(true);
+    // Mark splash as shown for this session
+    sessionStorage.setItem('splashShown', 'true');
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
+      {showSplash && !hasShownSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <BrowserRouter>
         <AdminAuthProvider>
           <CartProvider>
