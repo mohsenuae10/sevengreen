@@ -160,7 +160,7 @@ export const Header = () => {
 
           {/* Logo in Center */}
           <Link to="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
-            <img src={logo} alt="لمسة الجمال | Lamset Beauty" className="h-12 w-12 object-contain" />
+            <img src={logo} alt="لمسة الجمال | Lamset Beauty" className="h-16 w-16 object-contain" />
             <div className="flex flex-col">
               <span className="text-xl font-bold text-primary">لمسة الجمال</span>
               <span className="text-xs text-muted-foreground font-medium">Lamset Beauty</span>
