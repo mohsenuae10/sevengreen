@@ -290,7 +290,7 @@ export default function ProductDetail() {
             </Badge>
             
             {/* Product Name */}
-            <h1 className="text-3xl md:text-4xl font-bold" itemProp="name">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary" itemProp="name">
               {product.name_ar}
             </h1>
             
