@@ -2,34 +2,34 @@ import { Leaf, Sparkles, Heart, Truck, Shield, HeartHandshake } from 'lucide-rea
 
 const features = [
   {
-    icon: Leaf,
-    title: 'طبيعي 100%',
-    description: 'جميع منتجاتنا طبيعية وآمنة للاستخدام اليومي',
-    color: 'from-green-500 to-emerald-600',
-  },
-  {
     icon: Sparkles,
-    title: 'جودة عالية',
-    description: 'منتجات مختارة بعناية لضمان أفضل النتائج',
-    color: 'from-amber-500 to-yellow-600',
+    title: 'منتجات فاخرة',
+    description: 'مستحضرات تجميل عالية الجودة من أفضل العلامات التجارية',
+    color: 'from-pink-500 to-rose-600',
   },
   {
-    icon: Heart,
-    title: 'عناية فائقة',
-    description: 'نهتم براحتك ورضاك عن منتجاتنا',
-    color: 'from-rose-500 to-pink-600',
+    icon: Shield,
+    title: 'منتجات أصلية 100%',
+    description: 'ضمان الأصالة لجميع منتجاتنا',
+    color: 'from-purple-500 to-violet-600',
   },
   {
     icon: Truck,
     title: 'شحن سريع',
-    description: 'توصيل سريع وآمن لجميع المحافظات',
+    description: 'توصيل سريع لجميع مدن المملكة',
     color: 'from-blue-500 to-cyan-600',
   },
   {
-    icon: Shield,
-    title: 'ضمان الجودة',
-    description: 'منتجات أصلية ومضمونة 100%',
-    color: 'from-purple-500 to-violet-600',
+    icon: Heart,
+    title: 'عناية شخصية',
+    description: 'استشارات مجانية لاختيار المنتج المناسب',
+    color: 'from-rose-500 to-pink-600',
+  },
+  {
+    icon: Leaf,
+    title: 'مكونات طبيعية',
+    description: 'منتجات بمكونات طبيعية وآمنة للاستخدام اليومي',
+    color: 'from-emerald-500 to-green-600',
   },
   {
     icon: HeartHandshake,
@@ -45,10 +45,10 @@ export const FeaturesSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-            لماذا تختار Seven Green؟
+            لماذا تختار لمسة الجمال؟
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            نقدم لك أفضل تجربة تسوق مع منتجات طبيعية عالية الجودة
+            نقدم لك أفضل تجربة تسوق مع منتجات جمال فاخرة عالية الجودة
           </p>
         </div>
 

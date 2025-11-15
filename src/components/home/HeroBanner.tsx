@@ -27,14 +27,14 @@ export const HeroBanner = ({ product }: HeroBannerProps) => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              Seven Green
-              <span className="block text-accent mt-2">سفن جرين</span>
+              لمسة الجمال
+              <span className="block text-accent mt-2">Lamset Beauty</span>
             </h1>
             
             <p className="text-lg md:text-xl text-white/90 leading-relaxed">
-              اكتشف عالم العناية الطبيعية مع منتجاتنا المميزة
+              اكتشفي سر الجمال الطبيعي مع منتجاتنا المميزة
               <br />
-              صوابين، شامبو، ومنتجات تجميل طبيعية 100%
+              عناية فاخرة للبشرة والشعر، جمال يدوم
             </p>
             
             {product && (
