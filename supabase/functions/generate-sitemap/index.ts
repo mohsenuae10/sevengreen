@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       .select('store_url')
       .single();
 
-    const baseUrl = settings?.store_url || 'https://sevengreenstore.com';
+    const baseUrl = settings?.store_url || 'https://lamsetbeauty.com';
     const now = new Date().toISOString();
 
     // Define static pages with their priorities and change frequencies

@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">`;
 
     products?.forEach((product) => {
-      const productUrl = `https://sevengreenstore.com/product/${product.slug || product.id}`;
+      const productUrl = `https://lamsetbeauty.com/product/${product.slug || product.id}`;
       // Use full ISO timestamp for better precision
       const lastmod = new Date(product.updated_at).toISOString();
       
@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     <image:image>
       <image:loc>${product.image_url}</image:loc>
       <image:title>${product.name_ar}</image:title>
-      <image:caption>منتج ${product.name_ar} من سفن جرين</image:caption>
+            <image:caption>منتج ${product.name_ar} من لمسة الجمال</image:caption>
     </image:image>`;
       }
 
@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
     <image:image>
       <image:loc>${img.image_url}</image:loc>
       <image:title>${product.name_ar}</image:title>
-      <image:caption>منتج ${product.name_ar} من سفن جرين</image:caption>
+      <image:caption>منتج ${product.name_ar} من لمسة الجمال</image:caption>
     </image:image>`;
           }
         });

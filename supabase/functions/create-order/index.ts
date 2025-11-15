@@ -44,7 +44,7 @@ serve(async (req) => {
     const total_amount = subtotal + shipping_fee;
 
     // Generate order number
-    const order_number = `SG-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const order_number = `LB-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
     // Create order
     const { data: order, error: orderError } = await supabaseClient
