@@ -34,8 +34,6 @@ import PaidOrders from '@/pages/admin/PaidOrders';
 import ShippedOrders from '@/pages/admin/ShippedOrders';
 import MigrateImages from '@/pages/admin/MigrateImages';
 import NotFound from '@/pages/NotFound';
-import SitemapXML from '@/pages/SitemapXML';
-import SitemapProductsXML from '@/pages/SitemapProductsXML';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,8 +78,6 @@ function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/product/:id" element={<ProductDetail />} />
-                      <Route path="/sitemap.xml" element={<SitemapXML />} />
-                      <Route path="/sitemap-products.xml" element={<SitemapProductsXML />} />
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/checkout" element={<Checkout />} />
                       <Route path="/order-success/:orderId" element={<OrderSuccess />} />
