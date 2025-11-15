@@ -114,7 +114,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         {image_url ? (
           <OptimizedImage
             src={image_url}
-            alt={`${name_ar} - منتج طبيعي 100% من لمسة الجمال${category ? ` | ${category}` : ''}`}
+            alt={`${name_ar}${category ? ` - ${category}` : ''} فاخر من لمسة الجمال | شحن مجاني في السعودية`}
             className="aspect-square group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
             aspectRatio="1/1"
           />
