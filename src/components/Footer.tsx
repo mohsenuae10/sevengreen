@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import { Separator } from '@/components/ui/separator';
+import logo from '@/assets/logo.png';
 
 export const Footer = () => {
   const { data: settings } = useQuery({
@@ -40,9 +41,12 @@ export const Footer = () => {
           {/* Column 1: Store Info + Newsletter */}
           <div className="space-y-4">
             <div>
-              <h3 className="text-xl font-bold text-primary mb-2">
-                {settings?.store_name || 'لمسة الجمال'}
-              </h3>
+              <div className="flex items-center gap-3 mb-3">
+                <img src={logo} alt="لمسة الجمال | Lamset Beauty" className="h-14 w-14 object-contain" />
+                <h3 className="text-xl font-bold text-primary">
+                  {settings?.store_name || 'لمسة الجمال'}
+                </h3>
+              </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 متجرك المتخصص في منتجات الجمال والعناية الفاخرة - مستحضرات تجميل أصلية ومنتجات عناية مميزة 100%
               </p>
