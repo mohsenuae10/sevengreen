@@ -9,10 +9,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-light hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] shadow-md",
+        default: "bg-gradient-primary text-primary-foreground hover:bg-gradient-soft hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] shadow-md",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] shadow-md",
-        outline: "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
-        secondary: "bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:border-primary/20 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
+        outline: "border-2 border-primary bg-transparent text-primary hover:bg-gradient-primary hover:text-primary-foreground hover:border-transparent hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
+        secondary: "bg-gradient-soft text-secondary-foreground border border-border hover:bg-gradient-card hover:border-primary/20 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
         ghost: "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98]",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary-light",
       },
