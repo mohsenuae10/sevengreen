@@ -42,7 +42,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <img src={logo} alt="لمسة الجمال | Lamset Beauty" className="h-14 w-14 object-contain" />
+                <img src={logo} alt="لمسة الجمال | Lamset Beauty" className="h-20 w-20 object-contain" />
                 <h3 className="text-xl font-bold text-primary">
                   {settings?.store_name || 'لمسة الجمال'}
                 </h3>
