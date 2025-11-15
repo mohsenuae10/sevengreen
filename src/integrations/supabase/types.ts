@@ -218,6 +218,7 @@ export type Database = {
           created_at: string | null
           description_ar: string | null
           faqs: Json | null
+          gtin: string | null
           how_to_use_ar: string | null
           id: string
           image_url: string | null
@@ -226,6 +227,7 @@ export type Database = {
           key_features: Json | null
           long_description_ar: string | null
           made_in: string | null
+          mpn: string | null
           name_ar: string
           price: number
           seo_description: string | null
@@ -244,6 +246,7 @@ export type Database = {
           created_at?: string | null
           description_ar?: string | null
           faqs?: Json | null
+          gtin?: string | null
           how_to_use_ar?: string | null
           id?: string
           image_url?: string | null
@@ -252,6 +255,7 @@ export type Database = {
           key_features?: Json | null
           long_description_ar?: string | null
           made_in?: string | null
+          mpn?: string | null
           name_ar: string
           price: number
           seo_description?: string | null
@@ -270,6 +274,7 @@ export type Database = {
           created_at?: string | null
           description_ar?: string | null
           faqs?: Json | null
+          gtin?: string | null
           how_to_use_ar?: string | null
           id?: string
           image_url?: string | null
@@ -278,6 +283,7 @@ export type Database = {
           key_features?: Json | null
           long_description_ar?: string | null
           made_in?: string | null
+          mpn?: string | null
           name_ar?: string
           price?: number
           seo_description?: string | null

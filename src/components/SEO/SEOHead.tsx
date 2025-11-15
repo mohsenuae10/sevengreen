@@ -36,7 +36,8 @@ export const SEOHead = ({
     ? description.substring(0, 157) + '...'
     : description;
   
-  const currentUrl = url ? `https://lamsetbeauty.com${url}` : `https://lamsetbeauty.com${window.location.pathname}`;
+  // SEO: Use provided URL or construct from window location (avoiding URL encoding issues)
+  const currentUrl = url || `https://lamsetbeauty.com${window.location.pathname}`;
 
   return (
     <Helmet>

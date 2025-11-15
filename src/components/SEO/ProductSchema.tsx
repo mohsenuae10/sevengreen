@@ -135,6 +135,16 @@ export const ProductSchema = ({
     ...(color && { color }),
     ...(material && { material }),
     ...(madeIn && { countryOfOrigin: madeIn }),
+    // SEO: Add aggregate rating if available for rich snippets
+    ...(aggregateRating && aggregateRating.reviewCount > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: aggregateRating.ratingValue.toString(),
+        reviewCount: aggregateRating.reviewCount.toString(),
+        bestRating: '5',
+        worstRating: '1',
+      },
+    }),
     ...(warranty && { 
       warranty: {
         '@type': 'WarrantyPromise',

@@ -50,10 +50,9 @@ Disallow: /*.json$
 
 # Sitemaps
 # Dynamic sitemaps with current dates and real-time product data
-Sitemap: https://lamsetbeauty.com/functions/v1/generate-sitemap
-Sitemap: https://lamsetbeauty.com/functions/v1/generate-product-sitemap
+# Using direct Supabase Function URLs for reliable access
+Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-sitemap
+Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
 
-# Static fallback sitemaps
-# Note: Use dynamic sitemaps above for best SEO results
-# Sitemap: https://lamsetbeauty.com/sitemap.xml
-# Sitemap: https://lamsetbeauty.com/sitemap-products.xml
+# Note: Once custom domain is connected, these URLs will still work
+# Sitemaps are automatically cached and updated daily

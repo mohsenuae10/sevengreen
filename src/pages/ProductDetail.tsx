@@ -232,6 +232,9 @@ export default function ProductDetail() {
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
         category={product.category}
+        brand="لمسة الجمال"
+        gtin={product.gtin}
+        mpn={product.mpn}
         slug={product.slug}
         madeIn={product.made_in}
         shippingDays={3}
