@@ -24,6 +24,10 @@ interface ProductSchemaProps {
   madeIn?: string;
   createdAt?: string;
   updatedAt?: string;
+  aggregateRating?: {
+    ratingValue: number;
+    reviewCount: number;
+  };
 }
 
 export const ProductSchema = ({
@@ -50,6 +54,7 @@ export const ProductSchema = ({
   madeIn,
   createdAt,
   updatedAt,
+  aggregateRating,
 }: ProductSchemaProps) => {
   const productUrl = `https://sevengreenstore.com/product/${slug || sku}`;
   
@@ -139,7 +144,16 @@ export const ProductSchema = ({
         },
       },
     }),
-    // Note: aggregateRating removed - only add when you have real reviews
+    // Add aggregate rating if reviews exist
+    ...(aggregateRating && aggregateRating.reviewCount > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: aggregateRating.ratingValue.toString(),
+        reviewCount: aggregateRating.reviewCount.toString(),
+        bestRating: '5',
+        worstRating: '1',
+      },
+    }),
     audience: {
       '@type': 'PeopleAudience',
       geographicArea: {

@@ -18,6 +18,9 @@ import { FAQSchema } from '@/components/SEO/FAQSchema';
 import { RelatedProducts } from '@/components/RelatedProducts';
 import { ProductImageGallery } from '@/components/product/ProductImageGallery';
 import { ProductTabs } from '@/components/product/ProductTabs';
+import { ReviewForm } from '@/components/product/ReviewForm';
+import { ReviewsList } from '@/components/product/ReviewsList';
+import { ReviewSchema } from '@/components/SEO/ReviewSchema';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -67,9 +70,24 @@ export default function ProductDetail() {
         .eq('product_id', productData.id)
         .order('display_order', { ascending: true });
 
+      // جلب التقييمات
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('product_id', productData.id)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+
+      // جلب إحصائيات التقييم
+      const { data: ratingStats } = await supabase.rpc('get_product_rating', {
+        product_uuid: productData.id,
+      });
+
       return {
         ...productData,
-        images: images || []
+        images: images || [],
+        reviews: reviews || [],
+        ratingStats: ratingStats?.[0] || null,
       };
     },
   });
@@ -220,8 +238,18 @@ export default function ProductDetail() {
         returnDays={14}
         createdAt={product.created_at}
         updatedAt={product.updated_at}
+        aggregateRating={product.ratingStats}
       />
-      <FAQSchema faqs={productFAQs} />
+      <ReviewSchema 
+        productName={product.name_ar}
+        reviews={product.reviews?.map((r: any) => ({
+          author: r.customer_name,
+          rating: r.rating,
+          reviewBody: r.review_text || '',
+          datePublished: r.created_at
+        })) || []}
+      />
+      <FAQSchema faqs={product.faqs || productFAQs} />
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' },
@@ -363,13 +391,26 @@ export default function ProductDetail() {
       {/* Product Details Tabs */}
       <ProductTabs
         description={product.description_ar}
+        long_description_ar={product.long_description_ar}
         ingredients={product.ingredients_ar}
         howToUse={product.how_to_use_ar}
         benefits={product.benefits_ar}
         warnings={product.warnings_ar}
         sizeInfo={product.size_info}
         madeIn={product.made_in}
+        key_features={product.key_features}
+        why_choose={product.why_choose}
+        faqs={product.faqs}
       />
+
+      {/* Reviews Section */}
+      <div className="mt-12 space-y-8">
+        <h2 className="text-3xl font-bold">التقييمات والمراجعات</h2>
+        <div className="grid lg:grid-cols-2 gap-8">
+          <ReviewsList productId={product.id} />
+          <ReviewForm productId={product.id} />
+        </div>
+      </div>
 
       {/* Related Products */}
       <RelatedProducts currentProductId={product.id} category={product.category} />
