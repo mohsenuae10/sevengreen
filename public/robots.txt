@@ -1,5 +1,5 @@
-# Robots.txt for Seven Green Store
-# Last updated: 2025-11-12
+# Robots.txt for Lamset Beauty Store
+# Last updated: 2025-11-15
 
 # Googlebot
 User-agent: Googlebot

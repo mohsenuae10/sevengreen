@@ -191,7 +191,7 @@ export default function ProductDetail() {
     },
     {
       question: 'هل المنتج مناسب لجميع أنواع البشرة/الشعر؟',
-      answer: 'جميع منتجات سفن جرين مصنوعة من مكونات طبيعية 100% وآمنة للاستخدام. ومع ذلك، ننصح بإجراء اختبار حساسية بسيط قبل الاستخدام الكامل.',
+      answer: 'جميع منتجات لمسة الجمال مصنوعة من مكونات طبيعية 100% وآمنة للاستخدام. ومع ذلك، ننصح بإجراء اختبار حساسية بسيط قبل الاستخدام الكامل.',
     },
     {
       question: 'كم يستغرق الشحن؟',
@@ -211,11 +211,11 @@ export default function ProductDetail() {
     <div className="container mx-auto px-4 py-8">
       <SEOHead
         title={product.seo_title || product.name_ar}
-        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من سفن جرين - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
-        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, سفن جرين, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
+        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة الجمال - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
+        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة الجمال, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}
         type="product"
-        url={`https://sevengreenstore.com${productUrl}`}
+        url={`https://lamsetbeauty.com${productUrl}`}
         price={Number(product.price)}
         currency="SAR"
         availability={isInStock ? 'instock' : 'outofstock'}
@@ -224,7 +224,7 @@ export default function ProductDetail() {
       />
       <ProductSchema
         name={product.name_ar}
-        description={product.description_ar || product.seo_description || `${product.name_ar} - منتج طبيعي 100% من سفن جرين`}
+        description={product.description_ar || product.seo_description || `${product.name_ar} - منتج طبيعي 100% من لمسة الجمال`}
         image={product.image_url || ''}
         images={allImages}
         price={Number(product.price)}

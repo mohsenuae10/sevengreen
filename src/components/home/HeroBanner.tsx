@@ -100,7 +100,7 @@ export const HeroBanner = ({ product }: HeroBannerProps) => {
                 <div className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-300 overflow-hidden">
                   <OptimizedImage
                     src={product.image_url}
-                    alt={`${product.name_ar} - منتج طبيعي مميز من سفن جرين`}
+                    alt={`${product.name_ar} - منتج طبيعي مميز من لمسة الجمال`}
                     className="w-full"
                     aspectRatio="4/3"
                     priority={true}

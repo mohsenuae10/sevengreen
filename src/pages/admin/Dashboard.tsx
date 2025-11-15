@@ -33,7 +33,7 @@ export default function AdminDashboard() {
       <div className="space-y-12">
         <div className="animate-fade-in">
           <h1 className="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">لوحة التحكم</h1>
-          <p className="text-muted-foreground mt-2 text-sm lg:text-lg">مرحباً بك في لوحة تحكم Seven Green</p>
+          <p className="text-muted-foreground mt-2 text-sm lg:text-lg">مرحباً بك في لوحة تحكم لمسة الجمال</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

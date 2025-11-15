@@ -208,7 +208,7 @@ export const Footer = () => {
         <Separator className="my-8" />
 
         <div className="text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} {settings?.store_name || 'Seven Green'}. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} {settings?.store_name || 'لمسة الجمال'}. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>

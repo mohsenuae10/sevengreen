@@ -46,7 +46,7 @@ export const AdminSidebar = () => {
         <div className="p-6">
           {open && (
             <>
-              <h1 className="text-2xl font-bold text-primary">Seven Green</h1>
+              <h1 className="text-2xl font-bold text-primary">لمسة الجمال</h1>
               <p className="text-sm text-muted-foreground">لوحة التحكم</p>
             </>
           )}

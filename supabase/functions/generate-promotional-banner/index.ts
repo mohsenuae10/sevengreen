@@ -22,7 +22,7 @@ serve(async (req) => {
     }
 
     // Build the prompt based on user's detailed description
-    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for an Arabic e-commerce store called "Seven Green | سفن جرين" (natural cosmetics).
+    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for an Arabic e-commerce store called "لمسة الجمال | Lamset Beauty" (natural cosmetics).
 
 Banner Description (follow this exactly): ${bannerDescription}
 

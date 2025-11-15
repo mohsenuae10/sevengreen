@@ -15,7 +15,7 @@ export default function Cart() {
       <>
         <SEOHead
           title="سلة التسوق"
-          description="سلة التسوق الخاصة بك في متجر سفن جرين للمنتجات الطبيعية"
+          description="سلة التسوق الخاصة بك في لمسة الجمال للمنتجات الطبيعية"
         />
         <BreadcrumbSchema
           items={[
@@ -45,7 +45,7 @@ export default function Cart() {
     <>
       <SEOHead
         title="سلة التسوق"
-        description="سلة التسوق الخاصة بك في متجر سفن جرين للمنتجات الطبيعية"
+        description="سلة التسوق الخاصة بك في لمسة الجمال للمنتجات الطبيعية"
       />
       <BreadcrumbSchema
         items={[
@@ -65,7 +65,7 @@ export default function Cart() {
                   {item.image_url ? (
                     <OptimizedImage
                       src={item.image_url}
-                      alt={`${item.name_ar} - منتج طبيعي من سفن جرين`}
+                      alt={`${item.name_ar} - منتج طبيعي من لمسة الجمال`}
                       className="w-24 h-24 flex-shrink-0"
                       aspectRatio="1/1"
                     />

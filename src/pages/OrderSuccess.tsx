@@ -110,7 +110,7 @@ export default function OrderSuccess() {
       <>
         <SEOHead
           title="جاري تحميل الطلب"
-          description="جاري تحميل تفاصيل طلبك من سفن جرين"
+          description="جاري تحميل تفاصيل طلبك من لمسة الجمال"
         />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center space-y-4">
@@ -150,7 +150,7 @@ export default function OrderSuccess() {
     <>
       <SEOHead
         title="تم استلام طلبك بنجاح"
-        description="شكراً لك على طلبك من سفن جرين. سنتواصل معك قريباً."
+        description="شكراً لك على طلبك من لمسة الجمال. سنتواصل معك قريباً."
       />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">

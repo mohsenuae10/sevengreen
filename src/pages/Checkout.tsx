@@ -38,7 +38,7 @@ const ARAB_COUNTRIES = [
 ];
 
 // Production domain for Stripe
-const PRODUCTION_DOMAIN = 'https://sevengreenstore.com';
+const PRODUCTION_DOMAIN = 'https://lamsetbeauty.com';
 
 // Initialize Stripe
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
@@ -494,7 +494,7 @@ export default function Checkout() {
     <>
       <SEOHead
         title="إتمام الطلب"
-        description="أكمل طلبك من سفن جرين للمنتجات الطبيعية"
+        description="أكمل طلبك من لمسة الجمال للمنتجات الطبيعية"
       />
       <BreadcrumbSchema
         items={[
