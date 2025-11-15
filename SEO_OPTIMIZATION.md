@@ -1,7 +1,7 @@
-# SEO Optimization Guide for Seven Green Store
+# دليل تحسين محركات البحث - لمسة الجمال | Lamset Beauty
 
-## Overview
-This document explains the SEO optimizations implemented in the store to improve search engine rankings.
+## نظرة عامة
+يشرح هذا المستند تحسينات محركات البحث (SEO) المطبقة في متجر لمسة الجمال لتحسين ترتيب الموقع في محركات البحث.
 
 ## Date Management
 
@@ -47,9 +47,9 @@ const priceValidUntilString = priceValidUntil.toISOString().split('T')[0];
 4. Include product images for better image search ranking
 5. Calculate priority dynamically based on product price
 
-**Accessing Dynamic Sitemaps:**
-- Main: `https://sevengreenstore.com/functions/v1/generate-sitemap`
-- Products: `https://sevengreenstore.com/functions/v1/generate-product-sitemap`
+**الوصول إلى Sitemaps الديناميكية:**
+- الرئيسية: `https://lamsetbeauty.com/functions/v1/generate-sitemap`
+- المنتجات: `https://lamsetbeauty.com/functions/v1/generate-product-sitemap`
 
 ## Robots.txt Configuration
 
@@ -60,8 +60,8 @@ User-agent: *
 Allow: /
 
 # Point to dynamic sitemaps for freshest data
-Sitemap: https://sevengreenstore.com/functions/v1/generate-sitemap
-Sitemap: https://sevengreenstore.com/functions/v1/generate-product-sitemap
+Sitemap: https://lamsetbeauty.com/functions/v1/generate-sitemap
+Sitemap: https://lamsetbeauty.com/functions/v1/generate-product-sitemap
 ```
 
 ## Best Practices

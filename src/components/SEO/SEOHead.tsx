@@ -29,14 +29,14 @@ export const SEOHead = ({
 }: SEOHeadProps) => {
   // Optimize title (max 60 chars)
   const optimizedTitle = title.length > 55 ? title.substring(0, 52) + '...' : title;
-  const fullTitle = `${optimizedTitle} | متجر سفن جرين`;
+  const fullTitle = `${optimizedTitle} | لمسة الجمال`;
   
   // Optimize description (max 160 chars)
   const optimizedDescription = description.length > 160 
     ? description.substring(0, 157) + '...'
     : description;
   
-  const currentUrl = url ? `https://sevengreenstore.com${url}` : `https://sevengreenstore.com${window.location.pathname}`;
+  const currentUrl = url ? `https://lamsetbeauty.com${url}` : `https://lamsetbeauty.com${window.location.pathname}`;
 
   return (
     <Helmet>
@@ -45,9 +45,9 @@ export const SEOHead = ({
       <meta name="title" content={fullTitle} />
       <meta name="description" content={optimizedDescription} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="application-name" content="متجر سفن جرين" />
-      <meta name="author" content="متجر سفن جرين" />
-      <meta name="publisher" content="متجر سفن جرين" />
+      <meta name="application-name" content="لمسة الجمال" />
+      <meta name="author" content="لمسة الجمال" />
+      <meta name="publisher" content="لمسة الجمال" />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="googlebot" content="index, follow" />
       <meta httpEquiv="content-language" content="ar-SA" />
@@ -70,7 +70,7 @@ export const SEOHead = ({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={title} />
-      <meta property="og:site_name" content="متجر سفن جرين" />
+      <meta property="og:site_name" content="لمسة الجمال" />
       <meta property="og:locale" content="ar_SA" />
 
       {/* Article-specific Open Graph tags */}
@@ -78,7 +78,7 @@ export const SEOHead = ({
         <>
           {publishedTime && <meta property="article:published_time" content={publishedTime} />}
           {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-          <meta property="article:author" content="متجر سفن جرين" />
+          <meta property="article:author" content="لمسة الجمال" />
         </>
       )}
 
@@ -101,9 +101,9 @@ export const SEOHead = ({
       <meta name="twitter:description" content={optimizedDescription} />
       <meta name="twitter:image" content={image} />
       <meta name="twitter:image:alt" content={title} />
-      <meta name="twitter:domain" content="sevengreenstore.com" />
-      <meta name="twitter:site" content="@sevengreenstore" />
-      <meta name="twitter:creator" content="@sevengreenstore" />
+      <meta name="twitter:domain" content="lamsetbeauty.com" />
+      <meta name="twitter:site" content="@lamsetbeauty" />
+      <meta name="twitter:creator" content="@lamsetbeauty" />
     </Helmet>
   );
 };

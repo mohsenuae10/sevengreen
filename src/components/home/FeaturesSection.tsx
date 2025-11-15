@@ -5,37 +5,37 @@ const features = [
     icon: Sparkles,
     title: 'منتجات فاخرة',
     description: 'مستحضرات تجميل عالية الجودة من أفضل العلامات التجارية',
-    color: 'from-pink-500 to-rose-600',
+    color: 'from-primary to-primary-light',
   },
   {
     icon: Shield,
     title: 'منتجات أصلية 100%',
     description: 'ضمان الأصالة لجميع منتجاتنا',
-    color: 'from-purple-500 to-violet-600',
+    color: 'from-primary/90 to-primary',
   },
   {
     icon: Truck,
     title: 'شحن سريع',
     description: 'توصيل سريع لجميع مدن المملكة',
-    color: 'from-blue-500 to-cyan-600',
+    color: 'from-primary-light to-accent',
   },
   {
     icon: Heart,
     title: 'عناية شخصية',
     description: 'استشارات مجانية لاختيار المنتج المناسب',
-    color: 'from-rose-500 to-pink-600',
+    color: 'from-primary to-accent',
   },
   {
     icon: Leaf,
     title: 'مكونات طبيعية',
     description: 'منتجات بمكونات طبيعية وآمنة للاستخدام اليومي',
-    color: 'from-emerald-500 to-green-600',
+    color: 'from-primary/80 to-primary-light',
   },
   {
     icon: HeartHandshake,
     title: 'دعم مستمر',
     description: 'فريق دعم جاهز لخدمتك على مدار الساعة',
-    color: 'from-orange-500 to-red-600',
+    color: 'from-accent to-primary',
   },
 ];
 
