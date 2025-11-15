@@ -29,8 +29,8 @@ serve(async (req) => {
       .select("store_name, store_url")
       .single();
 
-    const storeName = settings?.store_name || "Seven Green";
-    const storeUrl = settings?.store_url || "https://sevengreenstore.com";
+    const storeName = settings?.store_name || "لمسة الجمال";
+    const storeUrl = settings?.store_url || "https://lamsetbeauty.com";
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -70,7 +70,7 @@ serve(async (req) => {
       ? `
         <div style="text-align: center; margin: 25px 0;">
           <a href="${storeUrl}/checkout?order_id=${order.id}" 
-             style="background-color: #2d5016; color: #ffffff; padding: 14px 40px; 
+             style="background-color: #996B99; color: #ffffff; padding: 14px 40px; 
                     text-decoration: none; border-radius: 6px; font-weight: 600; 
                     display: inline-block; font-size: 16px;">
             إتمام الدفع
@@ -89,12 +89,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `متجر سفن جرين <noreply@sevengreenstore.com>`,
-        reply_to: 'support@sevengreenstore.com',
+        from: `لمسة الجمال <noreply@lamsetbeauty.com>`,
+        reply_to: 'support@lamsetbeauty.com',
         to: [order.customer_email],
         subject: `${order.customer_name}، طلبك ${order.order_number} بحاجة لإتمام الدفع`,
         headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@sevengreenstore.com>`,
+          'List-Unsubscribe': `<mailto:unsubscribe@lamsetbeauty.com>`,
           'X-Priority': '3',
           'X-Entity-Ref-ID': order.order_number,
           'Precedence': 'bulk',
@@ -110,7 +110,7 @@ serve(async (req) => {
         <body style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
           <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0;">
-            <h1 style="color: #2d5016; margin: 0; font-size: 28px; font-weight: 600;">Seven Green Store</h1>
+            <h1 style="color: #996B99; margin: 0; font-size: 28px; font-weight: 600;">لمسة الجمال</h1>
             <p style="color: #666; margin: 8px 0 0 0; font-size: 14px;">منتجات العناية الطبيعية</p>
           </div>
             
@@ -119,7 +119,7 @@ serve(async (req) => {
             </p>
             
             <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0;">
-              شكراً لطلبك من Seven Green. نود إعلامك بأن طلبك رقم <strong>${order.order_number}</strong> ما زال في انتظار إتمام عملية الدفع.
+              شكراً لطلبك من لمسة الجمال. نود إعلامك بأن طلبك رقم <strong>${order.order_number}</strong> ما زال في انتظار إتمام عملية الدفع.
             </p>
             
             <p style="color: #555; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
@@ -150,7 +150,7 @@ serve(async (req) => {
             <div style="text-align: left; margin: 20px 0; padding: 15px; background-color: #fafafa; border-radius: 5px;">
               <p style="margin: 5px 0; color: #555;">المجموع الفرعي: ${(order.total_amount - order.shipping_fee).toFixed(2)} ريال</p>
               <p style="margin: 5px 0; color: #555;">الشحن: ${order.shipping_fee.toFixed(2)} ريال</p>
-              <p style="margin: 15px 0 0 0; font-size: 18px; color: #2d5016; font-weight: bold;">الإجمالي: ${order.total_amount.toFixed(2)} ريال</p>
+              <p style="margin: 15px 0 0 0; font-size: 18px; color: #996B99; font-weight: bold;">الإجمالي: ${order.total_amount.toFixed(2)} ريال</p>
             </div>
 
             <p style="color: #777; text-align: center; font-size: 14px; margin: 25px 0; line-height: 1.6;">
@@ -158,9 +158,10 @@ serve(async (req) => {
             </p>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
-              <p style="margin: 5px 0; color: #888; font-size: 13px;">Seven Green Store</p>
-              <p style="margin: 5px 0; color: #999; font-size: 12px;">متجر سفن جرين للعناية الطبيعية</p>
+              <p style="margin: 5px 0; color: #888; font-size: 13px;">لمسة الجمال - Lamset Beauty</p>
+              <p style="margin: 5px 0; color: #999; font-size: 12px;">متجر لمسة الجمال للعناية الطبيعية</p>
               <p style="margin: 10px 0 5px 0; color: #999; font-size: 12px;">© 2025 جميع الحقوق محفوظة</p>
+              <p style="margin: 5px 0; color: #666; font-size: 12px;">support@lamsetbeauty.com</p>
             </div>
           </div>
         </body>

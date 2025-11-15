@@ -13,10 +13,10 @@ export default function TermsOfService() {
   return (
     <>
       <SEOHead
-        title="شروط الخدمة - Seven Green | سفن جرين"
-        description="شروط وأحكام استخدام موقع Seven Green. اطلع على القواعد والإرشادات عند التسوق معنا."
-        keywords="شروط الخدمة, الأحكام, شروط الاستخدام"
-        url="/terms-of-service"
+        title="شروط الخدمة - لمسة الجمال | Lamset Beauty"
+        description="شروط وأحكام استخدام موقع لمسة الجمال. اطلع على القواعد والإرشادات عند التسوق معنا."
+        keywords="شروط الخدمة, الأحكام, شروط الاستخدام, لمسة الجمال"
+        url="https://lamsetbeauty.com/terms-of-service"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />

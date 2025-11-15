@@ -13,10 +13,10 @@ export default function PrivacyPolicy() {
   return (
     <>
       <SEOHead
-        title="سياسة الخصوصية - Seven Green | سفن جرين"
-        description="سياسة الخصوصية لمتجر Seven Green. تعرف على كيفية جمع واستخدام وحماية معلوماتك الشخصية."
-        keywords="سياسة الخصوصية, حماية البيانات, الأمان"
-        url="/privacy-policy"
+        title="سياسة الخصوصية - لمسة الجمال | Lamset Beauty"
+        description="سياسة الخصوصية لمتجر لمسة الجمال. تعرف على كيفية جمع واستخدام وحماية معلوماتك الشخصية."
+        keywords="سياسة الخصوصية, حماية البيانات, الأمان, لمسة الجمال"
+        url="https://lamsetbeauty.com/privacy-policy"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
