@@ -99,6 +99,29 @@ export default function Home() {
         type="website"
         url="/"
       />
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "@id": "https://lamsetbeauty.com/#webpage",
+          "url": "https://lamsetbeauty.com",
+          "name": "لمسة الجمال - منتجات طبيعية للعناية بالشعر والبشرة",
+          "description": "أفضل منتجات العناية الطبيعية في السعودية. بار شامبو، سيروم فيتامين سي، منتجات عضوية 100%. توصيل سريع لجميع مناطق المملكة.",
+          "inLanguage": "ar-SA",
+          "isPartOf": {
+            "@type": "WebSite",
+            "@id": "https://lamsetbeauty.com/#website"
+          },
+          "about": {
+            "@type": "Store",
+            "name": "لمسة الجمال"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "@id": "https://lamsetbeauty.com/#organization"
+          }
+        })}
+      </script>
       <OrganizationSchema />
       <LocalBusinessSchema />
       
