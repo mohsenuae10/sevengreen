@@ -82,7 +82,11 @@ export const OptimizedImage = ({
   return (
     <div 
       className={cn('relative overflow-hidden bg-muted/10', className)} 
-      style={{ aspectRatio }}
+      style={{ 
+        aspectRatio,
+        minHeight: height ? `${height}px` : 'auto',
+        contentVisibility: 'auto'
+      }}
     >
       {/* Blur placeholder that shows while loading */}
       {isLoading && placeholderUrl && (
@@ -91,6 +95,7 @@ export const OptimizedImage = ({
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 animate-pulse"
+          style={{ aspectRatio }}
         />
       )}
       
