@@ -295,7 +295,7 @@ export default function ProductDetail() {
           <div className="space-y-3">
             {/* Category Badge */}
             <Badge variant="secondary" className="text-sm">
-              {product.category}
+              {product.category_ar || product.category}
             </Badge>
             
             {/* Product Name */}
