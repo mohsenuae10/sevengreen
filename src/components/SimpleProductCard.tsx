@@ -64,10 +64,10 @@ export const SimpleProductCard = ({
         <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </Link>
       
-      <CardContent className="p-2 flex-1 flex flex-col justify-between gap-2">
+      <CardContent className="p-2 sm:p-3 flex-1 flex flex-col justify-between gap-2">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-semibold text-xs text-center text-foreground hover:text-primary transition-colors line-clamp-2 min-h-[2rem] leading-tight">
+          <h3 className="font-semibold text-xs sm:text-sm text-center text-foreground hover:text-primary transition-colors line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] leading-tight">
             {name_ar}
           </h3>
         </Link>
@@ -75,7 +75,7 @@ export const SimpleProductCard = ({
         {/* السعر */}
         <div className="text-center">
           <div className="flex items-baseline justify-center gap-1">
-            <p className="text-base font-bold text-primary">
+            <p className="text-sm sm:text-base font-bold text-primary">
               {price.toFixed(2)}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -88,10 +88,10 @@ export const SimpleProductCard = ({
         <Button
           onClick={handleAddToCart}
           size="sm"
-          className="w-full h-8 text-xs hover:scale-105 active:scale-95 transition-all"
+          className="w-full h-7 sm:h-8 text-[10px] sm:text-xs hover:scale-105 active:scale-95 transition-all"
           disabled={stock_quantity <= 0}
         >
-          <ShoppingCart className="h-3.5 w-3.5 ml-1" />
+          <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5 ml-1" />
           {stock_quantity <= 0 ? 'نفذت الكمية' : 'أضف للسلة'}
         </Button>
       </CardContent>
