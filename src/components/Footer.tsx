@@ -95,7 +95,7 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 3: Product Categories */}
+          {/* Column 3: Product Categories + Internal Linking */}
           <div>
             <h3 className="text-lg font-bold text-primary mb-4">فئات المنتجات</h3>
             <ul className="space-y-3 text-sm">
@@ -105,8 +105,9 @@ export const Footer = () => {
                     <Link 
                       to={`/products?category=${encodeURIComponent(category)}`}
                       className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                      aria-label={`تصفح منتجات ${category}`}
                     >
-                      <span className="w-1 h-1 bg-primary rounded-full"></span>
+                      <span className="w-1 h-1 bg-primary rounded-full" aria-hidden="true"></span>
                       {category}
                     </Link>
                   </li>
@@ -118,6 +119,7 @@ export const Footer = () => {
                 <Link 
                   to="/products"
                   className="text-primary hover:underline transition-colors flex items-center gap-2 font-medium"
+                  aria-label="عرض جميع المنتجات"
                 >
                   عرض جميع المنتجات ←
                 </Link>
