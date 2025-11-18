@@ -66,6 +66,7 @@ export const FeaturedProductsCarousel = () => {
               }),
             ]}
             className="w-full"
+            style={{ contain: 'layout' }}
           >
             <CarouselContent className="-mr-2 md:-mr-3">
               {products.map((product) => (
