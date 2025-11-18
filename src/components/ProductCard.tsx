@@ -117,6 +117,8 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             alt={`${name_ar}${category ? ` - ${category}` : ''} فاخر من لمسة الجمال | شحن مجاني في السعودية`}
             className="aspect-square group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
             aspectRatio="1/1"
+            width={400}
+            height={400}
           />
         ) : (
           <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">

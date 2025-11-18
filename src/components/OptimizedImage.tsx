@@ -10,6 +10,7 @@ interface OptimizedImageProps {
   width?: number;
   height?: number;
   sizes?: string;
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 }
 
 export const OptimizedImage = ({
@@ -21,6 +22,7 @@ export const OptimizedImage = ({
   width,
   height,
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  objectFit = 'cover',
 }: OptimizedImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -62,7 +64,10 @@ export const OptimizedImage = ({
   const srcset = generateSrcSet(src);
 
   return (
-    <div className={cn('relative overflow-hidden bg-muted/10', className)} style={{ aspectRatio }}>
+    <div 
+      className={cn('relative overflow-hidden bg-muted/10', className)} 
+      style={{ aspectRatio }}
+    >
       {isLoading && (
         <div className="absolute inset-0 bg-gradient-to-br from-muted/20 via-muted/10 to-muted/20 animate-pulse" />
       )}
@@ -89,8 +94,10 @@ export const OptimizedImage = ({
           fetchPriority={priority ? 'high' : 'auto'}
           onLoad={handleLoad}
           onError={handleError}
+          style={{ aspectRatio }}
           className={cn(
-            'w-full h-full object-cover transition-opacity duration-300',
+            'w-full h-full transition-opacity duration-300',
+            `object-${objectFit}`,
             isLoading ? 'opacity-0' : 'opacity-100'
           )}
         />

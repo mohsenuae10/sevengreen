@@ -13,6 +13,14 @@ export default {
       },
     },
     extend: {
+      aspectRatio: {
+        '1/1': '1 / 1',
+        '4/3': '4 / 3',
+        '16/9': '16 / 9',
+        '21/9': '21 / 9',
+        '3/2': '3 / 2',
+        '2/3': '2 / 3',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
