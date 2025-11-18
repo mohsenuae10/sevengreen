@@ -39,7 +39,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
   }
 
   return (
-    <div className="animate-fade-in" style={{ animationDelay: delay }}>
+    <div className="animate-fade-in min-h-[400px]" style={{ animationDelay: delay, contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
       {/* Category Banner */}
       <div className="relative rounded-3xl overflow-hidden mb-8 group">
         <div className="absolute inset-0">
@@ -50,6 +50,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
             height="256"
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
             loading="lazy"
+            style={{ aspectRatio: '1200/256' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
         </div>
