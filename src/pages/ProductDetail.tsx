@@ -312,34 +312,36 @@ export default function ProductDetail() {
           </div>
 
           {/* Price */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-primary">
+          <div className="flex items-baseline gap-3 p-4 bg-muted/20 rounded-lg border border-border">
+            <span className="text-3xl md:text-4xl font-bold text-primary">
               {product.price.toFixed(2)}
             </span>
-            <span className="text-xl text-muted-foreground">ريال</span>
+            <span className="text-lg text-muted-foreground">ريال سعودي</span>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">الكمية</p>
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground">الكمية المطلوبة</p>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 border border-border rounded-lg p-1">
                   <Button
                     size="icon"
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={product.stock_quantity <= 0}
+                    className="h-9 w-9"
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="font-medium w-12 text-center">
+                  <span className="font-semibold text-lg w-12 text-center">
                     {quantity}
                   </span>
                   <Button
                     size="icon"
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => setQuantity(quantity + 1)}
                     disabled={product.stock_quantity <= 0}
+                    className="h-9 w-9"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -347,7 +349,7 @@ export default function ProductDetail() {
                 
                 {product.stock_quantity > 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    متوفر: {product.stock_quantity}
+                    متوفر: <span className="font-medium text-foreground">{product.stock_quantity}</span> قطعة
                   </p>
                 ) : (
                   <p className="text-sm text-destructive font-medium">
@@ -363,7 +365,7 @@ export default function ProductDetail() {
                   onClick={handleAddToCart}
                   size="lg"
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 h-12 text-base font-medium"
                   disabled={product.stock_quantity <= 0}
                 >
                   <ShoppingCart className="ml-2 h-5 w-5" />
@@ -373,14 +375,10 @@ export default function ProductDetail() {
                 <Button
                   onClick={handleBuyNow}
                   size="lg"
-                  className="flex-1"
+                  className="flex-1 h-12 text-base font-medium"
                   disabled={product.stock_quantity <= 0}
                 >
-                  <img 
-                    src="/images/payment-icons/apple-pay.svg" 
-                    alt="Apple Pay" 
-                    className="ml-2 h-6 w-auto"
-                  />
+                  <Zap className="ml-2 h-5 w-5" />
                   اشتر الآن
                 </Button>
               </div>
