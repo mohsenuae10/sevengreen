@@ -44,7 +44,7 @@ export const SimpleProductCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-gradient-card aspect-square flex flex-col border border-border hover:border-primary/40" style={{ contentVisibility: 'auto', contain: 'layout' }}>
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-gradient-card aspect-[4/5] flex flex-col border border-border hover:border-primary/40" style={{ contentVisibility: 'auto', contain: 'layout' }}>
       <Link to={`/product/${slug || id}`} className="relative overflow-hidden">
         {image_url ? (
           <OptimizedImage
