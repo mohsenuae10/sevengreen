@@ -19,7 +19,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
 
   if (!images || images.length === 0) {
     return (
-      <div className="w-full aspect-[3/4] bg-muted rounded-lg flex items-center justify-center">
+      <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center">
         <p className="text-muted-foreground">لا توجد صور</p>
       </div>
     );
@@ -43,9 +43,9 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
           src={currentImage.image_url}
           alt={`${productName} - صورة عالية الجودة ${selectedIndex + 1} من ${images.length} - منتجات لمسة الجمال الطبيعية`}
           className="w-full rounded-lg"
-          aspectRatio="3/4"
+          aspectRatio="1/1"
           width={800}
-          height={1067}
+          height={800}
           priority={selectedIndex === 0}
         />
         
@@ -85,7 +85,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
               key={image.id || index}
               onClick={() => setSelectedIndex(index)}
               className={cn(
-                "relative aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all",
+                "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                 selectedIndex === index
                   ? "border-primary ring-2 ring-primary/20"
                   : "border-border hover:border-primary/50"
@@ -96,9 +96,9 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
                 src={image.image_url}
                 alt={`${productName} - صورة مصغرة ${index + 1} - منتج طبيعي من لمسة الجمال`}
                 className="w-full h-full"
-                aspectRatio="3/4"
+                aspectRatio="1/1"
                 width={200}
-                height={267}
+                height={200}
               />
               {image.is_primary && (
                 <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
