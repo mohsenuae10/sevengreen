@@ -191,11 +191,11 @@ export default function Home() {
           ) : isLoading ? (
             <div className="space-y-20" style={{ minHeight: '2100px' }}>
               {[1, 2, 3].map((i) => (
-                <div key={i} style={{ minHeight: '700px', height: '700px' }}>
-                  <div className="h-64 bg-muted/30 rounded-3xl mb-8 animate-pulse" style={{ height: '256px' }} />
-                  <div className="grid grid-cols-2 gap-4" style={{ height: '400px' }}>
+                <div key={i} style={{ minHeight: '700px' }}>
+                  <div className="h-64 bg-muted/30 rounded-3xl mb-8 animate-pulse" />
+                  <div className="grid grid-cols-2 gap-4" style={{ minHeight: '400px' }}>
                     {[1, 2, 3, 4].map((j) => (
-                      <div key={j} className="bg-muted/30 rounded-xl animate-pulse" />
+                      <div key={j} className="h-80 bg-muted/30 rounded-xl animate-pulse" />
                     ))}
                   </div>
                 </div>
