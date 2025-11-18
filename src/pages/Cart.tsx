@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { Helmet } from 'react-helmet-async';
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
@@ -17,6 +18,9 @@ export default function Cart() {
           title="سلة التسوق"
           description="سلة التسوق الخاصة بك في لمسة الجمال للمنتجات الطبيعية"
         />
+        <Helmet>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <BreadcrumbSchema
           items={[
             { name: 'الرئيسية', url: '/' },
@@ -47,6 +51,9 @@ export default function Cart() {
         title="سلة التسوق"
         description="سلة التسوق الخاصة بك في لمسة الجمال للمنتجات الطبيعية"
       />
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' },
