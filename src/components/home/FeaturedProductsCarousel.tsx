@@ -44,7 +44,7 @@ export const FeaturedProductsCarousel = () => {
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square w-full rounded-lg" />
+                  <Skeleton className="aspect-[3/4] w-full rounded-lg" />
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-3/4 mx-auto" />
                   <Skeleton className="h-8 w-full" />
