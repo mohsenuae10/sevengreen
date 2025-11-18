@@ -44,10 +44,10 @@ export const FeaturedProductsCarousel = () => {
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square w-full rounded-lg" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4 mx-auto" />
-                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="aspect-[4/5] w-full rounded-lg" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-3/4 mx-auto" />
+                  <Skeleton className="h-7 w-full" />
                 </div>
               ))}
             </div>
@@ -70,7 +70,7 @@ export const FeaturedProductsCarousel = () => {
           >
             <CarouselContent className="-mr-2 md:-mr-3">
               {products.map((product) => (
-                <CarouselItem key={product.id} className="pr-2 md:pr-3 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
+                <CarouselItem key={product.id} className="pr-2 md:pr-3 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
                   <SimpleProductCard {...product} />
                 </CarouselItem>
               ))}
