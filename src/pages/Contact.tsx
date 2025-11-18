@@ -98,7 +98,6 @@ export default function Contact() {
         title="اتصل بنا - لمسة الجمال | Lamset Beauty"
         description="تواصلي مع فريق لمسة الجمال. نحن هنا للإجابة على استفساراتك حول منتجاتنا والإجابة على جميع أسئلتك."
         keywords="اتصل بنا, تواصل معنا, خدمة العملاء, لمسة الجمال"
-        url="/contact"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
