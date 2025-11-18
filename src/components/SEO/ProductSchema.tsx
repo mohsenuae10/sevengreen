@@ -137,7 +137,7 @@ export const ProductSchema = ({
     ...(material && { material }),
     ...(madeIn && { countryOfOrigin: madeIn }),
     // SEO: Add aggregate rating with proper validation for rich snippets
-    ...(aggregateRating && aggregateRating.reviewCount > 0 && {
+    ...(aggregateRating?.ratingValue && aggregateRating?.reviewCount > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: Number(aggregateRating.ratingValue).toFixed(1),

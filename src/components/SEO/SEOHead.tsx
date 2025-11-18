@@ -27,9 +27,12 @@ export const SEOHead = ({
   publishedTime,
   modifiedTime,
 }: SEOHeadProps) => {
-  // Optimize title (max 60 chars)
-  const optimizedTitle = title.length > 55 ? title.substring(0, 52) + '...' : title;
-  const fullTitle = `${optimizedTitle} | لمسة الجمال`;
+  // Optimize title (max 45 chars for better SEO)
+  const optimizedTitle = title.length > 45 ? title.substring(0, 42) + '...' : title;
+  // Add site name only if not already included
+  const fullTitle = title.includes('لمسة الجمال') 
+    ? optimizedTitle 
+    : `${optimizedTitle} | لمسة`;
   
   // Optimize description (max 160 chars)
   const optimizedDescription = description.length > 160 
