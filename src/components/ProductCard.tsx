@@ -89,7 +89,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-gradient-card h-full flex flex-col border-2 border-primary/20 hover:border-primary/40 hover:-translate-y-2 animate-fade-in" style={{ minHeight: '530px', contentVisibility: 'auto', containIntrinsicSize: '0 530px', contain: 'layout' }}>
+    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-gradient-card h-full flex flex-col border-2 border-primary/20 hover:border-primary/40 hover:-translate-y-2 animate-fade-in" style={{ minHeight: '400px', contentVisibility: 'auto', containIntrinsicSize: '0 400px', contain: 'layout' }}>
       {/* شارة المنتج */}
       {hasBadge && (
         <Badge className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold text-[9px] px-2 py-0.5 shadow-md">
@@ -115,13 +115,13 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           <OptimizedImage
             src={image_url}
             alt={`${name_ar}${category ? ` - ${category}` : ''} فاخر من لمسة الجمال | شحن مجاني في السعودية`}
-            className="aspect-[3/4] group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
-            aspectRatio="3/4"
+            className="aspect-square group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
+            aspectRatio="1/1"
             width={400}
-            height={533}
+            height={400}
           />
         ) : (
-          <div className="aspect-[3/4] bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
+          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
             لا توجد صورة
           </div>
         )}

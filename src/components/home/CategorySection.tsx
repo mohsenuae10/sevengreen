@@ -39,7 +39,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
   }
 
   return (
-    <section className="py-20 bg-background" style={{ minHeight: '800px', contentVisibility: 'auto', containIntrinsicSize: '0 800px', contain: 'layout style' }}>
+    <section className="py-20 bg-background" style={{ minHeight: '700px', contentVisibility: 'auto', containIntrinsicSize: '0 700px', contain: 'layout style' }}>
       <div className="container mx-auto px-4" style={{ animationDelay: delay }}>
         {/* Category Banner */}
         <div className="relative rounded-3xl overflow-hidden mb-8 group" style={{ minHeight: '256px' }}>
@@ -89,7 +89,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           }),
         ]}
         className="w-full"
-        style={{ minHeight: '500px', contain: 'layout' }}
+        style={{ minHeight: '400px', contain: 'layout' }}
       >
         <CarouselContent className="-mr-2 md:-mr-4">
           {categoryProducts.map((product) => (
