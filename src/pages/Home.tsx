@@ -13,6 +13,7 @@ import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
 import { LocalBusinessSchema } from '@/components/SEO/LocalBusinessSchema';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+import { FAQSchema } from '@/components/SEO/FAQSchema';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -129,6 +130,31 @@ export default function Home() {
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' }
+        ]}
+      />
+      
+      <FAQSchema
+        faqs={[
+          {
+            question: 'هل المنتجات أصلية ومضمونة؟',
+            answer: 'نعم، جميع منتجاتنا أصلية 100% ومستوردة من مصادر موثوقة. نحن نضمن جودة وأصالة كل منتج نبيعه.'
+          },
+          {
+            question: 'كم مدة التوصيل للطلبات؟',
+            answer: 'مدة التوصيل من 2-5 أيام عمل لجميع مناطق المملكة العربية السعودية. نحن نقدم شحن سريع ومجاني للطلبات فوق 200 ريال.'
+          },
+          {
+            question: 'ما هي طرق الدفع المتاحة؟',
+            answer: 'نقبل الدفع عبر بطاقات الائتمان (Visa, Mastercard)، Apple Pay، Google Pay، والدفع عند الاستلام لبعض المناطق.'
+          },
+          {
+            question: 'هل يمكن إرجاع المنتجات؟',
+            answer: 'نعم، يمكنك إرجاع المنتجات خلال 14 يوم من تاريخ الاستلام إذا كانت بحالتها الأصلية ولم يتم فتحها. راجع سياسة الإرجاع للمزيد من التفاصيل.'
+          },
+          {
+            question: 'هل المنتجات مناسبة لجميع أنواع البشرة والشعر؟',
+            answer: 'منتجاتنا الطبيعية مصممة لتناسب معظم أنواع البشرة والشعر. ننصح بقراءة مكونات كل منتج والتأكد من عدم وجود حساسية تجاه أي مكون.'
+          }
         ]}
       />
       

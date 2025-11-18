@@ -96,6 +96,42 @@
   html {
     direction: rtl;
   }
+  
+  /* Mobile SEO Optimizations */
+  button, a, [role="button"] {
+    min-width: 48px;
+    min-height: 48px;
+    @apply touch-manipulation;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  body, html {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  /* Improve readability on mobile */
+  @media (max-width: 640px) {
+    body {
+      font-size: 16px; /* Prevent zoom on input focus in iOS */
+    }
+    
+    input, textarea, select {
+      font-size: 16px; /* Prevent zoom on input focus */
+    }
+    
+    h1 {
+      @apply text-2xl;
+    }
+    
+    h2 {
+      @apply text-xl;
+    }
+    
+    h3 {
+      @apply text-lg;
+    }
+  }
 }
 
 @layer utilities {
