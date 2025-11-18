@@ -46,7 +46,10 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           <img 
             src={bannerImage} 
             alt={`${title} - منتجات طبيعية`}
+            width="1200"
+            height="256"
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
         </div>
