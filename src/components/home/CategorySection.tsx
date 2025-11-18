@@ -39,9 +39,10 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
   }
 
   return (
-    <div className="animate-fade-in min-h-[400px]" style={{ animationDelay: delay, contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
-      {/* Category Banner */}
-      <div className="relative rounded-3xl overflow-hidden mb-8 group">
+    <section className="py-20 bg-background" style={{ minHeight: '600px', contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}>
+      <div className="container mx-auto px-4" style={{ animationDelay: delay }}>
+        {/* Category Banner */}
+        <div className="relative rounded-3xl overflow-hidden mb-8 group" style={{ minHeight: '256px' }}>
         <div className="absolute inset-0">
           <img 
             src={bannerImage} 
@@ -88,6 +89,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           }),
         ]}
         className="w-full"
+        style={{ minHeight: '320px' }}
       >
         <CarouselContent className="-mr-2 md:-mr-4">
           {categoryProducts.map((product) => (
@@ -101,6 +103,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           <CarouselNext className="right-auto -left-12" />
         </div>
       </Carousel>
-    </div>
+      </div>
+    </section>
   );
 };

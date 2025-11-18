@@ -93,10 +93,10 @@ export default function Home() {
   ) || [];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ contentVisibility: 'auto' }}>
       <SEOHead
         title="لمسة الجمال - منتجات طبيعية للعناية بالشعر والبشرة"
-        description="أفضل منتجات العناية الطبيعية في السعودية. بار شامبو، سيروم فيتامين سي، منتجات عضوية 100%. توصيل سريع لجميع مناطق المملكة."
+        description="أفضر منتجات العناية الطبيعية في السعودية. بار شامبو، سيروم فيتامين سي، منتجات عضوية 100%. توصيل سريع لجميع مناطق المملكة."
         keywords="لمسة الجمال, بار شامبو طبيعي, شامبو صلب, سيروم فيتامين سي, منتجات طبيعية السعودية, العناية بالشعر الطبيعي, العناية بالبشرة, منتجات عضوية, جينسنغ, أعشاب طبيعية, توصيل سريع السعودية, Lamset Beauty, شامبو بالأعشاب, منتجات بدون كيماويات"
         type="website"
         url="/"
@@ -190,9 +190,17 @@ export default function Home() {
               </Button>
             </div>
           ) : isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-              <p className="text-muted-foreground mt-4">جاري التحميل...</p>
+            <div className="space-y-20" style={{ minHeight: '1800px' }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} style={{ minHeight: '600px' }}>
+                  <div className="h-64 bg-muted/30 rounded-3xl mb-8 animate-pulse" />
+                  <div className="grid grid-cols-2 gap-4">
+                    {[1, 2, 3, 4].map((j) => (
+                      <div key={j} className="h-80 bg-muted/30 rounded-xl animate-pulse" />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : products && products.length > 0 ? (
             <div className="space-y-20">
