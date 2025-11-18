@@ -54,6 +54,7 @@ export const SimpleProductCard = ({
             aspectRatio="1/1"
             width={300}
             height={300}
+            objectFit="contain"
           />
         ) : (
           <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground text-xs">
