@@ -12,6 +12,7 @@ import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
 import { LocalBusinessSchema } from '@/components/SEO/LocalBusinessSchema';
+import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -124,6 +125,12 @@ export default function Home() {
       </script>
       <OrganizationSchema />
       <LocalBusinessSchema />
+      
+      <BreadcrumbSchema
+        items={[
+          { name: 'الرئيسية', url: '/' }
+        ]}
+      />
       
       {/* Promotional Banner (Rotating Messages) */}
       <PromoBanner />
