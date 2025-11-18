@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Package, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEO/SEOHead';
+import { Helmet } from 'react-helmet-async';
 
 export default function OrderSuccess() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -112,6 +113,9 @@ export default function OrderSuccess() {
           title="جاري تحميل الطلب"
           description="جاري تحميل تفاصيل طلبك من لمسة الجمال"
         />
+        <Helmet>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center space-y-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
@@ -134,6 +138,9 @@ export default function OrderSuccess() {
           title="الطلب غير موجود"
           description="نعتذر، لم نتمكن من العثور على تفاصيل هذا الطلب"
         />
+        <Helmet>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold">الطلب غير موجود</h2>
@@ -152,6 +159,9 @@ export default function OrderSuccess() {
         title="تم استلام طلبك بنجاح"
         description="شكراً لك على طلبك من لمسة الجمال. سنتواصل معك قريباً."
       />
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8 space-y-4">

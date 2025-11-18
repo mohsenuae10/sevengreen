@@ -14,6 +14,7 @@ import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElement
 import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, Mail, Phone, User, FileText, Globe } from 'lucide-react';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
+import { Helmet } from 'react-helmet-async';
 
 // قائمة الدول العربية ودول الخليج
 const ARAB_COUNTRIES = [
@@ -496,6 +497,9 @@ export default function Checkout() {
         title="إتمام الطلب"
         description="أكمل طلبك من لمسة الجمال للمنتجات الطبيعية"
       />
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <BreadcrumbSchema
         items={[
           { name: 'الرئيسية', url: '/' },
