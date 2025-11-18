@@ -36,7 +36,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
   };
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-4 max-w-lg mx-auto" dir="rtl">
       {/* الصورة الرئيسية */}
       <div className="relative group">
         <OptimizedImage
