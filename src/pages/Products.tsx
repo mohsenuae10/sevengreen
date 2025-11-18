@@ -129,7 +129,7 @@ export default function Products() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {[...Array(8)].map((_, i) => (
             <Card key={i} className="overflow-hidden">
-              <div className="aspect-square bg-muted animate-pulse" />
+              <div className="aspect-[3/4] bg-muted animate-pulse" />
               <CardContent className="p-4 space-y-2">
                 <div className="h-4 bg-muted animate-pulse rounded" />
                 <div className="h-4 bg-muted animate-pulse rounded w-3/4" />

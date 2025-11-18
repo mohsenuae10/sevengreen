@@ -44,19 +44,19 @@ export const SimpleProductCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-gradient-card h-full flex flex-col border border-border hover:border-primary/40" style={{ minHeight: '350px', contentVisibility: 'auto', containIntrinsicSize: '0 350px', contain: 'layout' }}>
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-gradient-card h-full flex flex-col border border-border hover:border-primary/40" style={{ minHeight: '465px', contentVisibility: 'auto', containIntrinsicSize: '0 465px', contain: 'layout' }}>
       <Link to={`/product/${slug || id}`} className="relative overflow-hidden">
         {image_url ? (
           <OptimizedImage
             src={image_url}
             alt={`${name_ar} - منتج طبيعي من لمسة الجمال`}
-            className="aspect-square group-hover:scale-105 transition-transform duration-500"
-            aspectRatio="1/1"
+            className="aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+            aspectRatio="3/4"
             width={300}
-            height={300}
+            height={400}
           />
         ) : (
-          <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground text-xs">
+          <div className="aspect-[3/4] bg-muted flex items-center justify-center text-muted-foreground text-xs">
             لا توجد صورة
           </div>
         )}
