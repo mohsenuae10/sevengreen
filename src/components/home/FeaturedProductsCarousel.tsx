@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ProductCard } from '@/components/ProductCard';
+import { SimpleProductCard } from '@/components/SimpleProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
@@ -54,10 +54,10 @@ export const FeaturedProductsCarousel = () => {
             ]}
             className="w-full"
           >
-            <CarouselContent className="-mr-2 md:-mr-4">
-              {products.map((product, index) => (
-                <CarouselItem key={product.id} className="pr-1 md:pr-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/7">
-                  <ProductCard {...product} />
+            <CarouselContent className="-mr-2 md:-mr-3">
+              {products.map((product) => (
+                <CarouselItem key={product.id} className="pr-2 md:pr-3 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
+                  <SimpleProductCard {...product} />
                 </CarouselItem>
               ))}
             </CarouselContent>
