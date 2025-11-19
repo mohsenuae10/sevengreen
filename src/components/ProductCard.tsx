@@ -89,7 +89,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-gradient-card h-full flex flex-col border-2 border-primary/20 hover:border-primary/40 hover:-translate-y-2 animate-fade-in" style={{ minHeight: '400px', contentVisibility: 'auto', containIntrinsicSize: '0 400px', contain: 'layout' }}>
+    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-gradient-card aspect-[4/5] flex flex-col border-2 border-primary/20 hover:border-primary/40 hover:-translate-y-2 animate-fade-in" style={{ contentVisibility: 'auto', contain: 'layout' }}>
       {/* شارة المنتج */}
       {hasBadge && (
         <Badge className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold text-[9px] px-2 py-0.5 shadow-md">
@@ -119,6 +119,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             aspectRatio="1/1"
             width={400}
             height={400}
+            objectFit="cover"
           />
         ) : (
           <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">

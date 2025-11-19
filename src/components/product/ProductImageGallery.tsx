@@ -36,7 +36,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
   };
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-4 max-w-lg mx-auto" dir="rtl">
       {/* الصورة الرئيسية */}
       <div className="relative group">
         <OptimizedImage
@@ -47,6 +47,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
           width={800}
           height={800}
           priority={selectedIndex === 0}
+          objectFit="cover"
         />
         
         {/* أزرار التنقل - تظهر فقط إذا كان هناك أكثر من صورة */}
@@ -99,6 +100,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
                 aspectRatio="1/1"
                 width={200}
                 height={200}
+                objectFit="cover"
               />
               {image.is_primary && (
                 <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
