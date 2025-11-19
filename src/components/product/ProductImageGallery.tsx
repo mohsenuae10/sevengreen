@@ -47,7 +47,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
           width={800}
           height={800}
           priority={selectedIndex === 0}
-          objectFit="contain"
+          objectFit="cover"
         />
         
         {/* أزرار التنقل - تظهر فقط إذا كان هناك أكثر من صورة */}
@@ -100,7 +100,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
                 aspectRatio="1/1"
                 width={200}
                 height={200}
-                objectFit="contain"
+                objectFit="cover"
               />
               {image.is_primary && (
                 <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
