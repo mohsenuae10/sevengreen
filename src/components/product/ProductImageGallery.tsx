@@ -86,24 +86,22 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
               key={image.id || index}
               onClick={() => setSelectedIndex(index)}
               className={cn(
-                "relative aspect-square rounded-lg overflow-hidden border-2 transition-all bg-background p-2",
+                "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                 selectedIndex === index
                   ? "border-primary ring-2 ring-primary/20"
                   : "border-border hover:border-primary/50"
               )}
               aria-label={`عرض الصورة ${index + 1}`}
             >
-              <div className="w-full h-full flex items-center justify-center">
-                <OptimizedImage
-                  src={image.image_url}
-                  alt={`${productName} - صورة مصغرة ${index + 1} - منتج طبيعي من لمسة الجمال`}
-                  className="max-w-full max-h-full"
-                  aspectRatio="1/1"
-                  width={200}
-                  height={200}
-                  objectFit="contain"
-                />
-              </div>
+              <OptimizedImage
+                src={image.image_url}
+                alt={`${productName} - صورة مصغرة ${index + 1} - منتج طبيعي من لمسة الجمال`}
+                className="w-full h-full"
+                aspectRatio="1/1"
+                width={200}
+                height={200}
+                objectFit="cover"
+              />
               {image.is_primary && (
                 <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
                   رئيسية
