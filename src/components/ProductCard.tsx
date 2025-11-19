@@ -119,7 +119,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             aspectRatio="1/1"
             width={400}
             height={400}
-            objectFit="contain"
+            objectFit="cover"
           />
         ) : (
           <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
