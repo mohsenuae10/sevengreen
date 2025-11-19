@@ -32,15 +32,10 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
   }
 
   return (
-    <section className="py-16 bg-gradient-to-b from-background to-muted/20">
+    <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            منتجات موصى بها
-          </h2>
-          <p className="text-muted-foreground">اكتشف منتجات مشابهة قد تعجبك</p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+        <h2 className="text-3xl font-bold text-center mb-8">منتجات ذات صلة</h2>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 items-stretch">
           {products.map((product) => (
             <SimpleProductCard key={product.id} {...product} />
           ))}

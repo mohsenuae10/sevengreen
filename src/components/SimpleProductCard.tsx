@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart } from 'lucide-react';
 import { Button } from './ui/button';
+import { Card, CardContent } from './ui/card';
+import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { OptimizedImage } from './OptimizedImage';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface SimpleProductCardProps {
   id: string;
@@ -16,133 +15,85 @@ interface SimpleProductCardProps {
   slug?: string | null;
 }
 
-export const SimpleProductCard = ({
-  id,
-  name_ar,
-  price,
-  image_url,
-  stock_quantity,
-  slug,
+export const SimpleProductCard = ({ 
+  id, 
+  name_ar, 
+  price, 
+  image_url, 
+  stock_quantity, 
+  slug 
 }: SimpleProductCardProps) => {
   const { addToCart } = useCart();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-
     if (stock_quantity <= 0) {
-      toast.error('المنتج غير متوفر حالياً');
+      toast({
+        title: 'غير متوفر',
+        description: 'هذا المنتج غير متوفر حالياً',
+        variant: 'destructive',
+      });
       return;
     }
 
-    addToCart({
-      id,
-      name_ar,
-      price,
-      image_url,
-    });
-
-    toast.success('تمت الإضافة إلى السلة', {
-      description: name_ar,
+    addToCart({ id, name_ar, price, image_url });
+    toast({
+      title: 'تمت الإضافة',
+      description: `تم إضافة ${name_ar} إلى السلة`,
     });
   };
-
-  const toggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    toast.success(isFavorite ? 'تمت الإزالة من المفضلة' : 'تمت الإضافة للمفضلة');
-  };
-
-  const productUrl = slug ? `/product/${slug}` : `/product/${id}`;
 
   return (
-    <Link 
-      to={productUrl}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="group relative h-full bg-card rounded-xl border border-border/50 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/30 hover:-translate-y-1">
-        {/* Image Container */}
-        <div className="relative aspect-square bg-background p-3">
-          <div className="w-full h-full flex items-center justify-center">
-            <OptimizedImage
-              src={image_url || '/placeholder.svg'}
-              alt={name_ar}
-              className="max-w-full max-h-full transition-transform duration-500 group-hover:scale-105"
-              aspectRatio="1/1"
-              width={300}
-              height={300}
-              objectFit="contain"
-            />
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative bg-gradient-card h-full flex flex-col border border-border hover:border-primary/40" style={{ minHeight: '350px', contentVisibility: 'auto', containIntrinsicSize: '0 350px', contain: 'layout style paint', willChange: 'transform' }}>
+      <Link to={`/product/${slug || id}`} className="relative overflow-hidden">
+        {image_url ? (
+          <OptimizedImage
+            src={image_url}
+            alt={`${name_ar} - منتج طبيعي من لمسة الجمال`}
+            className="aspect-square group-hover:scale-105 transition-transform duration-500"
+            aspectRatio="1/1"
+            width={300}
+            height={300}
+          />
+        ) : (
+          <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground text-xs">
+            لا توجد صورة
           </div>
-          
-          {/* Favorite Button */}
-          <button
-            onClick={toggleFavorite}
-            className={cn(
-              "absolute top-2 right-2 p-2 rounded-full backdrop-blur-sm transition-all duration-300",
-              isFavorite 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-background/80 text-foreground hover:bg-background"
-            )}
-          >
-            <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
-          </button>
-
-          {/* Stock Badge */}
-          {stock_quantity <= 0 && (
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-              <span className="bg-destructive text-destructive-foreground px-4 py-2 rounded-full text-sm font-bold">
-                غير متوفر
-              </span>
-            </div>
-          )}
-
-          {/* Quick Add Button - Shows on Hover */}
-          {stock_quantity > 0 && (
-            <div className={cn(
-              "absolute inset-x-0 bottom-0 p-3 transition-all duration-300",
-              isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-            )}>
-              <Button
-                onClick={handleAddToCart}
-                className="w-full bg-primary/95 hover:bg-primary backdrop-blur-sm"
-                size="sm"
-              >
-                <ShoppingCart className="w-4 h-4 ml-2" />
-                أضف للسلة
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="p-3 space-y-2">
-          {/* Product Name */}
-          <h3 className="font-semibold text-sm line-clamp-2 text-foreground leading-tight min-h-[2.5rem]">
+        )}
+        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </Link>
+      
+      <CardContent className="p-2 flex-1 flex flex-col justify-between gap-2">
+        {/* اسم المنتج */}
+        <Link to={`/product/${slug || id}`}>
+          <h3 className="font-semibold text-xs text-center text-foreground hover:text-primary transition-colors line-clamp-2 min-h-[2rem] leading-tight">
             {name_ar}
           </h3>
+        </Link>
 
-          {/* Price */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-bold text-primary">
-                {price.toFixed(2)}
-              </span>
-              <span className="text-xs text-muted-foreground">ريال</span>
-            </div>
-            
-            {stock_quantity > 0 && stock_quantity <= 5 && (
-              <span className="text-xs text-orange-500 font-medium">
-                {stock_quantity} متبقي
-              </span>
-            )}
+        {/* السعر */}
+        <div className="text-center">
+          <div className="flex items-baseline justify-center gap-1">
+            <p className="text-base font-bold text-primary">
+              {price.toFixed(2)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ر.س
+            </p>
           </div>
         </div>
-      </div>
-    </Link>
+
+        {/* زر الإضافة للسلة */}
+        <Button
+          onClick={handleAddToCart}
+          size="sm"
+          className="w-full h-8 text-xs hover:scale-105 active:scale-95 transition-all"
+          disabled={stock_quantity <= 0}
+        >
+          <ShoppingCart className="h-3.5 w-3.5 ml-1" />
+          {stock_quantity <= 0 ? 'نفذت الكمية' : 'أضف للسلة'}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
