@@ -86,7 +86,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
               key={image.id || index}
               onClick={() => setSelectedIndex(index)}
               className={cn(
-                "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                "relative aspect-square rounded-lg overflow-hidden border-2 transition-all bg-background",
                 selectedIndex === index
                   ? "border-primary ring-2 ring-primary/20"
                   : "border-border hover:border-primary/50"
@@ -100,7 +100,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
                 aspectRatio="1/1"
                 width={200}
                 height={200}
-                objectFit="cover"
+                objectFit="contain"
               />
               {image.is_primary && (
                 <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
