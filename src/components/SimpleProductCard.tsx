@@ -66,16 +66,18 @@ export const SimpleProductCard = ({
     >
       <div className="group relative h-full bg-card rounded-xl border border-border/50 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/30 hover:-translate-y-1">
         {/* Image Container */}
-        <div className="relative aspect-square bg-background overflow-hidden p-2">
-          <OptimizedImage
-            src={image_url || '/placeholder.svg'}
-            alt={name_ar}
-            className="w-full h-full transition-transform duration-500 group-hover:scale-105"
-            aspectRatio="1/1"
-            width={300}
-            height={300}
-            objectFit="contain"
-          />
+        <div className="relative aspect-square bg-background p-3">
+          <div className="w-full h-full flex items-center justify-center">
+            <OptimizedImage
+              src={image_url || '/placeholder.svg'}
+              alt={name_ar}
+              className="max-w-full max-h-full transition-transform duration-500 group-hover:scale-105"
+              aspectRatio="1/1"
+              width={300}
+              height={300}
+              objectFit="contain"
+            />
+          </div>
           
           {/* Favorite Button */}
           <button
