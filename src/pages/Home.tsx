@@ -206,6 +206,7 @@ export default function Home() {
                   delay={`${index * 0.1}s`}
                   bannerUrl={category.banner_url}
                   categorySlug={category.slug}
+                  isPriority={index === 0}
                 />
               ))}
             </div>
