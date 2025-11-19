@@ -183,16 +183,20 @@ export default function Home() {
         <div className="container mx-auto px-4">
 
           {error ? (
-            <div className="text-center py-12">
-              <p className="text-destructive mb-4">حدث خطأ في تحميل المنتجات</p>
-              <Button onClick={() => window.location.reload()}>
-                إعادة المحاولة
-              </Button>
+            <div className="text-center py-12 min-h-[800px] flex items-center justify-center">
+              <div>
+                <p className="text-destructive mb-4">حدث خطأ في تحميل المنتجات</p>
+                <Button onClick={() => window.location.reload()}>
+                  إعادة المحاولة
+                </Button>
+              </div>
             </div>
           ) : isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-              <p className="text-muted-foreground mt-4">جاري التحميل...</p>
+            <div className="text-center py-12 min-h-[800px] flex items-center justify-center">
+              <div>
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <p className="text-muted-foreground mt-4">جاري التحميل...</p>
+              </div>
             </div>
           ) : products && products.length > 0 ? (
             <div className="space-y-20">
@@ -211,7 +215,7 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="text-center py-12 min-h-[800px] flex items-center justify-center">
               <p className="text-muted-foreground">لا توجد منتجات حالياً</p>
             </div>
           )}
