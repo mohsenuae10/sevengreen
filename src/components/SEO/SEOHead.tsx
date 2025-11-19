@@ -41,7 +41,12 @@ export const SEOHead = ({
   
   // SEO: Use provided URL or construct from window location (decode Arabic URLs properly)
   const decodedPath = decodeURIComponent(window.location.pathname);
-  const currentUrl = url || `https://lamsetbeauty.com${decodedPath}`;
+  // Ensure URL is always absolute
+  let currentUrl = url || `https://lamsetbeauty.com${decodedPath}`;
+  // If url prop is relative, make it absolute
+  if (url && url.startsWith('/')) {
+    currentUrl = `https://lamsetbeauty.com${url}`;
+  }
 
   return (
     <Helmet>
