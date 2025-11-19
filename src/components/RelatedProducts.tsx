@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SimpleProductCard } from './SimpleProductCard';
+import { ProductCard } from './ProductCard';
 
 interface RelatedProductsProps {
   currentProductId: string;
@@ -35,9 +35,9 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-8">منتجات ذات صلة</h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 items-stretch">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 items-stretch">
           {products.map((product) => (
-            <SimpleProductCard key={product.id} {...product} />
+            <ProductCard key={product.id} {...product} />
           ))}
         </div>
       </div>

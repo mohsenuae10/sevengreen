@@ -56,83 +56,50 @@ export const Header = () => {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[320px] bg-background/95 backdrop-blur-xl">
-                <div className="flex flex-col h-full">
-                  {/* Logo */}
-                  <div className="py-6 border-b border-border/50">
-                    <Link to="/" onClick={handleMobileNavClick}>
-                      <img 
-                        src={logo} 
-                        alt="لمسة الجمال" 
-                        className="h-10 mx-auto hover:scale-105 transition-transform"
-                      />
-                    </Link>
+              <SheetContent side="right" className="w-[300px] bg-background">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <Link 
+                    to="/" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
+                    الرئيسية
+                  </Link>
+                  <div className="border-t pt-2">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">الأقسام</p>
+                    {categories?.map((category) => (
+                      <Link
+                        key={category.slug}
+                        to={`/products?category=${category.slug}`}
+                        onClick={handleMobileNavClick}
+                        className="block text-sm hover:text-primary transition-colors py-2 pr-4"
+                      >
+                        {category.name_ar}
+                      </Link>
+                    ))}
                   </div>
-
-                  {/* Navigation */}
-                  <nav className="flex-1 overflow-y-auto py-6 space-y-1">
-                    <Link 
-                      to="/" 
-                      onClick={handleMobileNavClick}
-                      className="flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
-                    >
-                      <span className="w-1 h-6 bg-primary rounded-full opacity-0 hover:opacity-100 transition-opacity"></span>
-                      الرئيسية
-                    </Link>
-                    
-                    {/* الأقسام */}
-                    <div className="pt-4">
-                      <p className="px-4 text-sm font-bold text-primary mb-3">الأقسام</p>
-                      <div className="space-y-1">
-                        {categories?.map((category) => (
-                          <Link
-                            key={category.slug}
-                            to={`/products?category=${category.slug}`}
-                            onClick={handleMobileNavClick}
-                            className="flex items-center gap-3 px-6 py-2.5 text-sm rounded-lg hover:bg-muted hover:text-primary transition-all"
-                          >
-                            <span className="w-1.5 h-1.5 bg-primary/60 rounded-full"></span>
-                            {category.name_ar}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pt-4 space-y-1">
-                      <Link 
-                        to="/products" 
-                        onClick={handleMobileNavClick}
-                        className="flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
-                      >
-                        <span className="w-1 h-6 bg-primary rounded-full opacity-0 hover:opacity-100 transition-opacity"></span>
-                        جميع المنتجات
-                      </Link>
-                      <Link 
-                        to="/about" 
-                        onClick={handleMobileNavClick}
-                        className="flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
-                      >
-                        <span className="w-1 h-6 bg-primary rounded-full opacity-0 hover:opacity-100 transition-opacity"></span>
-                        من نحن
-                      </Link>
-                      <Link 
-                        to="/contact" 
-                        onClick={handleMobileNavClick}
-                        className="flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
-                      >
-                        <span className="w-1 h-6 bg-primary rounded-full opacity-0 hover:opacity-100 transition-opacity"></span>
-                        اتصل بنا
-                      </Link>
-                    </div>
-                  </nav>
-
-                  {/* Footer info */}
-                  <div className="border-t border-border/50 py-4 px-4">
-                    <p className="text-xs text-center text-muted-foreground">
-                      منتجات طبيعية بجودة عالية
-                    </p>
-                  </div>
-                </div>
+                  <Link 
+                    to="/products" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
+                    جميع المنتجات
+                  </Link>
+                  <Link 
+                    to="/about" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
+                    من نحن
+                  </Link>
+                  <Link 
+                    to="/contact" 
+                    onClick={handleMobileNavClick}
+                    className="text-base font-medium hover:text-primary transition-colors py-2"
+                  >
+                    اتصل بنا
+                  </Link>
+                </nav>
               </SheetContent>
             </Sheet>
           </div>

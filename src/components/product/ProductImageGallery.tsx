@@ -36,7 +36,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
   };
 
   return (
-    <div className="space-y-4 max-w-lg mx-auto" dir="rtl">
+    <div className="space-y-4" dir="rtl">
       {/* الصورة الرئيسية */}
       <div className="relative group">
         <OptimizedImage
@@ -44,10 +44,7 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
           alt={`${productName} - صورة عالية الجودة ${selectedIndex + 1} من ${images.length} - منتجات لمسة الجمال الطبيعية`}
           className="w-full rounded-lg"
           aspectRatio="1/1"
-          width={800}
-          height={800}
           priority={selectedIndex === 0}
-          objectFit="cover"
         />
         
         {/* أزرار التنقل - تظهر فقط إذا كان هناك أكثر من صورة */}
@@ -98,9 +95,6 @@ export const ProductImageGallery = ({ images, productName }: ProductImageGallery
                 alt={`${productName} - صورة مصغرة ${index + 1} - منتج طبيعي من لمسة الجمال`}
                 className="w-full h-full"
                 aspectRatio="1/1"
-                width={200}
-                height={200}
-                objectFit="cover"
               />
               {image.is_primary && (
                 <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">

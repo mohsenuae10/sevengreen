@@ -19,16 +19,18 @@ export const Footer = () => {
   });
 
   const { data: categories } = useQuery({
-    queryKey: ['footer-categories'],
+    queryKey: ['product-categories'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('categories')
-        .select('name_ar, slug')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true })
-        .limit(6);
+        .from('products')
+        .select('category')
+        .eq('is_active', true);
       
-      return data || [];
+      if (!data) return [];
+      
+      // Get unique categories
+      const uniqueCategories = [...new Set(data.map(p => p.category))];
+      return uniqueCategories.slice(0, 6); // Show max 6 categories
     },
   });
 
@@ -98,15 +100,15 @@ export const Footer = () => {
             <h3 className="text-lg font-bold text-primary mb-4">فئات المنتجات</h3>
             <ul className="space-y-3 text-sm">
               {categories && categories.length > 0 ? (
-                categories.map((category) => (
-                  <li key={category.slug}>
+                categories.map((category, index) => (
+                  <li key={index}>
                     <Link 
-                      to={`/products?category=${encodeURIComponent(category.slug)}`}
+                      to={`/products?category=${encodeURIComponent(category)}`}
                       className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
-                      aria-label={`تصفح منتجات ${category.name_ar}`}
+                      aria-label={`تصفح منتجات ${category}`}
                     >
                       <span className="w-1 h-1 bg-primary rounded-full" aria-hidden="true"></span>
-                      {category.name_ar}
+                      {category}
                     </Link>
                   </li>
                 ))

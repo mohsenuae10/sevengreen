@@ -143,14 +143,4 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-
-  /* Improve CLS by reserving space for images */
-  img {
-    content-visibility: auto;
-  }
-
-  /* Prevent layout shifts during loading */
-  .aspect-square {
-    aspect-ratio: 1 / 1;
-  }
 }

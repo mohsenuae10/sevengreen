@@ -41,9 +41,9 @@ const features = [
 
 export const FeaturesSection = () => {
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-secondary/20 min-h-[800px]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
+    <section className="py-20 bg-gradient-to-b from-background to-secondary/20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             لماذا تختار لمسة الجمال؟
           </h2>
@@ -56,8 +56,8 @@ export const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group relative overflow-hidden rounded-2xl bg-card border border-border p-8 hover:shadow-xl transition-all duration-300 hover:scale-105"
-              style={{ opacity: 1, transform: 'translateY(0)' }}
+              className="group relative overflow-hidden rounded-2xl bg-card border border-border p-8 hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-5 group-hover:opacity-10 transition-opacity rounded-full -mr-16 -mt-16 blur-2xl"></div>
               

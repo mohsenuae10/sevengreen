@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { OptimizedImage } from "./OptimizedImage";
 
 interface PromotionalBannerProps {
   bannerUrl: string;
@@ -13,15 +12,14 @@ export const PromotionalBanner = ({ bannerUrl, productId, offerDescription }: Pr
       to={`/product/${productId}`}
       className="block w-full overflow-hidden group"
     >
-      <OptimizedImage
-        src={bannerUrl}
-        alt={offerDescription}
-        className="w-full transition-transform duration-300 group-hover:scale-105"
-        aspectRatio="auto"
-        width={1200}
-        height={400}
-        priority
-      />
+      <div className="relative">
+        <img 
+          src={bannerUrl} 
+          alt={offerDescription}
+          className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+      </div>
     </Link>
   );
 };

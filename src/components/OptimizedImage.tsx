@@ -26,7 +26,6 @@ export const OptimizedImage = ({
 }: OptimizedImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [blurDataUrl, setBlurDataUrl] = useState<string>('');
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -41,7 +40,7 @@ export const OptimizedImage = ({
   const calculatedWidth = width || 800;
   const calculatedHeight = height || (aspectRatio ? calculatedWidth / parseFloat(aspectRatio.replace('/', ' / ')) : calculatedWidth);
 
-  // Generate srcset for responsive images with WebP support
+  // Generate srcset for responsive images (if image is from Supabase Storage)
   const generateSrcSet = (imageSrc: string): string => {
     if (!imageSrc.includes('supabase.co/storage')) {
       return '';
@@ -51,11 +50,10 @@ export const OptimizedImage = ({
     const widths = [400, 800, 1200, 1600];
     const srcset = widths
       .map(w => {
-        // Add transformation parameters to Supabase Storage URL
+        // Add width parameter to Supabase Storage URL
         const url = new URL(imageSrc);
         url.searchParams.set('width', w.toString());
-        url.searchParams.set('quality', '80');
-        url.searchParams.set('format', 'webp');
+        url.searchParams.set('quality', '85');
         return `${url.toString()} ${w}w`;
       })
       .join(', ');
@@ -63,58 +61,27 @@ export const OptimizedImage = ({
     return srcset;
   };
 
-  // Generate tiny blur placeholder (32px width)
-  const generateBlurPlaceholder = (imageSrc: string): string => {
-    if (!imageSrc.includes('supabase.co/storage')) {
-      return '';
-    }
-
-    const url = new URL(imageSrc);
-    url.searchParams.set('width', '32');
-    url.searchParams.set('quality', '20');
-    url.searchParams.set('format', 'webp');
-    return url.toString();
-  };
-
   const srcset = generateSrcSet(src);
-  const placeholderUrl = generateBlurPlaceholder(src);
 
   return (
     <div 
       className={cn('relative overflow-hidden bg-muted/10', className)} 
-      style={{ 
-        aspectRatio,
-        minHeight: height ? `${height}px` : 'auto',
-        contentVisibility: 'auto'
-      }}
+      style={{ aspectRatio }}
     >
-      {/* Blur placeholder that shows while loading */}
-      {isLoading && placeholderUrl && (
-        <img
-          src={placeholderUrl}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 animate-pulse"
-          style={{ aspectRatio }}
-        />
-      )}
-      
-      {/* Loading skeleton for non-Supabase images */}
-      {isLoading && !placeholderUrl && (
+      {isLoading && (
         <div className="absolute inset-0 bg-gradient-to-br from-muted/20 via-muted/10 to-muted/20 animate-pulse" />
       )}
-      
       <picture>
-        {/* WebP format for modern browsers with responsive sizes */}
-        {src.includes('supabase.co/storage') && srcset && (
+        {/* WebP format for modern browsers */}
+        {src.includes('supabase.co/storage') && (
           <source
             type="image/webp"
-            srcSet={srcset}
+            srcSet={srcset || src}
             sizes={sizes}
           />
         )}
         
-        {/* Main image with optimized loading */}
+        {/* Fallback to original format */}
         <img
           src={hasError ? '/placeholder.svg' : src}
           srcSet={srcset || undefined}
@@ -129,9 +96,9 @@ export const OptimizedImage = ({
           onError={handleError}
           style={{ aspectRatio }}
           className={cn(
-            'w-full h-full transition-opacity duration-500 ease-out',
+            'w-full h-full transition-opacity duration-300',
             `object-${objectFit}`,
-            isLoading ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
+            isLoading ? 'opacity-0' : 'opacity-100'
           )}
         />
       </picture>

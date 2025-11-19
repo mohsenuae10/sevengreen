@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SimpleProductCard } from '@/components/SimpleProductCard';
+import { ProductCard } from '@/components/ProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import Autoplay from 'embla-carousel-autoplay';
 
 export const FeaturedProductsCarousel = () => {
@@ -23,10 +22,12 @@ export const FeaturedProductsCarousel = () => {
     },
   });
 
+  if (isLoading || !products || products.length === 0) return null;
+
   return (
-    <section className="py-16 bg-gradient-to-b from-background to-secondary/30 min-h-[500px]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
+    <section className="py-16 bg-gradient-to-b from-background to-secondary/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 animate-fade-in">
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
             <Star className="h-4 w-4 ml-2 fill-current" />
             منتجاتنا المميزة
@@ -39,22 +40,8 @@ export const FeaturedProductsCarousel = () => {
           </p>
         </div>
 
-        {isLoading || !products || products.length === 0 ? (
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-[4/5] w-full rounded-lg" />
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-3/4 mx-auto" />
-                  <Skeleton className="h-7 w-full" />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-7xl mx-auto">
-            <Carousel
+        <div className="max-w-7xl mx-auto">
+          <Carousel
             opts={{
               align: "start",
               loop: true,
@@ -66,22 +53,20 @@ export const FeaturedProductsCarousel = () => {
               }),
             ]}
             className="w-full"
-            style={{ contain: 'layout' }}
           >
-            <CarouselContent className="-mr-2 md:-mr-3">
-              {products.map((product) => (
-                <CarouselItem key={product.id} className="pr-2 md:pr-3 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
-                  <SimpleProductCard {...product} />
+            <CarouselContent className="-mr-2 md:-mr-4">
+              {products.map((product, index) => (
+                <CarouselItem key={product.id} className="pr-1 md:pr-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/7">
+                  <ProductCard {...product} />
                 </CarouselItem>
               ))}
             </CarouselContent>
-              <div className="hidden md:block">
-                <CarouselPrevious className="left-auto -right-12" />
-                <CarouselNext className="right-auto -left-12" />
-              </div>
-            </Carousel>
-          </div>
-        )}
+            <div className="hidden md:block">
+              <CarouselPrevious className="left-auto -right-12" />
+              <CarouselNext className="right-auto -left-12" />
+            </div>
+          </Carousel>
+        </div>
       </div>
     </section>
   );

@@ -39,10 +39,9 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
   }
 
   return (
-    <section className="py-20 bg-background" style={{ minHeight: '700px', contentVisibility: 'auto', containIntrinsicSize: '0 700px', contain: 'layout style' }}>
-      <div className="container mx-auto px-4" style={{ animationDelay: delay }}>
-        {/* Category Banner */}
-        <div className="relative rounded-3xl overflow-hidden mb-8 group" style={{ minHeight: '256px' }}>
+    <div className="animate-fade-in" style={{ animationDelay: delay }}>
+      {/* Category Banner */}
+      <div className="relative rounded-3xl overflow-hidden mb-8 group">
         <div className="absolute inset-0">
           <img 
             src={bannerImage} 
@@ -51,7 +50,6 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
             height="256"
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
             loading="lazy"
-            style={{ aspectRatio: '1200/256' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
         </div>
@@ -89,7 +87,6 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           }),
         ]}
         className="w-full"
-        style={{ minHeight: '400px', contain: 'layout' }}
       >
         <CarouselContent className="-mr-2 md:-mr-4">
           {categoryProducts.map((product) => (
@@ -103,7 +100,6 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           <CarouselNext className="right-auto -left-12" />
         </div>
       </Carousel>
-      </div>
-    </section>
+    </div>
   );
 };
