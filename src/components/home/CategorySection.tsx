@@ -25,9 +25,10 @@ interface CategorySectionProps {
   delay?: string;
   bannerUrl?: string | null;
   categorySlug: string;
+  isPriority?: boolean;
 }
 
-export const CategorySection = ({ title, category, products, icon, delay = '0s', bannerUrl, categorySlug }: CategorySectionProps) => {
+export const CategorySection = ({ title, category, products, icon, delay = '0s', bannerUrl, categorySlug, isPriority = false }: CategorySectionProps) => {
   const categoryProducts = products.filter(p => p.category?.trim() === category);
   
   // Use provided banner URL or fallback to default
@@ -49,7 +50,8 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
             width="1200"
             height="256"
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
-            loading="lazy"
+            loading={isPriority ? "eager" : "lazy"}
+            fetchPriority={isPriority ? "high" : "auto"}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
         </div>
