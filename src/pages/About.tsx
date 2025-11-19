@@ -17,7 +17,6 @@ export default function About() {
         title="من نحن - لمسة الجمال | Lamset Beauty"
         description="تعرفي على لمسة الجمال، متجرك المتخصص في منتجات الجمال والعناية الفاخرة. نوفر مستحضرات تجميل أصلية بأعلى جودة."
         keywords="من نحن لمسة الجمال, عن المتجر, منتجات جمال, مستحضرات تجميل"
-        url="/about"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
