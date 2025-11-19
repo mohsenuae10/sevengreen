@@ -115,16 +115,18 @@ export const ProductCard = ({
     >
       <div className="group relative h-full bg-card rounded-2xl border border-border/50 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/40 hover:-translate-y-2">
         {/* Image Container */}
-        <div className="relative aspect-square bg-background overflow-hidden p-3">
-          <OptimizedImage
-            src={image_url || '/placeholder.svg'}
-            alt={name_ar}
-            className="w-full h-full transition-transform duration-500 group-hover:scale-105"
-            aspectRatio="1/1"
-            width={400}
-            height={400}
-            objectFit="contain"
-          />
+        <div className="relative aspect-square bg-background p-4">
+          <div className="w-full h-full flex items-center justify-center">
+            <OptimizedImage
+              src={image_url || '/placeholder.svg'}
+              alt={name_ar}
+              className="max-w-full max-h-full transition-transform duration-500 group-hover:scale-105"
+              aspectRatio="1/1"
+              width={400}
+              height={400}
+              objectFit="contain"
+            />
+          </div>
 
           {/* Badges */}
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
