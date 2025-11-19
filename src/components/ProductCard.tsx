@@ -1,13 +1,13 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, Heart, Star, Zap } from 'lucide-react';
 import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
-import { ShoppingCart, Heart, Zap } from 'lucide-react';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from '@/hooks/use-toast';
-import { OptimizedImage } from './OptimizedImage';
 import { Badge } from './ui/badge';
-import ProductRating from './product/ProductRating';
+import { useCart } from '@/contexts/CartContext';
+import { toast } from 'sonner';
+import { OptimizedImage } from './OptimizedImage';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   id: string;
@@ -19,184 +19,237 @@ interface ProductCardProps {
   slug?: string | null;
 }
 
-export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category, slug }: ProductCardProps) => {
+export const ProductCard = ({
+  id,
+  name_ar,
+  price,
+  image_url,
+  stock_quantity,
+  category,
+  slug,
+}: ProductCardProps) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // دالة لتوليد رقم عشوائي ثابت بناءً على ID
-  const seededRandom = (seed: string, max: number = 1) => {
+  // Generate consistent random values based on product ID
+  const seededRandom = (seed: string, index: number) => {
     let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-      hash |= 0;
+    const str = seed + index;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
     }
-    return (Math.abs(hash) % 100) / 100 * max;
+    return Math.abs(hash % 100) / 100;
   };
 
-  // استخدام ID للحصول على قيم ثابتة
-  const discountSeed = seededRandom(id);
-  const hasDiscount = discountSeed > 0.6;
-  const discountPercentage = hasDiscount ? Math.floor(discountSeed * 30) + 10 : 0;
-  const oldPrice = hasDiscount ? price / (1 - discountPercentage / 100) : price;
+  // Determine if product has discount
+  const hasDiscount = seededRandom(id, 1) > 0.7;
+  const discountPercent = hasDiscount ? Math.floor(seededRandom(id, 2) * 30) + 10 : 0;
+  const originalPrice = hasDiscount ? price / (1 - discountPercent / 100) : price;
 
-  const badges = ['الأكثر مبيعاً', 'منتج جديد', 'عرض خاص', 'الأكثر شعبية'];
-  const badgeSeed = seededRandom(id + 'badge');
-  const hasBadge = badgeSeed > 0.5;
-  const badgeIndex = Math.floor(seededRandom(id + 'badgeType', badges.length));
-  const randomBadge = badges[badgeIndex];
+  // Determine if product has badge
+  const hasBadge = seededRandom(id, 3) > 0.75;
+  const badges = ['جديد', 'الأكثر مبيعاً', 'عرض خاص'];
+  const badgeText = badges[Math.floor(seededRandom(id, 4) * badges.length)];
+
+  // Generate rating
+  const rating = 4 + seededRandom(id, 5);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (stock_quantity <= 0) {
-      toast({
-        title: 'غير متوفر',
-        description: 'هذا المنتج غير متوفر حالياً',
-        variant: 'destructive',
-      });
+      toast.error('المنتج غير متوفر حالياً');
       return;
     }
 
-    addToCart({ id, name_ar, price, image_url });
-    toast({
-      title: 'تمت الإضافة',
-      description: `تم إضافة ${name_ar} إلى السلة`,
+    addToCart({
+      id,
+      name_ar,
+      price,
+      image_url,
+    });
+
+    toast.success('تمت الإضافة إلى السلة', {
+      description: name_ar,
     });
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (stock_quantity <= 0) {
-      toast({
-        title: 'غير متوفر',
-        description: 'هذا المنتج غير متوفر حالياً',
-        variant: 'destructive',
-      });
+      toast.error('المنتج غير متوفر حالياً');
       return;
     }
 
-    addToCart({ id, name_ar, price, image_url });
+    addToCart({
+      id,
+      name_ar,
+      price,
+      image_url,
+    });
+
     navigate('/checkout');
   };
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsFavorite(!isFavorite);
-    toast({
-      title: isFavorite ? 'تمت الإزالة' : 'تمت الإضافة',
-      description: isFavorite ? 'تم إزالة المنتج من المفضلة' : 'تم إضافة المنتج للمفضلة',
-    });
+    toast.success(isFavorite ? 'تمت الإزالة من المفضلة' : 'تمت الإضافة للمفضلة');
   };
 
+  const productUrl = slug ? `/product/${slug}` : `/product/${id}`;
+
   return (
-    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-gradient-card aspect-[4/5] flex flex-col border-2 border-primary/20 hover:border-primary/40 hover:-translate-y-2 animate-fade-in" style={{ contentVisibility: 'auto', contain: 'layout' }}>
-      {/* شارة المنتج */}
-      {hasBadge && (
-        <Badge className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold text-[9px] px-2 py-0.5 shadow-md">
-          {randomBadge}
-        </Badge>
-      )}
-
-      {/* أيقونة المفضلة */}
-      <button
-        onClick={toggleFavorite}
-        className="absolute top-2 left-2 z-10 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-sm"
-        aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
-      >
-        <Heart
-          className={`h-4 w-4 transition-all ${
-            isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-600'
-          }`}
-        />
-      </button>
-
-      <Link to={`/product/${slug || id}`} className="relative overflow-hidden">
-        {image_url ? (
+    <Link 
+      to={productUrl}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="group relative h-full bg-card rounded-2xl border border-border/50 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/40 hover:-translate-y-2">
+        {/* Image Container */}
+        <div className="relative aspect-square bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden">
           <OptimizedImage
-            src={image_url}
-            alt={`${name_ar}${category ? ` - ${category}` : ''} فاخر من لمسة الجمال | شحن مجاني في السعودية`}
-            className="aspect-square group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
+            src={image_url || '/placeholder.svg'}
+            alt={name_ar}
+            className="w-full h-full transition-transform duration-500 group-hover:scale-110"
             aspectRatio="1/1"
             width={400}
             height={400}
             objectFit="cover"
           />
-        ) : (
-          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
-            لا توجد صورة
-          </div>
-        )}
-        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      </Link>
-      
-      <CardContent className="p-3 md:p-4 flex-1 flex flex-col justify-between gap-2">
-        {/* اسم المنتج */}
-        <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-xs md:text-sm text-center text-primary hover:text-primary/80 transition-all duration-300 line-clamp-2 min-h-[2.5rem] leading-tight flex items-center justify-center px-1 group-hover:scale-105">
-            {name_ar}
-          </h3>
-        </Link>
 
-        {/* التقييم - محذوف لأنه كان يستخدم أرقام مزيفة */}
-
-        {/* قسم السعر */}
-        <div className="text-center space-y-1 py-2">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-baseline gap-1">
-              <p className="text-lg md:text-xl font-bold text-primary">
-                {price.toFixed(2)}
-              </p>
-              <p className="text-xs font-semibold text-muted-foreground">
-                ر.س
-              </p>
+          {/* Badges */}
+          <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+            <div className="flex flex-col gap-2">
+              {hasBadge && (
+                <Badge className="bg-primary text-primary-foreground shadow-lg backdrop-blur-sm">
+                  <Zap className="w-3 h-3 ml-1" />
+                  {badgeText}
+                </Badge>
+              )}
+              {hasDiscount && (
+                <Badge variant="destructive" className="shadow-lg backdrop-blur-sm">
+                  خصم {discountPercent}%
+                </Badge>
+              )}
             </div>
-            {hasDiscount && (
-              <div className="flex items-baseline gap-0.5">
-                <p className="text-xs text-muted-foreground line-through">
-                  {oldPrice.toFixed(2)}
-                </p>
-              </div>
-            )}
+
+            {/* Favorite Button */}
+            <button
+              onClick={toggleFavorite}
+              className={cn(
+                "p-2.5 rounded-full backdrop-blur-sm transition-all duration-300 shadow-lg",
+                isFavorite 
+                  ? "bg-primary text-primary-foreground scale-110" 
+                  : "bg-background/90 text-foreground hover:bg-background hover:scale-110"
+              )}
+            >
+              <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
+            </button>
           </div>
-          {hasDiscount && (
-            <div className="inline-block">
-              <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-                وفّر {discountPercentage}%
-              </Badge>
+
+          {/* Stock Overlay */}
+          {stock_quantity <= 0 && (
+            <div className="absolute inset-0 bg-background/90 backdrop-blur-md flex items-center justify-center">
+              <span className="bg-destructive text-destructive-foreground px-6 py-3 rounded-full text-base font-bold shadow-lg">
+                غير متوفر
+              </span>
+            </div>
+          )}
+
+          {/* Hover Actions */}
+          {stock_quantity > 0 && (
+            <div className={cn(
+              "absolute inset-x-0 bottom-0 p-4 space-y-2 transition-all duration-300 bg-gradient-to-t from-background/95 to-transparent backdrop-blur-sm",
+              isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            )}>
+              <Button
+                onClick={handleBuyNow}
+                className="w-full bg-primary hover:bg-primary/90 shadow-lg"
+              >
+                <Zap className="w-4 h-4 ml-2" />
+                اشتر الآن
+              </Button>
+              <Button
+                onClick={handleAddToCart}
+                variant="outline"
+                className="w-full bg-background/80 backdrop-blur-sm"
+              >
+                <ShoppingCart className="w-4 h-4 ml-2" />
+                أضف للسلة
+              </Button>
             </div>
           )}
         </div>
 
-        {/* رسالة غير متوفر */}
-        {stock_quantity <= 0 && (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-md py-1.5 px-2">
-            <p className="text-xs text-destructive text-center font-semibold">
-              نفذت الكمية
-            </p>
-          </div>
-        )}
+        {/* Content */}
+        <div className="p-4 space-y-3">
+          {/* Category */}
+          {category && (
+            <span className="text-xs text-muted-foreground font-medium">
+              {category}
+            </span>
+          )}
 
-        {/* أزرار الإجراءات */}
-        <div className="flex gap-2 mt-auto pt-2">
-          <Button
-            onClick={handleAddToCart}
-            variant="outline"
-            size="sm"
-            className="flex-1 h-9 rounded-lg text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-md active:scale-95"
-            disabled={stock_quantity <= 0}
-          >
-            <ShoppingCart className="h-4 w-4 group-hover:animate-pulse" />
-          </Button>
-          <Button
-            onClick={handleBuyNow}
-            size="sm"
-            className="flex-[2] h-9 rounded-lg text-xs font-bold hover:scale-110 active:scale-95 transition-all duration-300 hover:shadow-lg"
-            disabled={stock_quantity <= 0}
-          >
-            اشتر الآن
-          </Button>
+          {/* Product Name */}
+          <h3 className="font-bold text-base line-clamp-2 text-foreground leading-tight min-h-[2.5rem]">
+            {name_ar}
+          </h3>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={cn(
+                    "w-4 h-4",
+                    i < Math.floor(rating)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-muted text-muted"
+                  )}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              ({rating.toFixed(1)})
+            </span>
+          </div>
+
+          {/* Price Section */}
+          <div className="flex items-end justify-between pt-2 border-t border-border/50">
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-primary">
+                  {price.toFixed(2)}
+                </span>
+                <span className="text-sm text-muted-foreground">ريال</span>
+              </div>
+              {hasDiscount && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground line-through">
+                    {originalPrice.toFixed(2)} ريال
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {stock_quantity > 0 && stock_quantity <= 5 && (
+              <Badge variant="outline" className="text-orange-500 border-orange-500/30">
+                {stock_quantity} متبقي
+              </Badge>
+            )}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </Link>
   );
 };
