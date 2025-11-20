@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/contexts/CartContext';
@@ -11,8 +12,6 @@ import Home from '@/pages/Home';
 import Products from '@/pages/Products';
 import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
-import Checkout from '@/pages/Checkout';
-import OrderSuccess from '@/pages/OrderSuccess';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import FAQ from '@/pages/FAQ';
@@ -20,22 +19,28 @@ import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
 import ReturnPolicy from '@/pages/ReturnPolicy';
 import ShippingPolicy from '@/pages/ShippingPolicy';
-import AdminLogin from '@/pages/admin/Login';
-import AdminDashboard from '@/pages/admin/Dashboard';
-import AdminCategories from '@/pages/admin/Categories';
-import AdminProducts from '@/pages/admin/Products';
-import AdminImportProduct from '@/pages/admin/ImportProduct';
-import AdminPromotionalBanners from '@/pages/admin/PromotionalBanners';
-import AdminOrders from '@/pages/admin/Orders';
-import AdminOrderDetail from '@/pages/admin/OrderDetail';
-import AdminSettings from '@/pages/admin/Settings';
-import PendingPaymentOrders from '@/pages/admin/PendingPaymentOrders';
-import PaidOrders from '@/pages/admin/PaidOrders';
-import ShippedOrders from '@/pages/admin/ShippedOrders';
-import MigrateImages from '@/pages/admin/MigrateImages';
 import NotFound from '@/pages/NotFound';
 import SitemapXML from '@/pages/SitemapXML';
 import SitemapProductsXML from '@/pages/SitemapProductsXML';
+
+// Lazy load heavy pages
+const Checkout = lazy(() => import('@/pages/Checkout'));
+const OrderSuccess = lazy(() => import('@/pages/OrderSuccess'));
+
+// Lazy load admin pages
+const AdminLogin = lazy(() => import('@/pages/admin/Login'));
+const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'));
+const AdminCategories = lazy(() => import('@/pages/admin/Categories'));
+const AdminProducts = lazy(() => import('@/pages/admin/Products'));
+const AdminImportProduct = lazy(() => import('@/pages/admin/ImportProduct'));
+const AdminPromotionalBanners = lazy(() => import('@/pages/admin/PromotionalBanners'));
+const AdminOrders = lazy(() => import('@/pages/admin/Orders'));
+const AdminOrderDetail = lazy(() => import('@/pages/admin/OrderDetail'));
+const AdminSettings = lazy(() => import('@/pages/admin/Settings'));
+const PendingPaymentOrders = lazy(() => import('@/pages/admin/PendingPaymentOrders'));
+const PaidOrders = lazy(() => import('@/pages/admin/PaidOrders'));
+const ShippedOrders = lazy(() => import('@/pages/admin/ShippedOrders'));
+const MigrateImages = lazy(() => import('@/pages/admin/MigrateImages'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,19 +62,71 @@ function App() {
           <CartProvider>
             <Routes>
               {/* Admin Routes */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
-              <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
-              <Route path="/admin/import-product" element={<ProtectedRoute><AdminImportProduct /></ProtectedRoute>} />
-              <Route path="/admin/promotional-banners" element={<ProtectedRoute><AdminPromotionalBanners /></ProtectedRoute>} />
-              <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
-              <Route path="/admin/orders/pending-payment" element={<ProtectedRoute><PendingPaymentOrders /></ProtectedRoute>} />
-              <Route path="/admin/orders/paid" element={<ProtectedRoute><PaidOrders /></ProtectedRoute>} />
-              <Route path="/admin/orders/shipped" element={<ProtectedRoute><ShippedOrders /></ProtectedRoute>} />
-              <Route path="/admin/orders/:id" element={<ProtectedRoute><AdminOrderDetail /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
-              <Route path="/admin/migrate-images" element={<ProtectedRoute><MigrateImages /></ProtectedRoute>} />
+              <Route path="/admin/login" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <AdminLogin />
+                </Suspense>
+              } />
+              <Route path="/admin/dashboard" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminDashboard /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/categories" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminCategories /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/products" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminProducts /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/import-product" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminImportProduct /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/promotional-banners" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminPromotionalBanners /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/orders" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminOrders /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/orders/pending-payment" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><PendingPaymentOrders /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/orders/paid" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><PaidOrders /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/orders/shipped" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><ShippedOrders /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/orders/:id" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminOrderDetail /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/settings" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminSettings /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/migrate-images" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><MigrateImages /></ProtectedRoute>
+                </Suspense>
+              } />
               
               {/* Public Routes */}
               <Route path="/*" element={
@@ -81,8 +138,16 @@ function App() {
                       <Route path="/products" element={<Products />} />
                       <Route path="/product/:id" element={<ProductDetail />} />
                       <Route path="/cart" element={<Cart />} />
-                      <Route path="/checkout" element={<Checkout />} />
-                      <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+                      <Route path="/checkout" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <Checkout />
+                        </Suspense>
+                      } />
+                      <Route path="/order-success/:orderId" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <OrderSuccess />
+                        </Suspense>
+                      } />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/faq" element={<FAQ />} />
