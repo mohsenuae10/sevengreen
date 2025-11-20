@@ -9,8 +9,6 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import Home from '@/pages/Home';
-import Products from '@/pages/Products';
-import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
@@ -24,6 +22,8 @@ import SitemapXML from '@/pages/SitemapXML';
 import SitemapProductsXML from '@/pages/SitemapProductsXML';
 
 // Lazy load heavy pages
+const Products = lazy(() => import('@/pages/Products'));
+const ProductDetail = lazy(() => import('@/pages/ProductDetail'));
 const Checkout = lazy(() => import('@/pages/Checkout'));
 const OrderSuccess = lazy(() => import('@/pages/OrderSuccess'));
 
@@ -135,8 +135,16 @@ function App() {
                   <main className="flex-1">
                     <Routes>
                       <Route path="/" element={<Home />} />
-                      <Route path="/products" element={<Products />} />
-                      <Route path="/product/:id" element={<ProductDetail />} />
+                      <Route path="/products" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <Products />
+                        </Suspense>
+                      } />
+                      <Route path="/product/:id" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <ProductDetail />
+                        </Suspense>
+                      } />
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/checkout" element={
                         <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
