@@ -40,9 +40,9 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
   }
 
   return (
-    <div className="animate-fade-in" style={{ animationDelay: delay }}>
+    <div className="animate-fade-in min-h-[600px]" style={{ animationDelay: delay }}>
       {/* Category Banner */}
-      <div className="relative rounded-3xl overflow-hidden mb-8 group">
+      <div className="relative rounded-3xl overflow-hidden mb-8 group aspect-[21/5]">
         <div className="absolute inset-0">
           <img 
             src={bannerImage} 
