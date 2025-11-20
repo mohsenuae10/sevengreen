@@ -199,7 +199,7 @@ export default function Home() {
               </div>
             </div>
           ) : products && products.length > 0 ? (
-            <div className="space-y-20">
+            <div className="space-y-20 min-h-[800px]">
               {displayCategories.map((category, index) => (
                 <CategorySection
                   key={category.id}
