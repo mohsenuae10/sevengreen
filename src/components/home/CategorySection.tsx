@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import defaultBanner from '@/assets/categories/hair-care-banner.jpg';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface Product {
   id: string;
@@ -42,16 +43,17 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
   return (
     <div className="animate-fade-in" style={{ animationDelay: delay }}>
       {/* Category Banner */}
-      <div className="relative rounded-3xl overflow-hidden mb-8 group">
+      <div className="relative rounded-3xl overflow-hidden mb-8 group" style={{ minHeight: '256px' }}>
         <div className="absolute inset-0">
-          <img 
+          <OptimizedImage
             src={bannerImage} 
             alt={`${title} - منتجات طبيعية`}
-            width="1200"
-            height="256"
-            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
-            loading={isPriority ? "eager" : "lazy"}
-            fetchPriority={isPriority ? "high" : "auto"}
+            width={1200}
+            height={256}
+            aspectRatio="1200/256"
+            className="rounded-3xl group-hover:scale-105 transition-transform duration-700"
+            priority={isPriority}
+            objectFit="cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
         </div>
