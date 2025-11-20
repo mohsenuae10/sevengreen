@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['products', selectedCategory],
@@ -63,9 +64,9 @@ export default function Products() {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={selectedCategory ? `${selectedCategory} - لمسة الجمال` : 'جميع المنتجات - لمسة الجمال'}
-        description={selectedCategory ? `منتجات ${selectedCategory} فاخرة 100%. أفضل العناية في السعودية مع توصيل سريع.` : 'منتجات جمال فاخرة. مستحضرات تجميل أصلية، عناية بالبشرة والشعر. شحن مجاني داخل السعودية.'}
-        keywords={selectedCategory ? `${selectedCategory}, منتجات جمال, لمسة الجمال, مستحضرات تجميل السعودية` : 'منتجات جمال, مستحضرات تجميل, عناية بالبشرة, عناية بالشعر, لمسة الجمال, السعودية'}
+        title={selectedCategoryName ? `${selectedCategoryName} - لمسة الجمال` : 'جميع المنتجات - لمسة الجمال'}
+        description={selectedCategoryName ? `منتجات ${selectedCategoryName} فاخرة 100%. أفضل العناية في السعودية مع توصيل سريع.` : 'منتجات جمال فاخرة. مستحضرات تجميل أصلية، عناية بالبشرة والشعر. شحن مجاني داخل السعودية.'}
+        keywords={selectedCategoryName ? `${selectedCategoryName}, منتجات جمال, لمسة الجمال, مستحضرات تجميل السعودية` : 'منتجات جمال, مستحضرات تجميل, عناية بالبشرة, عناية بالشعر, لمسة الجمال, السعودية'}
         type="website"
         url={canonicalUrl}
       />
@@ -73,14 +74,14 @@ export default function Products() {
         items={[
           { name: 'الرئيسية', url: '/' },
           { name: 'المنتجات', url: '/products' },
-          ...(selectedCategory ? [{ name: selectedCategory, url: `/products?category=${selectedCategory}` }] : []),
+          ...(selectedCategoryName ? [{ name: selectedCategoryName, url: `/products?category=${selectedCategory}` }] : []),
         ]}
       />
       {products && products.length > 0 && (
         <ItemListSchema
           products={products}
-          listName={selectedCategory ? `منتجات ${selectedCategory}` : 'جميع منتجات لمسة الجمال'}
-          category={selectedCategory || undefined}
+          listName={selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجات لمسة الجمال'}
+          category={selectedCategoryName || undefined}
         />
       )}
       <div className="mb-8 space-y-4">
@@ -95,7 +96,10 @@ export default function Products() {
         <div className="flex flex-wrap gap-2">
           <Button
             variant={selectedCategory === null ? 'default' : 'outline'}
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => {
+              setSelectedCategory(null);
+              setSelectedCategoryName(null);
+            }}
             className="rounded-full"
           >
             <span>الكل</span>
@@ -109,7 +113,10 @@ export default function Products() {
             <Button
               key={category.slug}
               variant={selectedCategory === category.slug ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory(category.slug)}
+              onClick={() => {
+                setSelectedCategory(category.slug);
+                setSelectedCategoryName(category.name_ar);
+              }}
               className="rounded-full"
             >
               {category.name_ar}
