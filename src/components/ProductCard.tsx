@@ -18,9 +18,10 @@ interface ProductCardProps {
   category?: string;
   category_ar?: string | null;
   slug?: string | null;
+  showCartButtonOnly?: boolean;
 }
 
-export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category, category_ar, slug }: ProductCardProps) => {
+export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category, category_ar, slug, showCartButtonOnly = false }: ProductCardProps) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -178,23 +179,37 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
 
         {/* أزرار الإجراءات */}
         <div className="flex gap-2 mt-auto pt-2">
-          <Button
-            onClick={handleAddToCart}
-            variant="outline"
-            size="sm"
-            className="flex-1 h-9 rounded-lg text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-md active:scale-95"
-            disabled={stock_quantity <= 0}
-          >
-            <ShoppingCart className="h-4 w-4 group-hover:animate-pulse" />
-          </Button>
-          <Button
-            onClick={handleBuyNow}
-            size="sm"
-            className="flex-[2] h-9 rounded-lg text-xs font-bold hover:scale-110 active:scale-95 transition-all duration-300 hover:shadow-lg"
-            disabled={stock_quantity <= 0}
-          >
-            اشتر الآن
-          </Button>
+          {showCartButtonOnly ? (
+            <Button
+              onClick={handleAddToCart}
+              size="sm"
+              className="w-full h-9 rounded-lg text-xs font-bold hover:scale-110 active:scale-95 transition-all duration-300 hover:shadow-lg"
+              disabled={stock_quantity <= 0}
+            >
+              <ShoppingCart className="h-4 w-4 ml-2" />
+              أضف للسلة
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={handleAddToCart}
+                variant="outline"
+                size="sm"
+                className="flex-1 h-9 rounded-lg text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-md active:scale-95"
+                disabled={stock_quantity <= 0}
+              >
+                <ShoppingCart className="h-4 w-4 group-hover:animate-pulse" />
+              </Button>
+              <Button
+                onClick={handleBuyNow}
+                size="sm"
+                className="flex-[2] h-9 rounded-lg text-xs font-bold hover:scale-110 active:scale-95 transition-all duration-300 hover:shadow-lg"
+                disabled={stock_quantity <= 0}
+              >
+                اشتر الآن
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
