@@ -8,6 +8,10 @@ interface Product {
   image_url?: string | null;
   category?: string;
   is_active?: boolean;
+  aggregateRating?: {
+    ratingValue: number;
+    reviewCount: number;
+  };
 }
 
 interface ItemListSchemaProps {
@@ -50,6 +54,16 @@ export const ItemListSchema = ({
           url: `${baseUrl}/product/${product.slug || product.id}`,
         },
         ...(category && { category }),
+        // إضافة التقييمات للمنتجات في نتائج البحث
+        ...(product.aggregateRating && product.aggregateRating.reviewCount > 0 && {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: Number(product.aggregateRating.ratingValue).toFixed(1),
+            reviewCount: product.aggregateRating.reviewCount.toString(),
+            bestRating: '5',
+            worstRating: '1',
+          },
+        }),
       },
     })),
   };
