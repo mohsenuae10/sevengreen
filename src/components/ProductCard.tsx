@@ -8,6 +8,8 @@ import { OptimizedImage } from './OptimizedImage';
 import { Badge } from './ui/badge';
 import ProductRating from './product/ProductRating';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProductCardProps {
   id: string;
@@ -25,6 +27,18 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // جلب التقييمات من قاعدة البيانات
+  const { data: ratingData } = useQuery({
+    queryKey: ['product-rating', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc('get_product_rating', { product_uuid: id });
+      
+      if (error) throw error;
+      return data?.[0] || null;
+    },
+  });
 
   // دالة لتوليد رقم عشوائي ثابت بناءً على ID
   const seededRandom = (seed: string, max: number = 1) => {
@@ -138,7 +152,17 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           </h3>
         </Link>
 
-        {/* التقييم - محذوف لأنه كان يستخدم أرقام مزيفة */}
+        {/* التقييم */}
+        {ratingData && ratingData.review_count > 0 && (
+          <div className="flex justify-center py-1">
+            <ProductRating 
+              rating={Number(ratingData.average_rating) || 0} 
+              reviewCount={ratingData.review_count}
+              showCount={true}
+              size="xs"
+            />
+          </div>
+        )}
 
         {/* قسم السعر */}
         <div className="text-center space-y-1 py-2">

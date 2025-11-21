@@ -28,7 +28,24 @@ export default function Products() {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      
+      // جلب التقييمات لكل منتج
+      const productsWithRatings = await Promise.all(
+        (data || []).map(async (product) => {
+          const { data: ratingData } = await supabase
+            .rpc('get_product_rating', { product_uuid: product.id });
+          
+          return {
+            ...product,
+            aggregateRating: ratingData?.[0]?.review_count > 0 ? {
+              ratingValue: Number(ratingData[0].average_rating),
+              reviewCount: ratingData[0].review_count,
+            } : undefined,
+          };
+        })
+      );
+      
+      return productsWithRatings;
     },
     staleTime: 0,
     refetchOnMount: true,
