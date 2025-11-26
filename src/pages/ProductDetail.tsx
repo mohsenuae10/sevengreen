@@ -303,7 +303,14 @@ export default function ProductDetail() {
               {product.name_ar}
             </h1>
             
-            {/* Rating - محذوف لأنه كان يستخدم أرقام مزيفة */}
+            {/* Rating */}
+            {product.ratingStats && product.ratingStats.review_count > 0 && (
+              <ProductRating 
+                rating={product.ratingStats.average_rating} 
+                reviewCount={product.ratingStats.review_count}
+                size="lg"
+              />
+            )}
             
             {/* SKU */}
             <p className="text-sm text-muted-foreground">
