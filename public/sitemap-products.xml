@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This sitemap is dynamically generated. Please visit the backend for the most up-to-date version -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Dynamic product sitemap -->
+  <!-- Products are automatically updated from database -->
+  <!-- For the latest version, see: /functions/v1/generate-product-sitemap -->
+</urlset>
