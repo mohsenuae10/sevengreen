@@ -49,8 +49,5 @@ Disallow: /order-success/
 Disallow: /*.json$
 
 # Sitemaps
-# Dynamic sitemaps served from edge functions
-Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-sitemap
-Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
-
-# Sitemaps are automatically generated from database and cached
+Sitemap: https://lamsetbeauty.com/sitemap.xml
+Sitemap: https://lamsetbeauty.com/sitemap-products.xml
