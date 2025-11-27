@@ -40,9 +40,9 @@ export const Footer = () => {
           <div className="space-y-4">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <img src={logo} alt="لمسة الجمال | Lamset Beauty" className="h-20 w-20 object-contain" />
+                <img src={logo} alt="لمسة بيوتي | Lamset Beauty" className="h-20 w-20 object-contain" />
                 <h3 className="text-xl font-bold text-primary">
-                  {settings?.store_name || 'لمسة الجمال'}
+                  {settings?.store_name || 'لمسة بيوتي'}
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -212,7 +212,7 @@ export const Footer = () => {
         <Separator className="my-8" />
 
         <div className="text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} {settings?.store_name || 'لمسة الجمال'}. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} {settings?.store_name || 'لمسة بيوتي'}. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
