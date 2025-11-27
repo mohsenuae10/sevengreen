@@ -50,4 +50,4 @@ Disallow: /*.json$
 
 # Sitemaps
 Sitemap: https://lamsetbeauty.com/sitemap.xml
-Sitemap: https://lamsetbeauty.com/sitemap-products.xml
+Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
