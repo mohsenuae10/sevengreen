@@ -11,7 +11,7 @@ interface OrganizationSchemaProps {
 }
 
 export const OrganizationSchema = ({
-  name = 'لمسة الجمال',
+  name = 'لمسة بيوتي',
   logo = 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/uploads/1760543849788-IMG_1206.jpeg',
   url = 'https://lamsetbeauty.com',
   email,

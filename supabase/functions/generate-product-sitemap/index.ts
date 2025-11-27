@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
     <image:image>
       <image:loc>${escapeXML(product.image_url)}</image:loc>
       <image:title>${escapedName}</image:title>
-      <image:caption>منتج ${escapedName} من لمسة الجمال</image:caption>
+      <image:caption>منتج ${escapedName} من لمسة بيوتي</image:caption>
     </image:image>`;
         }
 
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
     <image:image>
       <image:loc>${escapeXML(img.image_url)}</image:loc>
       <image:title>${escapedName}</image:title>
-      <image:caption>منتج ${escapedName} من لمسة الجمال</image:caption>
+      <image:caption>منتج ${escapedName} من لمسة بيوتي</image:caption>
     </image:image>`;
             }
           });
