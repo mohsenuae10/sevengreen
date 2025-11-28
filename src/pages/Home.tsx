@@ -18,9 +18,11 @@ import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Helper function to get icon component from icon name
-const getIconComponent = (iconName: string) => {
-  const IconComponent = (LucideIcons as any)[iconName];
-  if (!IconComponent) return <LucideIcons.Sparkles className="h-6 w-6 text-primary" />;
+const getIconComponent = (iconName: string): JSX.Element => {
+  const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ className?: string }>;
+  if (!IconComponent || typeof IconComponent !== 'function') {
+    return <LucideIcons.Sparkles className="h-6 w-6 text-primary" />;
+  }
   return <IconComponent className="h-6 w-6 text-primary" />;
 };
 
@@ -75,11 +77,9 @@ export default function Home() {
         .order('display_order', { ascending: true });
       
       if (error) {
-        console.error('Error fetching promotional banners:', error);
         return [];
       }
       
-      console.log('Promotional banners fetched:', data);
       return data || [];
     },
   });
@@ -101,29 +101,6 @@ export default function Home() {
         type="website"
         url="/"
       />
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          "@id": "https://lamsetbeauty.com/#webpage",
-          "url": "https://lamsetbeauty.com",
-          "name": "لمسة بيوتي - منتجات طبيعية للعناية بالشعر والبشرة",
-          "description": "أفضل منتجات العناية الطبيعية في السعودية. بار شامبو، سيروم فيتامين سي، منتجات عضوية 100%. توصيل سريع لجميع مناطق المملكة.",
-          "inLanguage": "ar-SA",
-          "isPartOf": {
-            "@type": "WebSite",
-            "@id": "https://lamsetbeauty.com/#website"
-          },
-          "about": {
-            "@type": "Store",
-            "name": "لمسة بيوتي"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "@id": "https://lamsetbeauty.com/#organization"
-          }
-        })}
-      </script>
       <OrganizationSchema />
       <LocalBusinessSchema />
       

@@ -495,7 +495,7 @@ export default function Checkout() {
     <>
       <SEOHead
         title="إتمام الطلب"
-        description="أكمل طلبك من لمسة الجمال للمنتجات الطبيعية"
+        description="أكمل طلبك من لمسة بيوتي للمنتجات الطبيعية"
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />

@@ -14,9 +14,9 @@ export default function ShippingPolicy() {
     <>
       <SEOHead
         title="سياسة الشحن والتوصيل - لمسة الجمال | Lamset Beauty"
-        description="تعرف على سياسة الشحن والتوصيل في لمسة الجمال، مدة التوصيل، تكاليف الشحن، ومناطق التغطية."
-        keywords="سياسة الشحن, التوصيل, مدة الشحن, تكلفة الشحن, لمسة الجمال"
-        url="https://lamsetbeauty.com/shipping-policy"
+        description="تعرف على سياسة الشحن والتوصيل في لمسة بيوتي، مدة التوصيل، تكاليف الشحن، ومناطق التغطية."
+        keywords="سياسة الشحن, التوصيل, مدة الشحن, تكلفة الشحن, لمسة بيوتي"
+        url="https://sevengreenstore.com/shipping-policy"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />

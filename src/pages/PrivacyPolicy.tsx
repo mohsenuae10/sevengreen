@@ -13,10 +13,10 @@ export default function PrivacyPolicy() {
   return (
     <>
       <SEOHead
-        title="سياسة الخصوصية - لمسة الجمال | Lamset Beauty"
-        description="سياسة الخصوصية لمتجر لمسة الجمال. تعرف على كيفية جمع واستخدام وحماية معلوماتك الشخصية."
-        keywords="سياسة الخصوصية, حماية البيانات, الأمان, لمسة الجمال"
-        url="https://lamsetbeauty.com/privacy-policy"
+        title="سياسة الخصوصية - لمسة بيوتي | Lamset Beauty"
+        description="سياسة الخصوصية لمتجر لمسة بيوتي. تعرف على كيفية جمع واستخدام وحماية معلوماتك الشخصية."
+        keywords="سياسة الخصوصية, حماية البيانات, الأمان, لمسة بيوتي"
+        url="https://sevengreenstore.com/privacy-policy"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
                   <div>
                     <h2 className="text-2xl font-bold mb-3 text-primary">مقدمة</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      نحن في لمسة الجمال نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح هذه السياسة كيفية جمعنا واستخدامنا وحمايتنا للمعلومات التي تقدمها لنا عند استخدام موقعنا الإلكتروني.
+                      نحن في لمسة بيوتي نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح هذه السياسة كيفية جمعنا واستخدامنا وحمايتنا للمعلومات التي تقدمها لنا عند استخدام موقعنا الإلكتروني.
                     </p>
                   </div>
 

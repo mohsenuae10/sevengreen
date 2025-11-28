@@ -191,7 +191,7 @@ export default function ProductDetail() {
     },
     {
       question: 'هل المنتج مناسب لجميع أنواع البشرة/الشعر؟',
-      answer: 'جميع منتجات لمسة الجمال مصنوعة من مكونات طبيعية 100% وآمنة للاستخدام. ومع ذلك، ننصح بإجراء اختبار حساسية بسيط قبل الاستخدام الكامل.',
+      answer: 'جميع منتجات لمسة بيوتي مصنوعة من مكونات طبيعية 100% وآمنة للاستخدام. ومع ذلك، ننصح بإجراء اختبار حساسية بسيط قبل الاستخدام الكامل.',
     },
     {
       question: 'كم يستغرق الشحن؟',
@@ -213,15 +213,15 @@ export default function ProductDetail() {
         title={
           product.seo_title 
             ? product.seo_title.length > 60 
-              ? `${product.name_ar} | لمسة الجمال` 
+              ? `${product.name_ar} | لمسة بيوتي` 
               : product.seo_title
-            : `${product.name_ar} | لمسة الجمال`
+            : `${product.name_ar} | لمسة بيوتي`
         }
-        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة الجمال - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
-        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة الجمال, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
+        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة بيوتي - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
+        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}
         type="product"
-        url={`https://lamsetbeauty.com${productUrl}`}
+        url={`https://sevengreenstore.com${productUrl}`}
         price={Number(product.price)}
         currency="SAR"
         availability={isInStock ? 'instock' : 'outofstock'}
@@ -238,7 +238,7 @@ export default function ProductDetail() {
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
         category={product.category_ar || product.category}
-        brand="لمسة الجمال"
+        brand="لمسة بيوتي"
         gtin={product.gtin}
         mpn={product.mpn}
         slug={product.slug}

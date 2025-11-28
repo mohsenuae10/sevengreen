@@ -25,7 +25,7 @@ export default function AdminLogin() {
       email,
       password,
       options: {
-        emailRedirectTo: 'https://lamsetbeauty.com/admin/dashboard'
+        emailRedirectTo: 'https://sevengreenstore.com/admin/dashboard'
       }
     });
 

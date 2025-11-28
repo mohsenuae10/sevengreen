@@ -40,7 +40,7 @@ export const ProductSchema = ({
   sku,
   availability,
   category,
-  brand = 'لمسة الجمال',
+  brand = 'لمسة بيوتي',
   gtin,
   mpn,
   slug,
@@ -57,7 +57,7 @@ export const ProductSchema = ({
   aggregateRating,
 }: ProductSchemaProps) => {
   // Decode URL properly for Arabic slugs
-  const productUrl = `https://lamsetbeauty.com/product/${slug ? decodeURIComponent(slug) : sku}`;
+  const productUrl = `https://sevengreenstore.com/product/${slug ? decodeURIComponent(slug) : sku}`;
   
   // Generate dynamic priceValidUntil date (1 year from now)
   const priceValidUntil = new Date();
@@ -89,8 +89,8 @@ export const ProductSchema = ({
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',
-        name: 'لمسة الجمال',
-        url: 'https://lamsetbeauty.com',
+        name: 'لمسة بيوتي',
+        url: 'https://sevengreenstore.com',
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
