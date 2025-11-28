@@ -17,8 +17,8 @@ interface LocalBusinessSchemaProps {
 }
 
 export const LocalBusinessSchema = ({
-  name = 'لمسة الجمال',
-  description = 'لمسة الجمال - متجرك المتخصص في منتجات الجمال والعناية الفاخرة في السعودية. منتجات عالية الجودة مع توصيل سريع لجميع مناطق المملكة.',
+  name = 'لمسة بيوتي',
+  description = 'لمسة بيوتي - متجرك المتخصص في منتجات الجمال والعناية الفاخرة في السعودية. منتجات عالية الجودة مع توصيل سريع لجميع مناطق المملكة.',
   telephone,
   email,
   address = {
@@ -31,11 +31,11 @@ export const LocalBusinessSchema = ({
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': 'https://lamsetbeauty.com/#localbusiness',
+    '@id': 'https://sevengreenstore.com/#localbusiness',
     name,
     alternateName: 'Lamset Beauty',
     description,
-    url: 'https://lamsetbeauty.com',
+    url: 'https://sevengreenstore.com',
     logo: 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/uploads/1760543849788-IMG_1206.jpeg',
     image: 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/social-images/social-1760543856406-d145a275-c3fb-4f7c-b8e7-6a240c841ffc.jpeg',
     priceRange,
@@ -84,7 +84,7 @@ export const LocalBusinessSchema = ({
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://lamsetbeauty.com/products?search={search_term_string}',
+        urlTemplate: 'https://sevengreenstore.com/products?search={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

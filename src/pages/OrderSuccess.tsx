@@ -111,7 +111,7 @@ export default function OrderSuccess() {
       <>
         <SEOHead
           title="جاري تحميل الطلب"
-          description="جاري تحميل تفاصيل طلبك من لمسة الجمال"
+          description="جاري تحميل تفاصيل طلبك من لمسة بيوتي"
         />
         <Helmet>
           <meta name="robots" content="noindex, nofollow" />
@@ -157,7 +157,7 @@ export default function OrderSuccess() {
     <>
       <SEOHead
         title="تم استلام طلبك بنجاح"
-        description="شكراً لك على طلبك من لمسة الجمال. سنتواصل معك قريباً."
+        description="شكراً لك على طلبك من لمسة بيوتي. سنتواصل معك قريباً."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />

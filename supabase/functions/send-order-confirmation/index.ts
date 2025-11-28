@@ -29,8 +29,8 @@ serve(async (req) => {
       .select("store_name, store_url")
       .single();
 
-    const storeName = settings?.store_name || "لمسة الجمال";
-    const storeUrl = settings?.store_url || "https://lamsetbeauty.com";
+    const storeName = settings?.store_name || "لمسة بيوتي";
+    const storeUrl = settings?.store_url || "https://sevengreenstore.com";
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -61,12 +61,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `لمسة الجمال <noreply@lamsetbeauty.com>`,
-        reply_to: 'support@lamsetbeauty.com',
+        from: `لمسة بيوتي <noreply@sevengreenstore.com>`,
+        reply_to: 'support@sevengreenstore.com',
         to: [order.customer_email],
         subject: `${order.customer_name}، تم تأكيد طلبك ${order.order_number} بنجاح ✅`,
         headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@lamsetbeauty.com>`,
+          'List-Unsubscribe': `<mailto:unsubscribe@sevengreenstore.com>`,
           'X-Priority': '3',
           'X-Entity-Ref-ID': order.order_number,
           'Precedence': 'bulk',

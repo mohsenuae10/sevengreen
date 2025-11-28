@@ -22,18 +22,18 @@ interface ItemListSchemaProps {
 
 export const ItemListSchema = ({
   products,
-  listName = 'منتجات لمسة الجمال',
+  listName = 'منتجات لمسة بيوتي',
   category,
 }: ItemListSchemaProps) => {
-  const baseUrl = 'https://lamsetbeauty.com';
+  const baseUrl = 'https://sevengreenstore.com';
   
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: category ? `${category} - ${listName}` : listName,
     description: category 
-      ? `تسوق أفضل منتجات ${category} من لمسة الجمال`
-      : 'تسوق منتجات العناية الفاخرة من لمسة الجمال - شحن مجاني في السعودية',
+      ? `تسوق أفضل منتجات ${category} من لمسة بيوتي`
+      : 'تسوق منتجات العناية الفاخرة من لمسة بيوتي - شحن مجاني في السعودية',
     numberOfItems: products.length,
     itemListElement: products.map((product, index) => ({
       '@type': 'ListItem',

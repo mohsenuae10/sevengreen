@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
         }
 
         const productSlug = product.slug || product.id;
-        const productUrl = `https://lamsetbeauty.com/product/${encodeURIComponent(productSlug)}`;
+        const productUrl = `https://sevengreenstore.com/product/${encodeURIComponent(productSlug)}`;
         const lastmod = updatedDate.toISOString();
         
         // Calculate priority based on price (higher price = higher priority, max 0.9)
