@@ -18,7 +18,7 @@ export const BreadcrumbSchema = ({ items }: BreadcrumbSchemaProps) => {
       position: index + 1,
       name: item.name,
       // Decode Arabic URLs properly for SEO
-      item: `https://lamsetbeauty.com${decodeURIComponent(item.url)}`,
+      item: `https://sevengreenstore.com${decodeURIComponent(item.url)}`,
     })),
   };
 
