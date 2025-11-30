@@ -30,7 +30,7 @@ serve(async (req) => {
       .single();
 
     const storeName = settings?.store_name || "لمسة بيوتي";
-    const storeUrl = settings?.store_url || "https://sevengreenstore.com";
+    const storeUrl = settings?.store_url || "https://lamsetbeauty.com";
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -59,7 +59,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `لمسة بيوتي - Lamset Beauty <noreply@sevengreenstore.com>`,
+        from: `لمسة بيوتي - Lamset Beauty <noreply@lamsetbeauty.com>`,
         to: [order.customer_email],
         subject: `🚚 شحنة في الطريق إليك! - رقم التتبع: ${tracking_number}`,
         html: `

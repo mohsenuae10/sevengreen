@@ -31,11 +31,11 @@ export const LocalBusinessSchema = ({
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': 'https://sevengreenstore.com/#localbusiness',
+    '@id': 'https://lamsetbeauty.com/#localbusiness',
     name,
     alternateName: 'Lamset Beauty',
     description,
-    url: 'https://sevengreenstore.com',
+    url: 'https://lamsetbeauty.com',
     logo: 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/uploads/1760543849788-IMG_1206.jpeg',
     image: 'https://storage.googleapis.com/gpt-engineer-file-uploads/FTkS9Pg7ErS94PYn0Zsid605WOf2/social-images/social-1760543856406-d145a275-c3fb-4f7c-b8e7-6a240c841ffc.jpeg',
     priceRange,
@@ -84,7 +84,7 @@ export const LocalBusinessSchema = ({
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://sevengreenstore.com/products?search={search_term_string}',
+        urlTemplate: 'https://lamsetbeauty.com/products?search={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

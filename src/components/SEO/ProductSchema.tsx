@@ -57,7 +57,7 @@ export const ProductSchema = ({
   aggregateRating,
 }: ProductSchemaProps) => {
   // Decode URL properly for Arabic slugs
-  const productUrl = `https://sevengreenstore.com/product/${slug ? decodeURIComponent(slug) : sku}`;
+  const productUrl = `https://lamsetbeauty.com/product/${slug ? decodeURIComponent(slug) : sku}`;
   
   // Generate dynamic priceValidUntil date (1 year from now)
   const priceValidUntil = new Date();
@@ -90,7 +90,7 @@ export const ProductSchema = ({
       seller: {
         '@type': 'Organization',
         name: 'لمسة بيوتي',
-        url: 'https://sevengreenstore.com',
+        url: 'https://lamsetbeauty.com',
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
