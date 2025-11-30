@@ -49,5 +49,5 @@ Disallow: /order-success/
 Disallow: /*.json$
 
 # Sitemaps
-Sitemap: https://sevengreenstore.com/sitemap.xml
+Sitemap: https://lamsetbeauty.com/sitemap.xml
 Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap

@@ -30,7 +30,7 @@ export const SEOHead = ({
   // Optimize title (max 45 chars for better SEO)
   const optimizedTitle = title.length > 45 ? title.substring(0, 42) + '...' : title;
   // Add site name only if not already included
-  const fullTitle = title.includes('لمسة الجمال') 
+  const fullTitle = title.includes('لمسة بيوتي') 
     ? optimizedTitle 
     : `${optimizedTitle} | لمسة`;
   
@@ -55,9 +55,9 @@ export const SEOHead = ({
       <meta name="title" content={fullTitle} />
       <meta name="description" content={optimizedDescription} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="application-name" content="لمسة الجمال" />
-      <meta name="author" content="لمسة الجمال" />
-      <meta name="publisher" content="لمسة الجمال" />
+      <meta name="application-name" content="لمسة بيوتي" />
+      <meta name="author" content="لمسة بيوتي" />
+      <meta name="publisher" content="لمسة بيوتي" />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="googlebot" content="index, follow" />
       <meta httpEquiv="content-language" content="ar-SA" />
@@ -80,7 +80,7 @@ export const SEOHead = ({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={title} />
-      <meta property="og:site_name" content="لمسة الجمال" />
+      <meta property="og:site_name" content="لمسة بيوتي" />
       <meta property="og:locale" content="ar_SA" />
 
       {/* Article-specific Open Graph tags */}
@@ -88,7 +88,7 @@ export const SEOHead = ({
         <>
           {publishedTime && <meta property="article:published_time" content={publishedTime} />}
           {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-          <meta property="article:author" content="لمسة الجمال" />
+          <meta property="article:author" content="لمسة بيوتي" />
         </>
       )}
 
