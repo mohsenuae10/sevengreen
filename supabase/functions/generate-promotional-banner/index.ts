@@ -22,7 +22,7 @@ serve(async (req) => {
     }
 
     // Build the prompt based on user's detailed description
-    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for "لمسة الجمال | Lamset Beauty" - a premium Arabic natural cosmetics e-commerce store.
+    let prompt = `Create a professional, eye-catching promotional banner IMAGE ONLY (NO TEXT) for "لمسة بيوتي | Lamset Beauty" - a premium Arabic natural cosmetics e-commerce store.
 
 BRAND IDENTITY (STRICTLY FOLLOW):
 - Primary Color: Elegant Mauve #B04D8C (sophisticated purple-pink)

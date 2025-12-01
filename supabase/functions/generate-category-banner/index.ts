@@ -20,7 +20,7 @@ serve(async (req) => {
     }
 
     // Step 1: Analyze existing categories to extract visual identity
-    const analysisPrompt = `Analyze the visual identity of "لمسة الجمال | Lamset Beauty" - a premium Arabic natural cosmetics store with a sophisticated modern aesthetic.
+    const analysisPrompt = `Analyze the visual identity of "لمسة بيوتي | Lamset Beauty" - a premium Arabic natural cosmetics store with a sophisticated modern aesthetic.
 
 Brand Identity:
 - Primary Color: Elegant Mauve (#B04D8C) - A sophisticated purple-pink tone
@@ -71,7 +71,7 @@ Describe how to maintain visual consistency while representing the new category.
     const visualIdentity = analysisData.choices[0].message.content;
 
     // Step 2: Generate intelligent prompt for image generation
-    const imagePrompt = `Create a professional, elegant banner image for "لمسة الجمال | Lamset Beauty" - a premium natural cosmetics store.
+    const imagePrompt = `Create a professional, elegant banner image for "لمسة بيوتي | Lamset Beauty" - a premium natural cosmetics store.
 
 Visual Identity Guidelines (MUST FOLLOW):
 ${visualIdentity}
