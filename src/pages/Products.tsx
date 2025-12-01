@@ -71,8 +71,8 @@ export default function Products() {
     : 'جميع المنتجات';
   
   const seoDescription = selectedCategory
-    ? `تصفح مجموعة ${selectedCategory} من لمسة الجمال - منتجات فاخرة للعناية بالبشرة والشعر`
-    : 'تصفح جميع منتجات لمسة الجمال الفاخرة - مستحضرات تجميل ومنتجات العناية الأصلية';
+    ? `تصفح مجموعة ${selectedCategory} من لمسة بيوتي - منتجات فاخرة للعناية بالبشرة والشعر`
+    : 'تصفح جميع منتجات لمسة بيوتي الفاخرة - مستحضرات تجميل ومنتجات العناية الأصلية';
 
   const canonicalUrl = selectedCategory 
     ? `https://lamsetbeauty.com/products?category=${encodeURIComponent(selectedCategory)}`
@@ -81,9 +81,9 @@ export default function Products() {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={selectedCategoryName ? `${selectedCategoryName} - لمسة الجمال` : 'جميع المنتجات - لمسة الجمال'}
+        title={selectedCategoryName ? `${selectedCategoryName} - لمسة بيوتي` : 'جميع المنتجات - لمسة بيوتي'}
         description={selectedCategoryName ? `منتجات ${selectedCategoryName} فاخرة 100%. أفضل العناية في السعودية مع توصيل سريع.` : 'منتجات جمال فاخرة. مستحضرات تجميل أصلية، عناية بالبشرة والشعر. شحن مجاني داخل السعودية.'}
-        keywords={selectedCategoryName ? `${selectedCategoryName}, منتجات جمال, لمسة الجمال, مستحضرات تجميل السعودية` : 'منتجات جمال, مستحضرات تجميل, عناية بالبشرة, عناية بالشعر, لمسة الجمال, السعودية'}
+        keywords={selectedCategoryName ? `${selectedCategoryName}, منتجات جمال, لمسة بيوتي, مستحضرات تجميل السعودية` : 'منتجات جمال, مستحضرات تجميل, عناية بالبشرة, عناية بالشعر, لمسة بيوتي, السعودية'}
         type="website"
         url={canonicalUrl}
       />
@@ -97,7 +97,7 @@ export default function Products() {
       {products && products.length > 0 && (
         <ItemListSchema
           products={products}
-          listName={selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجات لمسة الجمال'}
+          listName={selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجات لمسة بيوتي'}
           category={selectedCategoryName || undefined}
         />
       )}
