@@ -29,7 +29,7 @@ serve(async (req) => {
       .select("store_name, store_url")
       .single();
 
-    const storeName = settings?.store_name || "لمسة الجمال";
+    const storeName = settings?.store_name || "لمسة بيوتي";
     const storeUrl = settings?.store_url || "https://lamsetbeauty.com";
 
     // Get order details
@@ -89,7 +89,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `لمسة الجمال <noreply@lamsetbeauty.com>`,
+        from: `لمسة بيوتي <noreply@lamsetbeauty.com>`,
         reply_to: 'support@lamsetbeauty.com',
         to: [order.customer_email],
         subject: `${order.customer_name}، طلبك ${order.order_number} بحاجة لإتمام الدفع`,
@@ -110,7 +110,7 @@ serve(async (req) => {
         <body style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
           <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0;">
-            <h1 style="color: #996B99; margin: 0; font-size: 28px; font-weight: 600;">لمسة الجمال</h1>
+            <h1 style="color: #996B99; margin: 0; font-size: 28px; font-weight: 600;">لمسة بيوتي</h1>
             <p style="color: #666; margin: 8px 0 0 0; font-size: 14px;">منتجات العناية الطبيعية</p>
           </div>
             
@@ -119,7 +119,7 @@ serve(async (req) => {
             </p>
             
             <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0;">
-              شكراً لطلبك من لمسة الجمال. نود إعلامك بأن طلبك رقم <strong>${order.order_number}</strong> ما زال في انتظار إتمام عملية الدفع.
+              شكراً لطلبك من لمسة بيوتي. نود إعلامك بأن طلبك رقم <strong>${order.order_number}</strong> ما زال في انتظار إتمام عملية الدفع.
             </p>
             
             <p style="color: #555; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
@@ -158,8 +158,8 @@ serve(async (req) => {
             </p>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
-              <p style="margin: 5px 0; color: #888; font-size: 13px;">لمسة الجمال - Lamset Beauty</p>
-              <p style="margin: 5px 0; color: #999; font-size: 12px;">متجر لمسة الجمال للعناية الطبيعية</p>
+              <p style="margin: 5px 0; color: #888; font-size: 13px;">لمسة بيوتي - Lamset Beauty</p>
+              <p style="margin: 5px 0; color: #999; font-size: 12px;">متجر لمسة بيوتي للعناية الطبيعية</p>
               <p style="margin: 10px 0 5px 0; color: #999; font-size: 12px;">© 2025 جميع الحقوق محفوظة</p>
               <p style="margin: 5px 0; color: #666; font-size: 12px;">support@lamsetbeauty.com</p>
             </div>
@@ -170,7 +170,7 @@ serve(async (req) => {
         text: `
 مرحباً ${order.customer_name}،
 
-شكراً لطلبك من لمسة الجمال - Lamset Beauty.
+شكراً لطلبك من لمسة بيوتي - Lamset Beauty.
 
 طلبك رقم ${order.order_number} ما زال في انتظار إتمام عملية الدفع.
 
@@ -185,7 +185,7 @@ ${order.stripe_payment_id ? `لإتمام عملية الدفع، يرجى زي�
 
 إذا كانت لديك أي أسئلة، نحن هنا لمساعدتك.
 
-مع تحيات فريق لمسة الجمال - Lamset Beauty
+مع تحيات فريق لمسة بيوتي - Lamset Beauty
 منتجات الجمال والعناية الفاخرة
 
 © 2025 Lamset Beauty - جميع الحقوق محفوظة

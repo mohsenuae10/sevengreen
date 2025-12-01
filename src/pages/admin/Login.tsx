@@ -25,7 +25,7 @@ export default function AdminLogin() {
       email,
       password,
       options: {
-        emailRedirectTo: 'https://sevengreenstore.com/admin/dashboard'
+        emailRedirectTo: 'https://lamsetbeauty.com/admin/dashboard'
       }
     });
 
@@ -72,7 +72,7 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10" dir="rtl">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary">لمسة الجمال</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary">لمسة بيوتي</CardTitle>
           <CardDescription className="text-lg">
             {isSignUp ? 'إنشاء حساب مسؤول جديد' : 'لوحة تحكم المسؤول'}
           </CardDescription>
