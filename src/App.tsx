@@ -21,6 +21,10 @@ import NotFound from '@/pages/NotFound';
 import SitemapXML from '@/pages/SitemapXML';
 import SitemapProductsXML from '@/pages/SitemapProductsXML';
 
+// Lazy load blog pages
+const Blog = lazy(() => import('@/pages/Blog'));
+const BlogPost = lazy(() => import('@/pages/BlogPost'));
+
 // Lazy load heavy pages
 const Products = lazy(() => import('@/pages/Products'));
 const ProductDetail = lazy(() => import('@/pages/ProductDetail'));
@@ -41,6 +45,12 @@ const PendingPaymentOrders = lazy(() => import('@/pages/admin/PendingPaymentOrde
 const PaidOrders = lazy(() => import('@/pages/admin/PaidOrders'));
 const ShippedOrders = lazy(() => import('@/pages/admin/ShippedOrders'));
 const MigrateImages = lazy(() => import('@/pages/admin/MigrateImages'));
+
+// Blog admin pages
+const AdminBlogPosts = lazy(() => import('@/pages/admin/BlogPosts'));
+const AdminBlogPostEditor = lazy(() => import('@/pages/admin/BlogPostEditor'));
+const AdminBlogCategories = lazy(() => import('@/pages/admin/BlogCategories'));
+const AdminBlogTags = lazy(() => import('@/pages/admin/BlogTags'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,6 +137,31 @@ function App() {
                   <ProtectedRoute><MigrateImages /></ProtectedRoute>
                 </Suspense>
               } />
+              <Route path="/admin/blog" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminBlogPosts /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/blog/new" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminBlogPostEditor /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/blog/edit/:id" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminBlogPostEditor /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/blog-categories" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminBlogCategories /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/blog-tags" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminBlogTags /></ProtectedRoute>
+                </Suspense>
+              } />
               
               {/* Public Routes */}
               <Route path="/*" element={
@@ -163,6 +198,16 @@ function App() {
                       <Route path="/terms-of-service" element={<TermsOfService />} />
                       <Route path="/return-policy" element={<ReturnPolicy />} />
                       <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                      <Route path="/blog" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <Blog />
+                        </Suspense>
+                      } />
+                      <Route path="/blog/:slug" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <BlogPost />
+                        </Suspense>
+                      } />
                       <Route path="/sitemap.xml" element={<SitemapXML />} />
                       <Route path="/sitemap-products.xml" element={<SitemapProductsXML />} />
                       <Route path="*" element={<NotFound />} />
