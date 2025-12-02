@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Clock, CreditCard, Truck, Download, LayoutGrid, Image } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Clock, CreditCard, Truck, Download, LayoutGrid, Image, FileText, FolderOpen, Tags } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,6 +25,9 @@ const navItems = [
   { title: 'قيد انتظار الدفع', url: '/admin/orders/pending-payment', icon: Clock },
   { title: 'الطلبات المدفوعة', url: '/admin/orders/paid', icon: CreditCard },
   { title: 'الطلبات المشحونة', url: '/admin/orders/shipped', icon: Truck },
+  { title: 'المقالات', url: '/admin/blog', icon: FileText },
+  { title: 'تصنيفات المدونة', url: '/admin/blog-categories', icon: FolderOpen },
+  { title: 'وسوم المدونة', url: '/admin/blog-tags', icon: Tags },
   { title: 'الإعدادات', url: '/admin/settings', icon: Settings },
 ];
 
@@ -46,7 +49,7 @@ export const AdminSidebar = () => {
         <div className="p-6">
           {open && (
             <>
-              <h1 className="text-2xl font-bold text-primary">لمسة الجمال</h1>
+              <h1 className="text-2xl font-bold text-primary">لمسة بيوتي</h1>
               <p className="text-sm text-muted-foreground">لوحة التحكم</p>
             </>
           )}

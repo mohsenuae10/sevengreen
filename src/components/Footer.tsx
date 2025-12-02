@@ -90,6 +90,12 @@ export const Footer = () => {
                   الأسئلة الشائعة
                 </Link>
               </li>
+              <li>
+                <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
+                  المدونة
+                </Link>
+              </li>
             </ul>
           </div>
 
