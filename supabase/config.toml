@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.update-sitemap-daily]
 verify_jwt = false
+
+[functions.generate-blog-content]
+verify_jwt = false
