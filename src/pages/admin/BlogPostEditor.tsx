@@ -10,9 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Save, Eye, Image as ImageIcon, X } from 'lucide-react';
+import { ArrowRight, Save, Eye, X, Sparkles, Package } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { generateProductSlug } from '@/utils/slugGenerator';
 
@@ -39,6 +38,8 @@ const BlogPostEditor = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [generating, setGenerating] = useState(false);
 
   const { data: categories } = useQuery({
     queryKey: ['blog-categories-select'],
@@ -57,6 +58,19 @@ const BlogPostEditor = () => {
     queryKey: ['blog-tags-select'],
     queryFn: async () => {
       const { data, error } = await supabase.from('blog_tags').select('id, name_ar').order('name_ar');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: products } = useQuery({
+    queryKey: ['products-for-blog'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name_ar, category_ar, category, description_ar, benefits_ar, how_to_use_ar, ingredients_ar, image_url')
+        .eq('is_active', true)
+        .order('name_ar');
       if (error) throw error;
       return data;
     },
@@ -126,6 +140,59 @@ const BlogPostEditor = () => {
 
     const { data } = supabase.storage.from('store-assets').getPublicUrl(filePath);
     return data.publicUrl;
+  };
+
+  const generateWithAI = async () => {
+    if (!selectedProductId) {
+      toast({ title: 'يرجى اختيار منتج أولاً', variant: 'destructive' });
+      return;
+    }
+
+    const selectedProduct = products?.find(p => p.id === selectedProductId);
+    if (!selectedProduct) {
+      toast({ title: 'المنتج غير موجود', variant: 'destructive' });
+      return;
+    }
+
+    setGenerating(true);
+    toast({ title: 'جاري توليد المقال بالذكاء الاصطناعي...', description: 'قد يستغرق هذا بضع ثوان' });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-blog-content', {
+        body: { product: selectedProduct }
+      });
+
+      if (error) throw error;
+
+      if (data?.content) {
+        const content = data.content;
+        setFormData(prev => ({
+          ...prev,
+          title_ar: content.title_ar || prev.title_ar,
+          slug: generateProductSlug(content.title_ar || prev.title_ar),
+          excerpt_ar: content.excerpt_ar || prev.excerpt_ar,
+          content_ar: content.content_ar || prev.content_ar,
+          meta_title: content.meta_title || prev.meta_title,
+          meta_description: content.meta_description || prev.meta_description,
+          meta_keywords: content.meta_keywords || prev.meta_keywords,
+          reading_time: content.reading_time || prev.reading_time,
+          featured_image: selectedProduct.image_url || prev.featured_image,
+        }));
+
+        toast({ title: 'تم توليد المقال بنجاح!', description: 'راجع المحتوى وعدّله حسب الحاجة' });
+      } else if (data?.error) {
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      console.error('Error generating content:', error);
+      toast({ 
+        title: 'خطأ في توليد المحتوى', 
+        description: error.message || 'حدث خطأ أثناء توليد المحتوى',
+        variant: 'destructive' 
+      });
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const saveMutation = useMutation({
@@ -224,6 +291,60 @@ const BlogPostEditor = () => {
             </Button>
           </div>
         </div>
+
+        {/* AI Generation Card */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              توليد المقال بالذكاء الاصطناعي
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <Label className="mb-2 block">اختر منتج</Label>
+                <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر منتج لإنشاء مقال عنه">
+                      {selectedProductId && (
+                        <span className="flex items-center gap-2">
+                          <Package className="h-4 w-4" />
+                          {products?.find(p => p.id === selectedProductId)?.name_ar}
+                        </span>
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {products?.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        <span className="flex items-center gap-2">
+                          {product.image_url && (
+                            <img src={product.image_url} alt="" className="w-6 h-6 rounded object-cover" />
+                          )}
+                          {product.name_ar}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end">
+                <Button 
+                  onClick={generateWithAI} 
+                  disabled={generating || !selectedProductId}
+                  className="w-full sm:w-auto"
+                >
+                  <Sparkles className="h-4 w-4 ml-2" />
+                  {generating ? 'جاري التوليد...' : 'توليد المقال'}
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-3">
+              اختر منتجاً واضغط على "توليد المقال" لإنشاء مقال كامل بالذكاء الاصطناعي يتضمن العنوان والمحتوى وبيانات SEO
+            </p>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
