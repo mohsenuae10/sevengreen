@@ -186,7 +186,7 @@ const BlogPost = () => {
 
             {/* Content */}
             <div 
-              className="prose prose-lg max-w-none mb-8"
+              className="prose-arabic mb-8"
               dangerouslySetInnerHTML={{ __html: post.content_ar }}
             />
 
