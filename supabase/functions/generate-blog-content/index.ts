@@ -36,9 +36,9 @@ const systemPrompt = `أنت كاتب محتوى محترف متخصص في مج
 - يستخدم HTML للتنسيق (h2, h3, p, ul, ol, strong, em, blockquote, figure, figcaption, a, img)
 
 الروابط الداخلية (مهم جداً لـ SEO):
-1. أضف رابط لصفحة المنتج في المقدمة والخاتمة: <a href="/product/PRODUCT_SLUG">اسم المنتج</a>
-2. أضف رابط لصفحة الأسئلة الشائعة في قسم الأسئلة: <a href="/faq">المزيد من الأسئلة الشائعة</a>
-3. أضف رابط لصفحة المنتجات: <a href="/products">تصفح جميع المنتجات</a>
+1. أضف رابط لصفحة المنتج في المقدمة والخاتمة: <a href="https://lamsetbeauty.com/product/PRODUCT_SLUG">اسم المنتج</a>
+2. أضف رابط لصفحة الأسئلة الشائعة في قسم الأسئلة: <a href="https://lamsetbeauty.com/faq">المزيد من الأسئلة الشائعة</a>
+3. أضف رابط لصفحة المنتجات: <a href="https://lamsetbeauty.com/products">تصفح جميع المنتجات</a>
 
 صورة المنتج (أضفها في بداية المقال بعد المقدمة):
 <figure>
@@ -65,7 +65,7 @@ const systemPrompt = `أنت كاتب محتوى محترف متخصص في مج
 المكونات: ${product.ingredients_ar || 'غير متوفر'}
 
 معلومات للروابط الداخلية (استخدمها في المحتوى):
-- رابط صفحة المنتج: /product/${product.slug || product.id}
+- رابط صفحة المنتج: https://lamsetbeauty.com/product/${product.slug || product.id}
 - صورة المنتج: ${product.image_url || ''}
 
 أريد الرد بصيغة JSON التالية:
