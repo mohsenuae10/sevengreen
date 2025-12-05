@@ -25,7 +25,7 @@ export const ItemListSchema = ({
   listName = 'منتجات لمسة بيوتي',
   category,
 }: ItemListSchemaProps) => {
-  const baseUrl = 'https://sevengreenstore.com';
+  const baseUrl = 'https://lamsetbeauty.com';
   
   const schema = {
     '@context': 'https://schema.org',

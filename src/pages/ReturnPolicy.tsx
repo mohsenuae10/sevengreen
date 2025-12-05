@@ -1,7 +1,5 @@
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function ReturnPolicy() {
@@ -22,8 +20,6 @@ export default function ReturnPolicy() {
       <BreadcrumbSchema items={breadcrumbs} />
       
       <div className="min-h-screen flex flex-col">
-        <Header />
-        
         <main className="flex-1">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-4xl mx-auto">
@@ -121,8 +117,6 @@ export default function ReturnPolicy() {
             </div>
           </div>
         </main>
-
-        <Footer />
       </div>
     </>
   );

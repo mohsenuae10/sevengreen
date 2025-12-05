@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
+import { MapPin, MessageCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
@@ -98,14 +96,12 @@ export default function Contact() {
         title="اتصل بنا - لمسة بيوتي | Lamset Beauty"
         description="تواصلي مع فريق لمسة بيوتي. نحن هنا للإجابة على استفساراتك حول منتجاتنا والإجابة على جميع أسئلتك."
         keywords="اتصل بنا, تواصل معنا, خدمة العملاء, لمسة بيوتي"
-        url="/contact"
+        url="https://lamsetbeauty.com/contact"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
       
       <div className="min-h-screen flex flex-col">
-        <Header />
-        
         <main className="flex-1">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-5xl mx-auto">
@@ -240,8 +236,6 @@ export default function Contact() {
             </div>
           </div>
         </main>
-
-        <Footer />
       </div>
     </>
   );
