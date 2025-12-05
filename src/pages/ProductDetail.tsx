@@ -221,7 +221,7 @@ export default function ProductDetail() {
         keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}
         type="product"
-        url={`https://sevengreenstore.com${productUrl}`}
+        url={`https://lamsetbeauty.com${productUrl}`}
         price={Number(product.price)}
         currency="SAR"
         availability={isInStock ? 'instock' : 'outofstock'}

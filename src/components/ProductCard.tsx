@@ -130,7 +130,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         {image_url ? (
           <OptimizedImage
             src={image_url}
-            alt={`${name_ar}${category_ar ? ` - ${category_ar}` : category ? ` - ${category}` : ''} فاخر من لمسة الجمال | شحن مجاني في السعودية`}
+            alt={`${name_ar}${category_ar ? ` - ${category_ar}` : category ? ` - ${category}` : ''} فاخر من لمسة بيوتي | شحن مجاني في السعودية`}
             className="aspect-square group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
             aspectRatio="1/1"
             width={400}
