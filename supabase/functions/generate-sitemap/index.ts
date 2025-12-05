@@ -54,6 +54,12 @@ Deno.serve(async (req) => {
         priority: '0.9'
       },
       {
+        loc: `${baseUrl}/blog`,
+        lastmod: now,
+        changefreq: 'daily',
+        priority: '0.8'
+      },
+      {
         loc: `${baseUrl}/about`,
         lastmod: now,
         changefreq: 'monthly',

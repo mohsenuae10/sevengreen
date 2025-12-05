@@ -1,11 +1,13 @@
 # Robots.txt for Lamset Beauty Store
-# Last updated: 2025-11-15
+# Last updated: 2025-12-05
 
 # Googlebot
 User-agent: Googlebot
 Allow: /
 Allow: /products
 Allow: /product/
+Allow: /blog
+Allow: /blog/
 Allow: /about
 Allow: /contact
 Disallow: /admin/
@@ -22,6 +24,8 @@ User-agent: Bingbot
 Allow: /
 Allow: /products
 Allow: /product/
+Allow: /blog
+Allow: /blog/
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
@@ -42,6 +46,8 @@ User-agent: *
 Allow: /
 Allow: /products
 Allow: /product/
+Allow: /blog
+Allow: /blog/
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
@@ -51,3 +57,4 @@ Disallow: /*.json$
 # Sitemaps
 Sitemap: https://lamsetbeauty.com/sitemap.xml
 Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
+Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-blog-sitemap
