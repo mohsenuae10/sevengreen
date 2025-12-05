@@ -125,6 +125,9 @@ const BlogPost = () => {
         keywords={post.meta_keywords || ''}
         url={shareUrl}
         image={post.featured_image || undefined}
+        type="article"
+        publishedTime={post.published_at || post.created_at || undefined}
+        modifiedTime={post.updated_at || undefined}
       />
       <ArticleSchema
         title={post.title_ar}
@@ -180,6 +183,8 @@ const BlogPost = () => {
                   src={post.featured_image}
                   alt={post.title_ar}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
             )}

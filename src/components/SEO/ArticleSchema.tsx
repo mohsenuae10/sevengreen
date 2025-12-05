@@ -22,7 +22,18 @@ export const ArticleSchema = ({
     '@type': 'BlogPosting',
     headline: title,
     description: description,
-    image: image || 'https://lamsetbeauty.com/logo.png',
+    image: image ? {
+      '@type': 'ImageObject',
+      url: image,
+      width: 1200,
+      height: 630,
+    } : {
+      '@type': 'ImageObject',
+      url: 'https://lamsetbeauty.com/logo.png',
+      width: 512,
+      height: 512,
+    },
+    inLanguage: 'ar',
     datePublished: datePublished,
     dateModified: dateModified || datePublished,
     author: {
