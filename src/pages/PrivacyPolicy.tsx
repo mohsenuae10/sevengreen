@@ -1,7 +1,5 @@
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function PrivacyPolicy() {
@@ -16,14 +14,12 @@ export default function PrivacyPolicy() {
         title="سياسة الخصوصية - لمسة بيوتي | Lamset Beauty"
         description="سياسة الخصوصية لمتجر لمسة بيوتي. تعرف على كيفية جمع واستخدام وحماية معلوماتك الشخصية."
         keywords="سياسة الخصوصية, حماية البيانات, الأمان, لمسة بيوتي"
-        url="https://sevengreenstore.com/privacy-policy"
+        url="https://lamsetbeauty.com/privacy-policy"
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
       
       <div className="min-h-screen flex flex-col">
-        <Header />
-        
         <main className="flex-1">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-4xl mx-auto">
@@ -115,8 +111,6 @@ export default function PrivacyPolicy() {
             </div>
           </div>
         </main>
-
-        <Footer />
       </div>
     </>
   );
