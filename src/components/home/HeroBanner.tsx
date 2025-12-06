@@ -27,7 +27,7 @@ export const HeroBanner = ({ product }: HeroBannerProps) => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              لمسة الجمال
+              لمسة بيوتي
               <span className="block text-accent mt-2">Lamset Beauty</span>
             </h1>
             
@@ -100,7 +100,7 @@ export const HeroBanner = ({ product }: HeroBannerProps) => {
                 <div className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-300 overflow-hidden">
                   <OptimizedImage
                     src={product.image_url}
-                    alt={`${product.name_ar} - منتج طبيعي مميز من لمسة الجمال`}
+                    alt={`${product.name_ar} - منتج طبيعي مميز من لمسة بيوتي`}
                     className="w-full"
                     aspectRatio="4/3"
                     priority={true}

@@ -12,7 +12,7 @@ export const CTASection = () => {
         <div className="max-w-3xl mx-auto text-center text-white space-y-8 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
             <Sparkles className="h-5 w-5 text-accent" />
-            <span className="font-medium">ابدأ رحلتك مع لمسة الجمال</span>
+            <span className="font-medium">ابدأ رحلتك مع لمسة بيوتي</span>
           </div>
           
           <h2 className="text-4xl md:text-5xl font-bold leading-tight">
