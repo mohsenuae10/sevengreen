@@ -230,7 +230,7 @@ export default function ProductDetail() {
       />
       <ProductSchema
         name={product.name_ar}
-        description={product.description_ar || product.seo_description || `${product.name_ar} - منتج طبيعي 100% من لمسة الجمال`}
+        description={product.description_ar || product.seo_description || `${product.name_ar} - منتج طبيعي 100% من لمسة بيوتي`}
         image={product.image_url || ''}
         images={allImages}
         price={Number(product.price)}

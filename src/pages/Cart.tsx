@@ -16,7 +16,7 @@ export default function Cart() {
       <>
         <SEOHead
           title="سلة التسوق"
-          description="سلة التسوق الخاصة بك في لمسة الجمال للمنتجات الطبيعية"
+          description="سلة التسوق الخاصة بك في لمسة بيوتي للمنتجات الطبيعية"
         />
         <Helmet>
           <meta name="robots" content="noindex, nofollow" />
@@ -49,7 +49,7 @@ export default function Cart() {
     <>
       <SEOHead
         title="سلة التسوق"
-        description="سلة التسوق الخاصة بك في لمسة الجمال للمنتجات الطبيعية"
+        description="سلة التسوق الخاصة بك في لمسة بيوتي للمنتجات الطبيعية"
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
@@ -72,7 +72,7 @@ export default function Cart() {
                   {item.image_url ? (
                     <OptimizedImage
                       src={item.image_url}
-                      alt={`${item.name_ar} - منتج طبيعي من لمسة الجمال`}
+                      alt={`${item.name_ar} - منتج طبيعي من لمسة بيوتي`}
                       className="w-24 h-24 flex-shrink-0"
                       aspectRatio="1/1"
                     />
