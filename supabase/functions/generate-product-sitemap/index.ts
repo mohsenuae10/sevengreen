@@ -107,11 +107,11 @@ Deno.serve(async (req) => {
         // Add main product image
         if (product.image_url && isValidUrl(product.image_url)) {
           sitemap += `
-     <image:image>
-       <image:loc>${escapeXML(product.image_url)}</image:loc>
-       <image:title>${escapedName}</image:title>
-       <image:caption>منتج ${escapedName} من لمسة بيوتي</image:caption>
-     </image:image>`;
+    <image:image>
+      <image:loc>${escapeXML(product.image_url)}</image:loc>
+      <image:title>${escapedName}</image:title>
+      <image:caption>منتج ${escapedName} من لمسة بيوتي</image:caption>
+    </image:image>`;
         }
 
         // Add additional images
@@ -121,11 +121,11 @@ Deno.serve(async (req) => {
                 img.image_url !== product.image_url && 
                 isValidUrl(img.image_url)) {
               sitemap += `
-     <image:image>
-       <image:loc>${escapeXML(img.image_url)}</image:loc>
-       <image:title>${escapedName}</image:title>
-       <image:caption>منتج ${escapedName} من لمسة بيوتي</image:caption>
-     </image:image>`;
+    <image:image>
+      <image:loc>${escapeXML(img.image_url)}</image:loc>
+      <image:title>${escapedName}</image:title>
+      <image:caption>منتج ${escapedName} من لمسة بيوتي</image:caption>
+    </image:image>`;
             }
           });
         }
