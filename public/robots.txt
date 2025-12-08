@@ -1,5 +1,5 @@
 # Robots.txt for Lamset Beauty Store
-# Last updated: 2025-12-05
+# Last updated: 2025-12-08
 
 # Googlebot
 User-agent: Googlebot
@@ -54,10 +54,5 @@ Disallow: /cart
 Disallow: /order-success/
 Disallow: /*.json$
 
-# Sitemaps
+# Sitemap Index - Contains all sitemaps
 Sitemap: https://lamsetbeauty.com/sitemap.xml
-Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
-Sitemap: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-blog-sitemap
-
-# Product Sitemap - Dynamic via Edge Function
-# URL: https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap
