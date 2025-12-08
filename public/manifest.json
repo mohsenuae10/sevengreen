@@ -11,8 +11,26 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/logo.png",
-      "sizes": "512x512",
+      "src": "/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
@@ -23,12 +41,13 @@
       "purpose": "maskable"
     },
     {
-      "src": "/favicon.ico",
-      "sizes": "any",
-      "type": "image/x-icon"
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
-  "categories": ["shopping", "lifestyle"],
+  "categories": ["shopping", "lifestyle", "beauty"],
   "shortcuts": [
     {
       "name": "المنتجات",
@@ -42,6 +61,13 @@
       "short_name": "السلة",
       "description": "عرض سلة التسوق",
       "url": "/cart",
+      "icons": []
+    },
+    {
+      "name": "الأسئلة الشائعة",
+      "short_name": "FAQ",
+      "description": "الأسئلة الشائعة",
+      "url": "/faq",
       "icons": []
     }
   ]

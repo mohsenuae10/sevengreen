@@ -18,7 +18,7 @@ export const SEOHead = ({
   title,
   description,
   keywords,
-  image = 'https://lamsetbeauty.com/logo.png',
+  image = 'https://lamsetbeauty.com/og-image.jpg',
   url,
   type = 'website',
   price,
