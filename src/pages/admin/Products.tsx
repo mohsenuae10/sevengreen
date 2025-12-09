@@ -249,6 +249,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     made_in: product?.made_in || '',
     price: product?.price || '',
     category: product?.category || '',
+    category_ar: product?.category_ar || '',
     stock_quantity: product?.stock_quantity || '',
     image_url: product?.image_url || '',
     seo_title: product?.seo_title || '',
@@ -559,6 +560,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         made_in: formData.made_in?.trim() || null,
         price: parseFloat(formData.price as any),
         category: formData.category.trim(),
+        category_ar: formData.category_ar?.trim() || null,
         stock_quantity: parseInt(formData.stock_quantity as any),
         image_url: primaryImageUrl || null,
         seo_title: formData.seo_title?.trim() || null,
@@ -655,7 +657,15 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           <Label>الفئة</Label>
           <Select
             value={formData.category}
-            onValueChange={(value) => setFormData({ ...formData, category: value })}
+            onValueChange={(value) => {
+              // جلب اسم الفئة بالعربي تلقائياً
+              const selectedCategory = categories?.find(c => c.slug === value);
+              setFormData({ 
+                ...formData, 
+                category: value,
+                category_ar: selectedCategory?.name_ar || ''
+              });
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="اختر الفئة" />
