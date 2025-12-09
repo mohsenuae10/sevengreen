@@ -69,6 +69,7 @@ export default function ImportProduct() {
     description_ar: '',
     price: 0,
     category: '',
+    category_ar: '',
     stock_quantity: 0,
     made_in: '',
     ingredients_ar: '',
@@ -302,11 +303,15 @@ export default function ImportProduct() {
         }
       }
       
+      // جلب اسم الفئة بالعربي
+      const matchedCategory = categories.find(c => c.slug === product.category);
+      
       setFormData({
         name_ar: optimizedName,
         description_ar: product.description || '',
         price: priceInSAR,
         category: product.category || '',
+        category_ar: matchedCategory?.name_ar || '',
         stock_quantity: 10,
         made_in: product.brand || '',
         ingredients_ar: '',
@@ -535,6 +540,7 @@ export default function ImportProduct() {
           description_ar: formData.description_ar,
           price: formData.price,
           category: formData.category,
+          category_ar: formData.category_ar,
           stock_quantity: formData.stock_quantity,
           made_in: formData.made_in,
           ingredients_ar: formData.ingredients_ar,
@@ -649,6 +655,7 @@ export default function ImportProduct() {
         description_ar: '',
         price: 0,
         category: '',
+        category_ar: '',
         stock_quantity: 0,
         made_in: '',
         ingredients_ar: '',
@@ -1761,6 +1768,7 @@ export default function ImportProduct() {
                       description_ar: '',
                       price: 0,
                       category: '',
+                      category_ar: '',
                       stock_quantity: 0,
                       made_in: '',
                       ingredients_ar: '',
