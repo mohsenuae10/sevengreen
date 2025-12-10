@@ -9,6 +9,14 @@ import { ItemListSchema } from '@/components/SEO/ItemListSchema';
 import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -81,9 +89,9 @@ export default function Products() {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEOHead
-        title={selectedCategoryName ? `${selectedCategoryName} - لمسة بيوتي` : 'جميع المنتجات - لمسة بيوتي'}
-        description={selectedCategoryName ? `منتجات ${selectedCategoryName} فاخرة 100%. أفضل العناية في السعودية مع توصيل سريع.` : 'منتجات جمال فاخرة. مستحضرات تجميل أصلية، عناية بالبشرة والشعر. شحن مجاني داخل السعودية.'}
-        keywords={selectedCategoryName ? `${selectedCategoryName}, منتجات جمال, لمسة بيوتي, مستحضرات تجميل السعودية` : 'منتجات جمال, مستحضرات تجميل, عناية بالبشرة, عناية بالشعر, لمسة بيوتي, السعودية'}
+        title={selectedCategoryName ? `${selectedCategoryName} | منتجات طبيعية - لمسة بيوتي` : 'جميع المنتجات الطبيعية | لمسة بيوتي - شحن مجاني'}
+        description={selectedCategoryName ? `تسوق أفضل منتجات ${selectedCategoryName} الطبيعية 100% من لمسة بيوتي. ✓ جودة عالية ✓ شحن مجاني ✓ توصيل سريع للسعودية` : 'اكتشف مجموعتنا الكاملة من منتجات العناية الطبيعية - بار شامبو، سيروم، زيوت. ✓ منتجات أصلية ✓ شحن مجاني ✓ ضمان الجودة'}
+        keywords={selectedCategoryName ? `${selectedCategoryName}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية السعودية, شحن مجاني` : 'منتجات طبيعية, عناية بالبشرة, عناية بالشعر, لمسة بيوتي, شحن مجاني السعودية, منتجات عضوية'}
         type="website"
         url={canonicalUrl}
       />
@@ -101,11 +109,41 @@ export default function Products() {
           category={selectedCategoryName || undefined}
         />
       )}
+      
+      {/* Visible Breadcrumbs for UX + SEO */}
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          {selectedCategoryName ? (
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{selectedCategoryName}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          ) : (
+            <BreadcrumbItem>
+              <BreadcrumbPage>المنتجات</BreadcrumbPage>
+            </BreadcrumbItem>
+          )}
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="mb-8 space-y-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">منتجاتنا</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+            {selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجاتنا الطبيعية'}
+          </h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            اكتشف مجموعتنا من المنتجات الطبيعية 100%
+            {selectedCategoryName 
+              ? `اكتشف مجموعة ${selectedCategoryName} الطبيعية 100% من لمسة بيوتي`
+              : 'اكتشف مجموعتنا الكاملة من منتجات العناية الطبيعية'}
             {products && ` (${products.length} منتج)`}
           </p>
         </div>
