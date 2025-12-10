@@ -135,6 +135,9 @@ export default function Home() {
         ]}
       />
       
+      {/* H1 - Critical for SEO */}
+      <h1 className="sr-only">لمسة بيوتي - أفضل منتجات العناية الطبيعية بالشعر والبشرة في السعودية</h1>
+      
       {/* Promotional Banner (Rotating Messages) */}
       <PromoBanner />
 
