@@ -20,6 +20,10 @@ import ShippingPolicy from '@/pages/ShippingPolicy';
 import NotFound from '@/pages/NotFound';
 import SitemapXML from '@/pages/SitemapXML';
 import SitemapProductsXML from '@/pages/SitemapProductsXML';
+import SitemapPagesXML from '@/pages/SitemapPagesXML';
+
+// Lazy load category landing page
+const CategoryLanding = lazy(() => import('@/pages/CategoryLanding'));
 
 // Lazy load blog pages
 const Blog = lazy(() => import('@/pages/Blog'));
@@ -208,8 +212,14 @@ function App() {
                           <BlogPost />
                         </Suspense>
                       } />
+                      <Route path="/category/:slug" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                          <CategoryLanding />
+                        </Suspense>
+                      } />
                       <Route path="/sitemap.xml" element={<SitemapXML />} />
                       <Route path="/sitemap-products.xml" element={<SitemapProductsXML />} />
+                      <Route path="/sitemap-pages.xml" element={<SitemapPagesXML />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </main>
