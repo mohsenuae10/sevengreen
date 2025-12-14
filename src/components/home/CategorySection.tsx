@@ -86,7 +86,7 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
       >
         <CarouselContent className="-mr-2 md:-mr-4">
           {categoryProducts.map((product) => (
-            <CarouselItem key={product.id} className="pr-2 md:pr-4 basis-1/2">
+            <CarouselItem key={product.id} className="pr-2 md:pr-4 basis-1/2 sm:basis-1/3 lg:basis-1/4 xl:basis-1/5">
               <ProductCard {...product} />
             </CarouselItem>
           ))}

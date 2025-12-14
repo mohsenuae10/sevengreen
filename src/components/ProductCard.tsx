@@ -105,10 +105,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-gradient-card h-full flex flex-col border-2 border-primary/20 hover:border-primary/40 hover:-translate-y-2 animate-fade-in">
+    <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 group relative bg-white h-full flex flex-col border border-border/50 hover:border-primary/60 hover:-translate-y-3 animate-fade-in rounded-2xl">
       {/* شارة المنتج */}
       {hasBadge && (
-        <Badge className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold text-[9px] px-2 py-0.5 shadow-md">
+        <Badge className="absolute top-3 right-3 z-10 bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 text-gray-900 font-bold text-[10px] px-3 py-1 shadow-lg rounded-full">
           {randomBadge}
         </Badge>
       )}
@@ -116,38 +116,38 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       {/* أيقونة المفضلة */}
       <button
         onClick={toggleFavorite}
-        className="absolute top-2 left-2 z-10 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-sm"
+        className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-lg border border-gray-100"
         aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
       >
         <Heart
-          className={`h-4 w-4 transition-all ${
-            isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-600'
+          className={`h-4 w-4 transition-all duration-300 ${
+            isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400 hover:text-red-400'
           }`}
         />
       </button>
 
-      <Link to={`/product/${slug || id}`} className="relative overflow-hidden">
+      <Link to={`/product/${slug || id}`} className="relative overflow-hidden group/image rounded-t-2xl">
         {image_url ? (
           <OptimizedImage
             src={image_url}
             alt={`${name_ar}${category_ar ? ` - ${category_ar}` : ''} - منتج طبيعي من لمسة بيوتي`}
-            className="aspect-square group-hover:scale-110 transition-transform duration-700 group-hover:brightness-105"
+            className="aspect-square group-hover:scale-105 transition-transform duration-700 group-hover:brightness-105"
             aspectRatio="1/1"
             width={400}
             height={400}
           />
         ) : (
-          <div className="aspect-square bg-secondary flex items-center justify-center text-muted-foreground text-[8px]">
+          <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-muted-foreground text-[8px]">
             لا توجد صورة
           </div>
         )}
-        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </Link>
       
-      <CardContent className="p-3 md:p-4 flex-1 flex flex-col justify-between gap-2">
+      <CardContent className="p-4 md:p-5 flex-1 flex flex-col justify-between gap-3 bg-gradient-to-b from-transparent to-gray-50/30">
         {/* اسم المنتج */}
         <Link to={`/product/${slug || id}`}>
-          <h3 className="font-bold text-xs md:text-sm text-center text-primary hover:text-primary/80 transition-all duration-300 line-clamp-2 min-h-[2.5rem] leading-tight flex items-center justify-center px-1 group-hover:scale-105">
+          <h3 className="font-bold text-sm md:text-base text-center text-foreground hover:text-primary transition-all duration-300 line-clamp-2 min-h-[2.5rem] leading-relaxed flex items-center justify-center px-2 group-hover:scale-[1.02]">
             {name_ar}
           </h3>
         </Link>
@@ -165,19 +165,19 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         )}
 
         {/* قسم السعر */}
-        <div className="text-center space-y-1 py-2">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-baseline gap-1">
-              <p className="text-lg md:text-xl font-bold text-primary">
+        <div className="text-center space-y-1.5 py-2">
+          <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-baseline gap-1.5 bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-2 rounded-xl">
+              <p className="text-xl md:text-2xl font-extrabold text-primary">
                 {price.toFixed(2)}
               </p>
-              <p className="text-xs font-semibold text-muted-foreground">
+              <p className="text-sm font-semibold text-primary/80">
                 ر.س
               </p>
             </div>
             {hasDiscount && (
-              <div className="flex items-baseline gap-0.5">
-                <p className="text-xs text-muted-foreground line-through">
+              <div className="flex items-baseline gap-1">
+                <p className="text-sm text-gray-400 line-through decoration-2">
                   {oldPrice.toFixed(2)}
                 </p>
               </div>
@@ -185,8 +185,8 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
           </div>
           {hasDiscount && (
             <div className="inline-block">
-              <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-                وفّر {discountPercentage}%
+              <Badge variant="destructive" className="text-[11px] px-3 py-1 rounded-full font-bold shadow-sm">
+                خصم {discountPercentage}%
               </Badge>
             </div>
           )}
@@ -194,20 +194,20 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
 
         {/* رسالة غير متوفر */}
         {stock_quantity <= 0 && (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-md py-1.5 px-2">
-            <p className="text-xs text-destructive text-center font-semibold">
+          <div className="bg-red-50 border border-red-200 rounded-xl py-2 px-3 shadow-sm">
+            <p className="text-xs text-red-600 text-center font-bold">
               نفذت الكمية
             </p>
           </div>
         )}
 
         {/* أزرار الإجراءات */}
-        <div className="flex gap-2 mt-auto pt-2">
+        <div className="flex gap-2 mt-auto pt-3">
           {showCartButtonOnly ? (
             <Button
               onClick={handleAddToCart}
               size="sm"
-              className="w-full h-9 rounded-lg text-xs font-bold hover:scale-110 active:scale-95 transition-all duration-300 hover:shadow-lg"
+              className="w-full h-10 rounded-xl text-sm font-bold hover:scale-105 active:scale-95 transition-all duration-300 hover:shadow-xl bg-gradient-to-r from-primary to-primary-dark"
               disabled={stock_quantity <= 0}
             >
               <ShoppingCart className="h-4 w-4 ml-2" />
@@ -219,17 +219,18 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
                 onClick={handleAddToCart}
                 variant="outline"
                 size="sm"
-                className="flex-1 h-9 rounded-lg text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-md active:scale-95"
+                className="flex-1 h-10 rounded-xl text-sm hover:bg-primary hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 border-2 border-primary/30 hover:border-primary group/cart"
                 disabled={stock_quantity <= 0}
               >
-                <ShoppingCart className="h-4 w-4 group-hover:animate-pulse" />
+                <ShoppingCart className="h-4 w-4 group-hover/cart:animate-bounce" />
               </Button>
               <Button
                 onClick={handleBuyNow}
                 size="sm"
-                className="flex-[2] h-9 rounded-lg text-xs font-bold hover:scale-110 active:scale-95 transition-all duration-300 hover:shadow-lg"
+                className="flex-[2] h-10 rounded-xl text-sm font-bold hover:scale-105 active:scale-95 transition-all duration-300 hover:shadow-xl bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary"
                 disabled={stock_quantity <= 0}
               >
+                <Zap className="h-4 w-4 ml-1.5" />
                 اشتر الآن
               </Button>
             </>
