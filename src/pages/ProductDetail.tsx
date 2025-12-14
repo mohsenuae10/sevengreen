@@ -21,6 +21,7 @@ import { ProductTabs } from '@/components/product/ProductTabs';
 import { ReviewForm } from '@/components/product/ReviewForm';
 import { ReviewsList } from '@/components/product/ReviewsList';
 import { ReviewSchema } from '@/components/SEO/ReviewSchema';
+import { getCareType } from '@/utils/categoryHelpers';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -208,7 +209,7 @@ export default function ProductDetail() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8" itemScope itemType="https://schema.org/Product">
       <SEOHead
         title={
           product.seo_title 
@@ -217,7 +218,7 @@ export default function ProductDetail() {
               : product.seo_title
             : `${product.name_ar} | لمسة بيوتي`
         }
-        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة بيوتي - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
+        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة بيوتي - منتج طبيعي 100% للعناية ${getCareType(product.category)} - شحن مجاني في السعودية`}
         keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}
         type="product"
@@ -248,6 +249,9 @@ export default function ProductDetail() {
         createdAt={product.created_at}
         updatedAt={product.updated_at}
         aggregateRating={product.ratingStats}
+        originalPrice={product.original_price ? Number(product.original_price) : undefined}
+        discountPercentage={product.discount_percentage ? Number(product.discount_percentage) : undefined}
+        videoUrl={product.video_url || undefined}
       />
       <ReviewSchema 
         productName={product.name_ar}
@@ -418,6 +422,38 @@ export default function ProductDetail() {
         why_choose={product.why_choose}
         faqs={product.faqs}
       />
+
+      {/* SEO-rich content section */}
+      {!product.long_description_ar && product.description_ar && (
+        <section className="mt-8 prose prose-lg max-w-none" itemProp="description">
+          <h2 className="text-2xl font-bold text-primary mb-4">عن {product.name_ar}</h2>
+          <div className="text-muted-foreground leading-relaxed">
+            <p className="whitespace-pre-line">{product.description_ar}</p>
+            
+            {product.category_ar && (
+              <p className="mt-4">
+                يعد {product.name_ar} من أفضل منتجات {product.category_ar} الطبيعية المتوفرة في المملكة العربية السعودية. 
+                صُمم خصيصاً لتلبية احتياجات العناية {getCareType(product.category)} 
+                بأعلى معايير الجودة.
+              </p>
+            )}
+            
+            {product.made_in && (
+              <p className="mt-3">
+                <strong>المنشأ:</strong> منتج أصلي من {product.made_in}، يتميز بجودة عالية ومكونات طبيعية 100%.
+              </p>
+            )}
+            
+            <p className="mt-3">
+              <strong>الشحن:</strong> نوفر شحن مجاني سريع لجميع مناطق المملكة العربية السعودية مع ضمان التوصيل خلال 3-5 أيام عمل.
+            </p>
+            
+            <p className="mt-3">
+              <strong>سياسة الإرجاع:</strong> نقدم سياسة إرجاع مرنة لمدة 14 يومًا لضمان رضاك التام عن المنتج.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Reviews Section */}
       <div className="mt-12 space-y-8">

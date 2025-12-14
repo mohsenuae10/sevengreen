@@ -35,7 +35,7 @@ export function ProductTabs({
   }
 
   return (
-    <div className="mt-12 space-y-6">
+    <section className="mt-12 space-y-6" aria-label="معلومات تفصيلية عن المنتج">
       {/* الوصف التفصيلي المحسّن للـ SEO */}
       {long_description_ar && (
         <Card className="border-2 hover:border-primary/50 transition-colors">
@@ -44,11 +44,11 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <FileText className="h-5 w-5 text-primary" />
               </div>
-              وصف تفصيلي
+              <span className="text-xl font-bold">وصف تفصيلي</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none text-foreground leading-relaxed whitespace-pre-line text-base">
+            <div className="prose prose-sm max-w-none text-foreground leading-relaxed whitespace-pre-line text-base" itemProp="description">
               {long_description_ar}
             </div>
           </CardContent>
@@ -63,7 +63,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
-              المميزات الرئيسية
+              <span className="text-xl font-bold">المميزات الرئيسية</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -87,7 +87,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
                 <Heart className="h-5 w-5 text-rose-600 dark:text-rose-400" />
               </div>
-              لماذا تختار هذا المنتج؟
+              <span className="text-xl font-bold">لماذا تختار هذا المنتج؟</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -111,7 +111,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Info className="h-5 w-5 text-primary" />
               </div>
-              الأسئلة الشائعة
+              <span className="text-xl font-bold">الأسئلة الشائعة</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -119,7 +119,7 @@ export function ProductTabs({
               {faqs.map((faq, index) => (
                 <AccordionItem key={index} value={`item-${index}`}>
                   <AccordionTrigger className="text-right hover:text-primary">
-                    {faq.question}
+                    <span className="text-base font-semibold">{faq.question}</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
                     {faq.answer}
@@ -139,7 +139,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Info className="h-5 w-5 text-primary" />
               </div>
-              وصف المنتج
+              <span className="text-xl font-bold">وصف المنتج</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -158,7 +158,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                 <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
-              المكونات
+              <span className="text-xl font-bold">المكونات</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -177,7 +177,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              طريقة الاستخدام
+              <span className="text-xl font-bold">طريقة الاستخدام</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -196,7 +196,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                 <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
-              الفوائد
+              <span className="text-xl font-bold">الفوائد</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -215,7 +215,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
                 <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
-              تحذيرات
+              <span className="text-xl font-bold">تحذيرات</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -234,7 +234,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                 <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
-              معلومات الحجم
+              <span className="text-xl font-bold">معلومات الحجم</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -253,7 +253,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                 <MapPin className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
-              بلد المنشأ
+              <span className="text-xl font-bold">بلد المنشأ</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -263,6 +263,6 @@ export function ProductTabs({
           </CardContent>
         </Card>
       )}
-    </div>
+    </section>
   );
 }

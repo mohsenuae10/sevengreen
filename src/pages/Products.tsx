@@ -9,6 +9,7 @@ import { ItemListSchema } from '@/components/SEO/ItemListSchema';
 import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getCareType } from '@/utils/categoryHelpers';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -87,7 +88,7 @@ export default function Products() {
     : 'https://lamsetbeauty.com/products';
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8" itemScope itemType="https://schema.org/CollectionPage">
       <SEOHead
         title={selectedCategoryName ? `${selectedCategoryName} | منتجات طبيعية - لمسة بيوتي` : 'جميع المنتجات الطبيعية | لمسة بيوتي - شحن مجاني'}
         description={selectedCategoryName ? `تسوق أفضل منتجات ${selectedCategoryName} الطبيعية 100% من لمسة بيوتي. ✓ جودة عالية ✓ شحن مجاني ✓ توصيل سريع للسعودية` : 'اكتشف مجموعتنا الكاملة من منتجات العناية الطبيعية - بار شامبو، سيروم، زيوت. ✓ منتجات أصلية ✓ شحن مجاني ✓ ضمان الجودة'}
@@ -137,10 +138,10 @@ export default function Products() {
 
       <div className="mb-8 space-y-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2" itemProp="name">
             {selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجاتنا الطبيعية'}
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base">
+          <p className="text-muted-foreground text-sm md:text-base" itemProp="description">
             {selectedCategoryName 
               ? `اكتشف مجموعة ${selectedCategoryName} الطبيعية 100% من لمسة بيوتي`
               : 'اكتشف مجموعتنا الكاملة من منتجات العناية الطبيعية'}
@@ -201,11 +202,43 @@ export default function Products() {
           ))}
         </div>
       ) : products && products.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 items-stretch">
-          {products.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 items-stretch" itemScope itemType="https://schema.org/ItemList">
+            {products.map((product, index) => (
+              <div key={product.id} itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <meta itemProp="position" content={String(index + 1)} />
+                <ProductCard {...product} />
+              </div>
+            ))}
+          </div>
+          
+          {/* SEO Content Section */}
+          {selectedCategoryName && (
+            <section className="mt-12 prose prose-lg max-w-none">
+              <h2 className="text-2xl font-bold text-primary mb-4">عن منتجات {selectedCategoryName}</h2>
+              <div className="text-muted-foreground leading-relaxed">
+                <p>
+                  تقدم لمسة بيوتي مجموعة متميزة من منتجات {selectedCategoryName} الطبيعية 100%، المصممة خصيصاً لتلبية احتياجاتك في العناية 
+                  {getCareType(selectedCategory || '')}.
+                  جميع منتجاتنا مصنوعة من مكونات عالية الجودة ومختارة بعناية لضمان أفضل النتائج.
+                </p>
+                <p className="mt-4">
+                  <strong>لماذا تختار منتجات {selectedCategoryName} من لمسة بيوتي؟</strong>
+                </p>
+                <ul className="list-disc list-inside mt-2 space-y-2">
+                  <li>✓ منتجات طبيعية 100% وآمنة للاستخدام اليومي</li>
+                  <li>✓ جودة عالية مضمونة ومنتجات أصلية</li>
+                  <li>✓ شحن مجاني وسريع لجميع مناطق المملكة</li>
+                  <li>✓ سياسة إرجاع مرنة لمدة 14 يومًا</li>
+                  <li>✓ خدمة عملاء متميزة على مدار الساعة</li>
+                </ul>
+                <p className="mt-4">
+                  اطلب الآن واستمتع بتجربة تسوق مميزة مع توصيل سريع خلال 3-5 أيام عمل فقط!
+                </p>
+              </div>
+            </section>
+          )}
+        </>
       ) : (
         <div className="text-center py-20">
           <div className="mb-4">
@@ -226,6 +259,6 @@ export default function Products() {
           )}
         </div>
       )}
-    </div>
+    </main>
   );
 }
