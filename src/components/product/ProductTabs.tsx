@@ -35,19 +35,19 @@ export function ProductTabs({
   }
 
   return (
-    <section className="mt-12 space-y-6" aria-label="معلومات تفصيلية عن المنتج">
+    <section className="mt-16 space-y-6" aria-label="معلومات تفصيلية عن المنتج">
       {/* الوصف التفصيلي المحسّن للـ SEO */}
       {long_description_ar && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <FileText className="h-5 w-5 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-md">
+                <FileText className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">وصف تفصيلي</span>
+              <span className="text-2xl font-bold">وصف تفصيلي</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="prose prose-sm max-w-none text-foreground leading-relaxed whitespace-pre-line text-base" itemProp="description">
               {long_description_ar}
             </div>
@@ -57,21 +57,21 @@ export function ProductTabs({
 
       {/* المميزات الرئيسية */}
       {key_features && key_features.length > 0 && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-md">
+                <Sparkles className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">المميزات الرئيسية</span>
+              <span className="text-2xl font-bold">المميزات الرئيسية</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
+          <CardContent className="pt-6">
+            <ul className="space-y-4">
               {key_features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <div className="mt-1.5 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                  <span className="text-foreground leading-relaxed text-base">{feature}</span>
+                <li key={index} className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 transition-colors">
+                  <div className="mt-1 h-2.5 w-2.5 rounded-full bg-gradient-primary flex-shrink-0 shadow-sm" />
+                  <span className="text-foreground leading-relaxed text-base font-medium">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -81,21 +81,21 @@ export function ProductTabs({
 
       {/* لماذا تختار هذا المنتج */}
       {why_choose && why_choose.length > 0 && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-rose-300 dark:hover:border-rose-700 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-                <Heart className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-md">
+                <Heart className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">لماذا تختار هذا المنتج؟</span>
+              <span className="text-2xl font-bold">لماذا تختار هذا المنتج؟</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
+          <CardContent className="pt-6">
+            <ul className="space-y-4">
               {why_choose.map((reason, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <div className="mt-1.5 h-2 w-2 rounded-full bg-rose-600 dark:bg-rose-400 flex-shrink-0" />
-                  <span className="text-foreground leading-relaxed text-base">{reason}</span>
+                <li key={index} className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-rose-50 to-transparent dark:from-rose-950/10 hover:from-rose-100 dark:hover:from-rose-950/20 transition-colors">
+                  <div className="mt-1 h-2.5 w-2.5 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex-shrink-0 shadow-sm" />
+                  <span className="text-foreground leading-relaxed text-base font-medium">{reason}</span>
                 </li>
               ))}
             </ul>
@@ -105,23 +105,23 @@ export function ProductTabs({
 
       {/* الأسئلة الشائعة */}
       {faqs && faqs.length > 0 && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Info className="h-5 w-5 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-md">
+                <Info className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">الأسئلة الشائعة</span>
+              <span className="text-2xl font-bold">الأسئلة الشائعة</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-right hover:text-primary">
-                    <span className="text-base font-semibold">{faq.question}</span>
+                <AccordionItem key={index} value={`item-${index}`} className="border-b border-border/50 last:border-0">
+                  <AccordionTrigger className="text-right hover:text-primary transition-colors py-4">
+                    <span className="text-base font-bold">{faq.question}</span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                  <AccordionContent className="text-muted-foreground leading-relaxed pb-4 text-base">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -133,16 +133,16 @@ export function ProductTabs({
 
       {/* وصف المنتج (القديم) */}
       {description && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Info className="h-5 w-5 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-md">
+                <Info className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">وصف المنتج</span>
+              <span className="text-2xl font-bold">وصف المنتج</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
               {description}
             </p>
@@ -152,16 +152,16 @@ export function ProductTabs({
 
       {/* المكونات */}
       {ingredients && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-md">
+                <Leaf className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">المكونات</span>
+              <span className="text-2xl font-bold">المكونات</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
               {ingredients}
             </p>
@@ -171,16 +171,16 @@ export function ProductTabs({
 
       {/* طريقة الاستخدام */}
       {howToUse && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-950/20 dark:to-sky-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-sky-600 flex items-center justify-center shadow-md">
+                <Package className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">طريقة الاستخدام</span>
+              <span className="text-2xl font-bold">طريقة الاستخدام</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
               {howToUse}
             </p>
@@ -190,16 +190,16 @@ export function ProductTabs({
 
       {/* الفوائد */}
       {benefits && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-md">
+                <Star className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">الفوائد</span>
+              <span className="text-2xl font-bold">الفوائد</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base">
               {benefits}
             </p>
@@ -209,16 +209,16 @@ export function ProductTabs({
 
       {/* التحذيرات */}
       {warnings && (
-        <Card className="border-2 border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
-          <CardHeader>
+        <Card className="border-2 border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 hover:shadow-soft transition-all duration-300 overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30">
             <CardTitle className="flex items-center gap-3 text-xl text-amber-900 dark:text-amber-100">
-              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+                <AlertTriangle className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">تحذيرات</span>
+              <span className="text-2xl font-bold">تحذيرات</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-amber-900 dark:text-amber-100 leading-relaxed whitespace-pre-line text-base">
               {warnings}
             </p>
@@ -228,16 +228,16 @@ export function ProductTabs({
 
       {/* معلومات الحجم */}
       {sizeInfo && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md">
+                <Ruler className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">معلومات الحجم</span>
+              <span className="text-2xl font-bold">معلومات الحجم</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground leading-relaxed text-base">
               {sizeInfo}
             </p>
@@ -247,18 +247,18 @@ export function ProductTabs({
 
       {/* بلد المنشأ */}
       {madeIn && (
-        <Card className="border-2 hover:border-primary/50 transition-colors">
-          <CardHeader>
+        <Card className="border-2 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 hover:shadow-soft overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-600 to-gray-700 flex items-center justify-center shadow-md">
+                <MapPin className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">بلد المنشأ</span>
+              <span className="text-2xl font-bold">بلد المنشأ</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground text-base">
-              صنع في: <span className="font-semibold">{madeIn}</span>
+              صنع في: <span className="font-bold text-lg text-foreground">{madeIn}</span>
             </p>
           </CardContent>
         </Card>
