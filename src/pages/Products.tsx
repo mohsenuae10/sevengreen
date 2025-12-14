@@ -256,7 +256,7 @@ export default function Products() {
               عرض جميع المنتجات
             </Button>
           )}
-        </>
+        </div>
       )}
     </main>
   );
