@@ -219,10 +219,10 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
                 onClick={handleAddToCart}
                 variant="outline"
                 size="sm"
-                className="flex-1 h-10 rounded-xl text-sm hover:bg-primary hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 border-2 border-primary/30 hover:border-primary"
+                className="flex-1 h-10 rounded-xl text-sm hover:bg-primary hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 border-2 border-primary/30 hover:border-primary group/cart"
                 disabled={stock_quantity <= 0}
               >
-                <ShoppingCart className="h-4 w-4 group-hover:animate-bounce" />
+                <ShoppingCart className="h-4 w-4 group-hover/cart:animate-bounce" />
               </Button>
               <Button
                 onClick={handleBuyNow}
