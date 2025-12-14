@@ -249,6 +249,9 @@ export default function ProductDetail() {
         createdAt={product.created_at}
         updatedAt={product.updated_at}
         aggregateRating={product.ratingStats}
+        originalPrice={product.original_price ? Number(product.original_price) : undefined}
+        discountPercentage={product.discount_percentage ? Number(product.discount_percentage) : undefined}
+        videoUrl={product.video_url || undefined}
       />
       <ReviewSchema 
         productName={product.name_ar}
