@@ -208,7 +208,7 @@ export default function ProductDetail() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8" itemScope itemType="https://schema.org/Product">
       <SEOHead
         title={
           product.seo_title 
@@ -303,6 +303,11 @@ export default function ProductDetail() {
               {product.name_ar}
             </h1>
             
+            {/* Hidden microdata for brand */}
+            <meta itemProp="brand" content="لمسة بيوتي" />
+            <meta itemProp="sku" content={product.id} />
+            {product.made_in && <meta itemProp="countryOfOrigin" content={product.made_in} />}
+            
             {/* Rating */}
             {product.ratingStats && product.ratingStats.review_count > 0 && (
               <ProductRating 
@@ -319,7 +324,11 @@ export default function ProductDetail() {
           </div>
 
           {/* Price */}
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+            <meta itemProp="priceCurrency" content="SAR" />
+            <meta itemProp="price" content={product.price.toFixed(2)} />
+            <meta itemProp="availability" content={`https://schema.org/${isInStock ? 'InStock' : 'OutOfStock'}`} />
+            <link itemProp="url" href={`https://lamsetbeauty.com${productUrl}`} />
             <span className="text-4xl font-bold text-primary">
               {product.price.toFixed(2)}
             </span>
@@ -418,6 +427,38 @@ export default function ProductDetail() {
         why_choose={product.why_choose}
         faqs={product.faqs}
       />
+
+      {/* SEO-rich content section */}
+      {!product.long_description_ar && product.description_ar && (
+        <section className="mt-8 prose prose-lg max-w-none" itemProp="description">
+          <h2 className="text-2xl font-bold text-primary mb-4">عن {product.name_ar}</h2>
+          <div className="text-muted-foreground leading-relaxed">
+            <p className="whitespace-pre-line">{product.description_ar}</p>
+            
+            {product.category_ar && (
+              <p className="mt-4">
+                يعد {product.name_ar} من أفضل منتجات {product.category_ar} الطبيعية المتوفرة في المملكة العربية السعودية. 
+                صُمم خصيصاً لتلبية احتياجات العناية {product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} 
+                بأعلى معايير الجودة.
+              </p>
+            )}
+            
+            {product.made_in && (
+              <p className="mt-3">
+                <strong>المنشأ:</strong> منتج أصلي من {product.made_in}، يتميز بجودة عالية ومكونات طبيعية 100%.
+              </p>
+            )}
+            
+            <p className="mt-3">
+              <strong>الشحن:</strong> نوفر شحن مجاني سريع لجميع مناطق المملكة العربية السعودية مع ضمان التوصيل خلال 3-5 أيام عمل.
+            </p>
+            
+            <p className="mt-3">
+              <strong>سياسة الإرجاع:</strong> نقدم سياسة إرجاع مرنة لمدة 14 يومًا لضمان رضاك التام عن المنتج.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Reviews Section */}
       <div className="mt-12 space-y-8">

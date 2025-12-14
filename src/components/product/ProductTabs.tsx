@@ -35,7 +35,7 @@ export function ProductTabs({
   }
 
   return (
-    <div className="mt-12 space-y-6">
+    <section className="mt-12 space-y-6" aria-label="معلومات تفصيلية عن المنتج">
       {/* الوصف التفصيلي المحسّن للـ SEO */}
       {long_description_ar && (
         <Card className="border-2 hover:border-primary/50 transition-colors">
@@ -44,11 +44,11 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <FileText className="h-5 w-5 text-primary" />
               </div>
-              وصف تفصيلي
+              <h2 className="text-xl font-bold">وصف تفصيلي</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none text-foreground leading-relaxed whitespace-pre-line text-base">
+            <div className="prose prose-sm max-w-none text-foreground leading-relaxed whitespace-pre-line text-base" itemProp="description">
               {long_description_ar}
             </div>
           </CardContent>
@@ -63,7 +63,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
-              المميزات الرئيسية
+              <h2 className="text-xl font-bold">المميزات الرئيسية</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -87,7 +87,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
                 <Heart className="h-5 w-5 text-rose-600 dark:text-rose-400" />
               </div>
-              لماذا تختار هذا المنتج؟
+              <h2 className="text-xl font-bold">لماذا تختار هذا المنتج؟</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -111,7 +111,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Info className="h-5 w-5 text-primary" />
               </div>
-              الأسئلة الشائعة
+              <h2 className="text-xl font-bold">الأسئلة الشائعة</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -119,7 +119,7 @@ export function ProductTabs({
               {faqs.map((faq, index) => (
                 <AccordionItem key={index} value={`item-${index}`}>
                   <AccordionTrigger className="text-right hover:text-primary">
-                    {faq.question}
+                    <h3 className="text-base font-semibold">{faq.question}</h3>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
                     {faq.answer}
@@ -139,7 +139,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Info className="h-5 w-5 text-primary" />
               </div>
-              وصف المنتج
+              <h2 className="text-xl font-bold">وصف المنتج</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -158,7 +158,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                 <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
-              المكونات
+              <h2 className="text-xl font-bold">المكونات</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -177,7 +177,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              طريقة الاستخدام
+              <h2 className="text-xl font-bold">طريقة الاستخدام</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -196,7 +196,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                 <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
-              الفوائد
+              <h2 className="text-xl font-bold">الفوائد</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -215,7 +215,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
                 <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
-              تحذيرات
+              <h2 className="text-xl font-bold">تحذيرات</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -234,7 +234,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                 <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
-              معلومات الحجم
+              <h2 className="text-xl font-bold">معلومات الحجم</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -253,7 +253,7 @@ export function ProductTabs({
               <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                 <MapPin className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
-              بلد المنشأ
+              <h2 className="text-xl font-bold">بلد المنشأ</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -263,6 +263,6 @@ export function ProductTabs({
           </CardContent>
         </Card>
       )}
-    </div>
+    </section>
   );
 }

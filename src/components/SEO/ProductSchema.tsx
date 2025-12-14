@@ -28,6 +28,9 @@ interface ProductSchemaProps {
     ratingValue: number;
     reviewCount: number;
   };
+  originalPrice?: number;
+  discountPercentage?: number;
+  videoUrl?: string;
 }
 
 export const ProductSchema = ({
@@ -55,6 +58,9 @@ export const ProductSchema = ({
   createdAt,
   updatedAt,
   aggregateRating,
+  originalPrice,
+  discountPercentage,
+  videoUrl,
 }: ProductSchemaProps) => {
   // Decode URL properly for Arabic slugs
   const productUrl = `https://lamsetbeauty.com/product/${slug ? decodeURIComponent(slug) : sku}`;
@@ -78,7 +84,84 @@ export const ProductSchema = ({
     // SEO: Add publish and modification dates for freshness signals
     ...(createdAt && { datePublished: createdAt }),
     ...(updatedAt && { dateModified: updatedAt }),
-    offers: {
+    offers: originalPrice && discountPercentage ? {
+      '@type': 'AggregateOffer',
+      url: productUrl,
+      priceCurrency: currency,
+      lowPrice: price.toString(),
+      highPrice: originalPrice.toString(),
+      offerCount: '1',
+      availability: `https://schema.org/${availability}`,
+      priceValidUntil: priceValidUntilString,
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: 'لمسة بيوتي',
+        url: 'https://lamsetbeauty.com',
+      },
+      offers: [{
+        '@type': 'Offer',
+        url: productUrl,
+        priceCurrency: currency,
+        price: price.toString(),
+        priceValidUntil: priceValidUntilString,
+        availability: `https://schema.org/${availability}`,
+        ...(createdAt && { availabilityStarts: createdAt }),
+        itemCondition: 'https://schema.org/NewCondition',
+        priceSpecification: {
+          '@type': 'PriceSpecification',
+          price: price.toString(),
+          priceCurrency: currency,
+          valueAddedTaxIncluded: true,
+        },
+        ...(discountPercentage && {
+          eligibleQuantity: {
+            '@type': 'QuantitativeValue',
+            value: '1',
+          },
+          discount: {
+            '@type': 'Offer',
+            price: (originalPrice - price).toFixed(2),
+            priceCurrency: currency,
+          },
+        }),
+        shippingDetails: {
+          '@type': 'OfferShippingDetails',
+          shippingRate: {
+            '@type': 'MonetaryAmount',
+            value: '0',
+            currency: currency,
+          },
+          shippingDestination: {
+            '@type': 'DefinedRegion',
+            addressCountry: 'SA',
+          },
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 1,
+              maxValue: 2,
+              unitCode: 'DAY',
+            },
+            transitTime: {
+              '@type': 'QuantitativeValue',
+              minValue: shippingDays,
+              maxValue: shippingDays + 2,
+              unitCode: 'DAY',
+            },
+          },
+        },
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'SA',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: returnDays,
+          returnMethod: 'https://schema.org/ReturnByMail',
+          returnFees: 'https://schema.org/FreeReturn',
+        },
+      }],
+    } : {
       '@type': 'Offer',
       url: productUrl,
       priceCurrency: currency,
@@ -87,6 +170,12 @@ export const ProductSchema = ({
       availability: `https://schema.org/${availability}`,
       ...(createdAt && { availabilityStarts: createdAt }),
       itemCondition: 'https://schema.org/NewCondition',
+      priceSpecification: {
+        '@type': 'PriceSpecification',
+        price: price.toString(),
+        priceCurrency: currency,
+        valueAddedTaxIncluded: true,
+      },
       seller: {
         '@type': 'Organization',
         name: 'لمسة بيوتي',
@@ -155,12 +244,34 @@ export const ProductSchema = ({
         },
       },
     }),
+    // SEO: Add video if available for better rich results
+    ...(videoUrl && {
+      video: {
+        '@type': 'VideoObject',
+        name: `${name} - فيديو المنتج`,
+        description: `شاهد ${name} بالتفصيل`,
+        contentUrl: videoUrl,
+        thumbnailUrl: image,
+        uploadDate: createdAt || new Date().toISOString(),
+      },
+    }),
     audience: {
       '@type': 'PeopleAudience',
       geographicArea: {
         '@type': 'AdministrativeArea',
         name: 'المملكة العربية السعودية',
       },
+    },
+    // SEO: Add additional product properties for better indexing
+    isRelatedTo: {
+      '@type': 'Product',
+      name: `منتجات ${category || 'العناية الطبيعية'}`,
+      url: `https://lamsetbeauty.com/products${category ? `?category=${encodeURIComponent(category)}` : ''}`,
+    },
+    isSimilarTo: {
+      '@type': 'Product',
+      name: 'منتجات لمسة بيوتي الطبيعية',
+      url: 'https://lamsetbeauty.com/products',
     },
   };
 
