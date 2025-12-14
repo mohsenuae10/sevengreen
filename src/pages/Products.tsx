@@ -9,6 +9,7 @@ import { ItemListSchema } from '@/components/SEO/ItemListSchema';
 import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getCareType } from '@/utils/categoryHelpers';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -218,7 +219,7 @@ export default function Products() {
               <div className="text-muted-foreground leading-relaxed">
                 <p>
                   تقدم لمسة بيوتي مجموعة متميزة من منتجات {selectedCategoryName} الطبيعية 100%، المصممة خصيصاً لتلبية احتياجاتك في العناية 
-                  {selectedCategoryName.includes('شعر') ? 'بالشعر' : selectedCategoryName.includes('بشرة') ? 'بالبشرة' : ''}.
+                  {getCareType(selectedCategory || '')}.
                   جميع منتجاتنا مصنوعة من مكونات عالية الجودة ومختارة بعناية لضمان أفضل النتائج.
                 </p>
                 <p className="mt-4">

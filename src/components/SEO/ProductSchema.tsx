@@ -114,17 +114,6 @@ export const ProductSchema = ({
           priceCurrency: currency,
           valueAddedTaxIncluded: true,
         },
-        ...(discountPercentage && {
-          eligibleQuantity: {
-            '@type': 'QuantitativeValue',
-            value: '1',
-          },
-          discount: {
-            '@type': 'Offer',
-            price: (originalPrice - price).toFixed(2),
-            priceCurrency: currency,
-          },
-        }),
         shippingDetails: {
           '@type': 'OfferShippingDetails',
           shippingRate: {

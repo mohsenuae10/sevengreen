@@ -21,6 +21,7 @@ import { ProductTabs } from '@/components/product/ProductTabs';
 import { ReviewForm } from '@/components/product/ReviewForm';
 import { ReviewsList } from '@/components/product/ReviewsList';
 import { ReviewSchema } from '@/components/SEO/ReviewSchema';
+import { getCareType } from '@/utils/categoryHelpers';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -217,7 +218,7 @@ export default function ProductDetail() {
               : product.seo_title
             : `${product.name_ar} | لمسة بيوتي`
         }
-        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة بيوتي - منتج طبيعي 100% للعناية ${product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} - شحن مجاني في السعودية`}
+        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة بيوتي - منتج طبيعي 100% للعناية ${getCareType(product.category)} - شحن مجاني في السعودية`}
         keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}
         type="product"
@@ -303,11 +304,6 @@ export default function ProductDetail() {
               {product.name_ar}
             </h1>
             
-            {/* Hidden microdata for brand */}
-            <meta itemProp="brand" content="لمسة بيوتي" />
-            <meta itemProp="sku" content={product.id} />
-            {product.made_in && <meta itemProp="countryOfOrigin" content={product.made_in} />}
-            
             {/* Rating */}
             {product.ratingStats && product.ratingStats.review_count > 0 && (
               <ProductRating 
@@ -324,11 +320,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Price */}
-          <div className="flex items-baseline gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-            <meta itemProp="priceCurrency" content="SAR" />
-            <meta itemProp="price" content={product.price.toFixed(2)} />
-            <meta itemProp="availability" content={`https://schema.org/${isInStock ? 'InStock' : 'OutOfStock'}`} />
-            <link itemProp="url" href={`https://lamsetbeauty.com${productUrl}`} />
+          <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-primary">
               {product.price.toFixed(2)}
             </span>
@@ -438,7 +430,7 @@ export default function ProductDetail() {
             {product.category_ar && (
               <p className="mt-4">
                 يعد {product.name_ar} من أفضل منتجات {product.category_ar} الطبيعية المتوفرة في المملكة العربية السعودية. 
-                صُمم خصيصاً لتلبية احتياجات العناية {product.category === 'العناية بالشعر' ? 'بالشعر' : product.category === 'العناية بالبشرة' ? 'بالبشرة' : ''} 
+                صُمم خصيصاً لتلبية احتياجات العناية {getCareType(product.category)} 
                 بأعلى معايير الجودة.
               </p>
             )}
