@@ -289,61 +289,77 @@ export default function ProductDetail() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-12">
         <ProductImageGallery 
           images={product.images.length > 0 ? product.images : [{ image_url: product.image_url }]}
           productName={product.name_ar}
         />
 
-        <div className="space-y-6">
-          <div className="space-y-3">
+        <div className="space-y-8">
+          <div className="space-y-4">
             {/* Category Badge */}
-            <Badge variant="secondary" className="text-sm">
+            <Badge variant="secondary" className="text-sm bg-gradient-primary text-white hover:opacity-90 transition-opacity px-4 py-1.5">
               {product.category_ar || product.category}
             </Badge>
             
             {/* Product Name */}
-            <h1 className="text-3xl md:text-4xl font-bold text-primary" itemProp="name">
+            <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent leading-tight" itemProp="name">
               {product.name_ar}
             </h1>
             
             {/* Rating */}
             {product.ratingStats && product.ratingStats.review_count > 0 && (
-              <ProductRating 
-                rating={product.ratingStats.average_rating} 
-                reviewCount={product.ratingStats.review_count}
-                size="lg"
-              />
+              <div className="flex items-center gap-2">
+                <ProductRating 
+                  rating={product.ratingStats.average_rating} 
+                  reviewCount={product.ratingStats.review_count}
+                  size="lg"
+                />
+              </div>
             )}
             
             {/* SKU */}
-            <p className="text-sm text-muted-foreground">
-              رمز المنتج: {product.id.slice(0, 8).toUpperCase()}
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <span className="font-medium">رمز المنتج:</span>
+              <span className="font-mono bg-muted px-3 py-1 rounded-md">{product.id.slice(0, 8).toUpperCase()}</span>
             </p>
           </div>
 
-          {/* Price */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-primary">
-              {product.price.toFixed(2)}
-            </span>
-            <span className="text-xl text-muted-foreground">ريال</span>
+          {/* Price Card */}
+          <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-2 border-primary/20 shadow-soft">
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                {product.price.toFixed(2)}
+              </span>
+              <span className="text-2xl text-muted-foreground font-medium">ريال</span>
+            </div>
+            {product.original_price && product.original_price > product.price && (
+              <div className="flex items-center gap-3">
+                <span className="text-lg text-muted-foreground line-through">
+                  {product.original_price.toFixed(2)} ريال
+                </span>
+                <Badge variant="destructive" className="text-sm font-bold">
+                  خصم {Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                </Badge>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">الكمية</p>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+          <div className="space-y-6">
+            <div className="p-6 bg-card rounded-xl border shadow-sm">
+              <p className="text-sm font-semibold text-muted-foreground mb-4">اختر الكمية</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                   <Button
                     size="icon"
                     variant="outline"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={product.stock_quantity <= 0}
+                    className="h-12 w-12 rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-5 w-5" />
                   </Button>
-                  <span className="font-medium w-12 text-center">
+                  <span className="font-bold text-2xl w-16 text-center">
                     {quantity}
                   </span>
                   <Button
@@ -351,50 +367,51 @@ export default function ProductDetail() {
                     variant="outline"
                     onClick={() => setQuantity(quantity + 1)}
                     disabled={product.stock_quantity <= 0}
+                    className="h-12 w-12 rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                   </Button>
                 </div>
                 
                 {product.stock_quantity > 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    متوفر: {product.stock_quantity}
-                  </p>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                      متوفر ({product.stock_quantity})
+                    </p>
+                  </div>
                 ) : (
-                  <p className="text-sm text-destructive font-medium">
-                    غير متوفر
-                  </p>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                    <div className="h-2 w-2 rounded-full bg-red-500" />
+                    <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                      غير متوفر
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleAddToCart}
-                  size="lg"
-                  variant="outline"
-                  className="flex-1"
-                  disabled={product.stock_quantity <= 0}
-                >
-                  <ShoppingCart className="ml-2 h-5 w-5" />
-                  أضف إلى السلة
-                </Button>
-                
-                <Button
-                  onClick={handleBuyNow}
-                  size="lg"
-                  className="flex-1"
-                  disabled={product.stock_quantity <= 0}
-                >
-                  <img 
-                    src="/images/payment-icons/apple-pay.svg" 
-                    alt="Apple Pay" 
-                    className="ml-2 h-6 w-auto"
-                  />
-                  اشتر الآن
-                </Button>
-              </div>
+            <div className="flex flex-col gap-4">
+              <Button
+                onClick={handleAddToCart}
+                size="lg"
+                variant="outline"
+                className="w-full h-14 text-lg font-semibold rounded-xl border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
+                disabled={product.stock_quantity <= 0}
+              >
+                <ShoppingCart className="ml-2 h-6 w-6" />
+                أضف إلى السلة
+              </Button>
+              
+              <Button
+                onClick={handleBuyNow}
+                size="lg"
+                className="w-full h-14 text-lg font-semibold rounded-xl bg-gradient-primary hover:opacity-90 transition-all duration-300 shadow-soft hover:shadow-card"
+                disabled={product.stock_quantity <= 0}
+              >
+                <Zap className="ml-2 h-6 w-6" />
+                اشتر الآن
+              </Button>
               
               {/* Share Button */}
               <SocialShare 
@@ -456,8 +473,11 @@ export default function ProductDetail() {
       )}
 
       {/* Reviews Section */}
-      <div className="mt-12 space-y-8">
-        <h2 className="text-3xl font-bold">التقييمات والمراجعات</h2>
+      <div className="mt-16 space-y-8">
+        <div className="text-center space-y-3">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">التقييمات والمراجعات</h2>
+          <p className="text-muted-foreground text-lg">شاركنا تجربتك مع المنتج</p>
+        </div>
         <div className="grid lg:grid-cols-2 gap-8">
           <ReviewsList productId={product.id} />
           <ReviewForm productId={product.id} />
