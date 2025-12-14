@@ -4,7 +4,6 @@ import { ProductCard } from '@/components/ProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
-import Autoplay from 'embla-carousel-autoplay';
 
 export const FeaturedProductsCarousel = () => {
   const { data: products, isLoading } = useQuery({
@@ -47,11 +46,6 @@ export const FeaturedProductsCarousel = () => {
               loop: true,
               direction: "rtl",
             }}
-            plugins={[
-              Autoplay({
-                delay: 5000,
-              }),
-            ]}
             className="w-full"
           >
             <CarouselContent className="-mr-2 md:-mr-4">

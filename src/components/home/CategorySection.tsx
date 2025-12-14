@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay';
 import defaultBanner from '@/assets/categories/hair-care-banner.jpg';
 
 interface Product {
@@ -83,11 +82,6 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           loop: true,
           direction: "rtl",
         }}
-        plugins={[
-          Autoplay({
-            delay: 5000,
-          }),
-        ]}
         className="w-full"
       >
         <CarouselContent className="-mr-2 md:-mr-4">
