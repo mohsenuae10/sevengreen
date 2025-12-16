@@ -57,7 +57,6 @@ const Invoices = () => {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [orderId, setOrderId] = useState<string>('');
-  const [totalAmount, setTotalAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -68,9 +67,14 @@ const Invoices = () => {
   const [productImageUrl, setProductImageUrl] = useState('');
   const [asin, setAsin] = useState('');
   const [quantity, setQuantity] = useState('1');
-  const [taxAmount, setTaxAmount] = useState('');
+  const [unitPrice, setUnitPrice] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
   const [amazonStoreName, setAmazonStoreName] = useState('');
+
+  // Calculated values
+  const subtotal = unitPrice && quantity ? parseFloat(unitPrice) * parseInt(quantity) : 0;
+  const taxAmount = subtotal * 0.15;
+  const finalTotal = subtotal + taxAmount;
 
   // Fetch invoices
   const { data: invoices, isLoading } = useQuery({
@@ -132,14 +136,14 @@ const Invoices = () => {
           customer_phone: customerPhone.trim() || null,
           order_id: orderId || null,
           pdf_url: urlData.publicUrl,
-          total_amount: totalAmount ? parseFloat(totalAmount) : null,
+          total_amount: finalTotal || null,
           notes: notes.trim() || null,
           created_at: new Date(issueDate).toISOString(),
           product_name: productName.trim() || null,
           product_image_url: productImageUrl.trim() || null,
           asin: asin.trim() || null,
           quantity: quantity ? parseInt(quantity) : 1,
-          tax_amount: taxAmount ? parseFloat(taxAmount) : null,
+          tax_amount: taxAmount || null,
           shipping_address: shippingAddress.trim() || null,
           amazon_store_name: amazonStoreName.trim() || null
         });
@@ -196,14 +200,14 @@ const Invoices = () => {
           customer_phone: customerPhone.trim() || null,
           order_id: orderId || null,
           pdf_url: pdfUrl,
-          total_amount: totalAmount ? parseFloat(totalAmount) : null,
+          total_amount: finalTotal || null,
           notes: notes.trim() || null,
           created_at: new Date(issueDate).toISOString(),
           product_name: productName.trim() || null,
           product_image_url: productImageUrl.trim() || null,
           asin: asin.trim() || null,
           quantity: quantity ? parseInt(quantity) : 1,
-          tax_amount: taxAmount ? parseFloat(taxAmount) : null,
+          tax_amount: taxAmount || null,
           shipping_address: shippingAddress.trim() || null,
           amazon_store_name: amazonStoreName.trim() || null
         })
@@ -259,7 +263,6 @@ const Invoices = () => {
     setCustomerName('');
     setCustomerPhone('');
     setOrderId('');
-    setTotalAmount('');
     setNotes('');
     setPdfFile(null);
     setIssueDate(format(new Date(), 'yyyy-MM-dd'));
@@ -267,7 +270,7 @@ const Invoices = () => {
     setProductImageUrl('');
     setAsin('');
     setQuantity('1');
-    setTaxAmount('');
+    setUnitPrice('');
     setShippingAddress('');
     setAmazonStoreName('');
     setIsEditMode(false);
@@ -281,14 +284,19 @@ const Invoices = () => {
     setCustomerName(invoice.customer_name || '');
     setCustomerPhone(invoice.customer_phone || '');
     setOrderId(invoice.order_id || '');
-    setTotalAmount(invoice.total_amount?.toString() || '');
     setNotes(invoice.notes || '');
     setIssueDate(format(new Date(invoice.created_at), 'yyyy-MM-dd'));
     setProductName(invoice.product_name || '');
     setProductImageUrl(invoice.product_image_url || '');
     setAsin(invoice.asin || '');
     setQuantity(invoice.quantity?.toString() || '1');
-    setTaxAmount(invoice.tax_amount?.toString() || '');
+    // Calculate unit price from total and tax
+    const storedTax = invoice.tax_amount || 0;
+    const storedTotal = invoice.total_amount || 0;
+    const storedSubtotal = storedTotal - storedTax;
+    const storedQty = invoice.quantity || 1;
+    const calculatedUnitPrice = storedQty > 0 ? storedSubtotal / storedQty : 0;
+    setUnitPrice(calculatedUnitPrice > 0 ? calculatedUnitPrice.toFixed(2) : '');
     setShippingAddress(invoice.shipping_address || '');
     setAmazonStoreName(invoice.amazon_store_name || '');
     setPdfFile(null);
@@ -408,26 +416,34 @@ const Invoices = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="totalAmount">المبلغ الإجمالي (بدون الضريبة)</Label>
+                  <Label htmlFor="unitPrice">سعر الوحدة *</Label>
                   <Input
-                    id="totalAmount"
+                    id="unitPrice"
                     type="number"
-                    value={totalAmount}
-                    onChange={(e) => setTotalAmount(e.target.value)}
+                    step="0.01"
+                    value={unitPrice}
+                    onChange={(e) => setUnitPrice(e.target.value)}
                     placeholder="0.00"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="taxAmount">الضريبة 15%</Label>
-                  <Input
-                    id="taxAmount"
-                    type="number"
-                    value={taxAmount}
-                    onChange={(e) => setTaxAmount(e.target.value)}
-                    placeholder="0.00"
-                  />
-                </div>
+                {/* Calculated Values Display */}
+                {unitPrice && quantity && (
+                  <div className="col-span-full bg-muted/50 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>المجموع الفرعي ({quantity} × {parseFloat(unitPrice).toFixed(2)})</span>
+                      <span className="font-medium">{subtotal.toFixed(2)} ر.س</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>الضريبة (15%)</span>
+                      <span className="font-medium">{taxAmount.toFixed(2)} ر.س</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold border-t pt-2">
+                      <span>الإجمالي النهائي</span>
+                      <span className="text-primary">{finalTotal.toFixed(2)} ر.س</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Amazon Product Details Section */}
                 <div className="col-span-full border-t pt-4 mt-2">
