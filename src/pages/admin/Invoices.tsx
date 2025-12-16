@@ -171,7 +171,8 @@ const Invoices = () => {
   };
 
   const getInvoiceUrl = (accessCode: string) => {
-    return `${window.location.origin}/invoice/${accessCode}`;
+    // Use store domain for QR code URL
+    return `https://lamsetbeauty.com/invoice/${accessCode}`;
   };
 
   const downloadQRCode = (invoice: Invoice) => {
