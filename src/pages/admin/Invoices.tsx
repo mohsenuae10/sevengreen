@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Upload, QrCode, Download, Trash2, Eye, FileText } from 'lucide-react';
+import { Plus, Upload, QrCode, Download, Trash2, Eye, FileText, Pencil } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -49,6 +49,8 @@ const Invoices = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   
   // Form state
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -158,6 +160,73 @@ const Invoices = () => {
     }
   });
 
+  // Update invoice mutation
+  const updateInvoice = useMutation({
+    mutationFn: async () => {
+      if (!editingInvoice) throw new Error('لا توجد فاتورة للتحديث');
+      if (!invoiceNumber.trim()) throw new Error('يرجى إدخال رقم الفاتورة');
+
+      setIsUploading(true);
+
+      let pdfUrl = editingInvoice.pdf_url;
+
+      // If new PDF file is selected, upload it
+      if (pdfFile) {
+        const fileExtension = pdfFile.name.split('.').pop() || 'pdf';
+        const sanitizedName = `invoice-${Date.now()}.${fileExtension}`;
+        const { error: uploadError } = await supabase.storage
+          .from('invoices')
+          .upload(sanitizedName, pdfFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('invoices')
+          .getPublicUrl(sanitizedName);
+
+        pdfUrl = urlData.publicUrl;
+      }
+
+      // Update invoice record
+      const { error: updateError } = await supabase
+        .from('invoices')
+        .update({
+          invoice_number: invoiceNumber.trim(),
+          customer_name: customerName.trim() || null,
+          customer_phone: customerPhone.trim() || null,
+          order_id: orderId || null,
+          pdf_url: pdfUrl,
+          total_amount: totalAmount ? parseFloat(totalAmount) : null,
+          notes: notes.trim() || null,
+          created_at: new Date(issueDate).toISOString(),
+          product_name: productName.trim() || null,
+          product_image_url: productImageUrl.trim() || null,
+          asin: asin.trim() || null,
+          quantity: quantity ? parseInt(quantity) : 1,
+          tax_amount: taxAmount ? parseFloat(taxAmount) : null,
+          shipping_address: shippingAddress.trim() || null,
+          amazon_store_name: amazonStoreName.trim() || null
+        })
+        .eq('id', editingInvoice.id);
+
+      if (updateError) throw updateError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      toast.success('تم تحديث الفاتورة بنجاح');
+      resetForm();
+      setIsDialogOpen(false);
+      setIsEditMode(false);
+      setEditingInvoice(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+    onSettled: () => {
+      setIsUploading(false);
+    }
+  });
+
   // Delete invoice mutation
   const deleteInvoice = useMutation({
     mutationFn: async (invoice: Invoice) => {
@@ -201,6 +270,29 @@ const Invoices = () => {
     setTaxAmount('');
     setShippingAddress('');
     setAmazonStoreName('');
+    setIsEditMode(false);
+    setEditingInvoice(null);
+  };
+
+  const openEditDialog = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    setIsEditMode(true);
+    setInvoiceNumber(invoice.invoice_number);
+    setCustomerName(invoice.customer_name || '');
+    setCustomerPhone(invoice.customer_phone || '');
+    setOrderId(invoice.order_id || '');
+    setTotalAmount(invoice.total_amount?.toString() || '');
+    setNotes(invoice.notes || '');
+    setIssueDate(format(new Date(invoice.created_at), 'yyyy-MM-dd'));
+    setProductName(invoice.product_name || '');
+    setProductImageUrl(invoice.product_image_url || '');
+    setAsin(invoice.asin || '');
+    setQuantity(invoice.quantity?.toString() || '1');
+    setTaxAmount(invoice.tax_amount?.toString() || '');
+    setShippingAddress(invoice.shipping_address || '');
+    setAmazonStoreName(invoice.amazon_store_name || '');
+    setPdfFile(null);
+    setIsDialogOpen(true);
   };
 
   const getInvoiceUrl = (accessCode: string) => {
@@ -240,17 +332,22 @@ const Invoices = () => {
             <p className="text-muted-foreground">إدارة فواتير العملاء مع QR Code</p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
                 <Plus className="ml-2 h-4 w-4" />
                 إضافة فاتورة
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>إضافة فاتورة جديدة</DialogTitle>
-                <DialogDescription>ارفع ملف PDF للفاتورة وسيتم إنشاء QR Code تلقائياً</DialogDescription>
+                <DialogTitle>{isEditMode ? 'تعديل الفاتورة' : 'إضافة فاتورة جديدة'}</DialogTitle>
+                <DialogDescription>
+                  {isEditMode ? 'قم بتعديل بيانات الفاتورة' : 'ارفع ملف PDF للفاتورة وسيتم إنشاء QR Code تلقائياً'}
+                </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -405,7 +502,9 @@ const Invoices = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="pdf">ملف الفاتورة PDF *</Label>
+                  <Label htmlFor="pdf">
+                    ملف الفاتورة PDF {isEditMode ? '(اختياري - اتركه فارغاً للإبقاء على الملف الحالي)' : '*'}
+                  </Label>
                   <Input
                     id="pdf"
                     type="file"
@@ -413,6 +512,11 @@ const Invoices = () => {
                     onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
                     className="cursor-pointer"
                   />
+                  {isEditMode && editingInvoice && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      الملف الحالي: <a href={editingInvoice.pdf_url} target="_blank" className="text-primary underline">عرض</a>
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -426,7 +530,7 @@ const Invoices = () => {
                   />
                 </div>
 
-                {(!pdfFile || !invoiceNumber.trim()) && (
+                {!isEditMode && (!pdfFile || !invoiceNumber.trim()) && (
                   <p className="col-span-full text-sm text-destructive mb-2">
                     {!invoiceNumber.trim() && !pdfFile 
                       ? '* يرجى إدخال رقم الفاتورة واختيار ملف PDF'
@@ -435,17 +539,22 @@ const Invoices = () => {
                         : '* يرجى اختيار ملف PDF'}
                   </p>
                 )}
+                {isEditMode && !invoiceNumber.trim() && (
+                  <p className="col-span-full text-sm text-destructive mb-2">
+                    * يرجى إدخال رقم الفاتورة
+                  </p>
+                )}
                 <Button
-                  onClick={() => createInvoice.mutate()}
-                  disabled={isUploading || !pdfFile || !invoiceNumber.trim()}
+                  onClick={() => isEditMode ? updateInvoice.mutate() : createInvoice.mutate()}
+                  disabled={isUploading || (!isEditMode && !pdfFile) || !invoiceNumber.trim()}
                   className="col-span-full w-full"
                 >
                   {isUploading ? (
-                    <>جاري الرفع...</>
+                    <>جاري {isEditMode ? 'التحديث' : 'الرفع'}...</>
                   ) : (
                     <>
                       <Upload className="ml-2 h-4 w-4" />
-                      رفع الفاتورة
+                      {isEditMode ? 'تحديث الفاتورة' : 'رفع الفاتورة'}
                     </>
                   )}
                 </Button>
@@ -529,6 +638,14 @@ const Invoices = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditDialog(invoice)}
+                            title="تعديل"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
