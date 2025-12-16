@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,25 @@ interface Invoice {
 
 const ViewInvoice = () => {
   const { accessCode } = useParams<{ accessCode: string }>();
+  const visitTracked = useRef(false);
+
+  // Track visit on page load
+  useEffect(() => {
+    const trackVisit = async () => {
+      if (!accessCode || visitTracked.current) return;
+      visitTracked.current = true;
+      
+      try {
+        await supabase.functions.invoke('track-invoice-visit', {
+          body: { access_code: accessCode }
+        });
+      } catch (error) {
+        console.log('Visit tracking skipped:', error);
+      }
+    };
+    
+    trackVisit();
+  }, [accessCode]);
 
   const { data: invoice, isLoading, error } = useQuery({
     queryKey: ['invoice', accessCode],
