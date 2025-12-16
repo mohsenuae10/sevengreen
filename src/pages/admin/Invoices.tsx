@@ -250,12 +250,12 @@ const Invoices = () => {
 
                 <div>
                   <Label>ربط بطلب (اختياري)</Label>
-                  <Select value={orderId} onValueChange={setOrderId}>
+                  <Select value={orderId || "none"} onValueChange={(val) => setOrderId(val === "none" ? "" : val)}>
                     <SelectTrigger>
                       <SelectValue placeholder="اختر طلب..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">بدون ربط</SelectItem>
+                      <SelectItem value="none">بدون ربط</SelectItem>
                       {orders?.map((order) => (
                         <SelectItem key={order.id} value={order.id}>
                           {order.order_number} - {order.customer_name}
