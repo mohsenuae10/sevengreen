@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Upload, QrCode, Download, Trash2, Eye, FileText, Pencil } from 'lucide-react';
+import { Plus, Upload, QrCode, Download, Trash2, Eye, FileText, Pencil, BarChart3, Globe } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -37,6 +37,16 @@ interface Invoice {
   shipping_address: string | null;
   amazon_store_name: string | null;
   tax_number: string | null;
+  view_count: number | null;
+}
+
+interface InvoiceVisit {
+  id: string;
+  invoice_id: string;
+  visited_at: string;
+  country_code: string | null;
+  country_name: string | null;
+  city: string | null;
 }
 
 interface Order {
@@ -50,6 +60,7 @@ const Invoices = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
+  const [isVisitsDialogOpen, setIsVisitsDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   
@@ -105,6 +116,24 @@ const Invoices = () => {
       if (error) throw error;
       return data as Order[];
     }
+  });
+
+  // Fetch visits for selected invoice
+  const { data: invoiceVisits, isLoading: isLoadingVisits } = useQuery({
+    queryKey: ['invoice-visits', selectedInvoice?.id],
+    queryFn: async () => {
+      if (!selectedInvoice) return [];
+      const { data, error } = await supabase
+        .from('invoice_visits')
+        .select('*')
+        .eq('invoice_id', selectedInvoice.id)
+        .order('visited_at', { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+      return data as InvoiceVisit[];
+    },
+    enabled: !!selectedInvoice && isVisitsDialogOpen
   });
 
   // Create invoice mutation
@@ -642,6 +671,7 @@ const Invoices = () => {
                     <TableHead>رقم الفاتورة</TableHead>
                     <TableHead>العميل</TableHead>
                     <TableHead>المبلغ</TableHead>
+                    <TableHead>الزيارات</TableHead>
                     <TableHead>التاريخ</TableHead>
                     <TableHead>الحالة</TableHead>
                     <TableHead>الإجراءات</TableHead>
@@ -659,6 +689,20 @@ const Invoices = () => {
                       </TableCell>
                       <TableCell>
                         {invoice.total_amount ? `${invoice.total_amount.toFixed(2)} ريال` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto py-1 px-2"
+                          onClick={() => {
+                            setSelectedInvoice(invoice);
+                            setIsVisitsDialogOpen(true);
+                          }}
+                        >
+                          <BarChart3 className="h-4 w-4 ml-1" />
+                          {invoice.view_count || 0}
+                        </Button>
                       </TableCell>
                       <TableCell>
                         {format(new Date(invoice.created_at), 'dd MMM yyyy', { locale: ar })}
@@ -753,6 +797,78 @@ const Invoices = () => {
                   >
                     نسخ الرابط
                   </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Visits Analytics Dialog */}
+        <Dialog open={isVisitsDialogOpen} onOpenChange={setIsVisitsDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                إحصائيات الزيارات - {selectedInvoice?.invoice_number}
+              </DialogTitle>
+              <DialogDescription>
+                إجمالي الزيارات: {selectedInvoice?.view_count || 0} زيارة
+              </DialogDescription>
+            </DialogHeader>
+            {isLoadingVisits ? (
+              <div className="py-8 text-center text-muted-foreground">جاري التحميل...</div>
+            ) : invoiceVisits?.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                <Globe className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <p>لا توجد زيارات مسجلة بعد</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Country Stats */}
+                <div>
+                  <h4 className="font-medium mb-2">الدول</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(
+                      invoiceVisits?.reduce((acc: Record<string, number>, visit) => {
+                        const country = visit.country_name || 'غير معروف';
+                        acc[country] = (acc[country] || 0) + 1;
+                        return acc;
+                      }, {}) || {}
+                    ).map(([country, count]) => (
+                      <Badge key={country} variant="secondary" className="text-sm">
+                        {country}: {count}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recent Visits Table */}
+                <div>
+                  <h4 className="font-medium mb-2">آخر الزيارات</h4>
+                  <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>التاريخ</TableHead>
+                          <TableHead>الموقع</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {invoiceVisits?.slice(0, 20).map((visit) => (
+                          <TableRow key={visit.id}>
+                            <TableCell className="text-sm">
+                              {format(new Date(visit.visited_at), 'dd MMM yyyy HH:mm', { locale: ar })}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {visit.city && visit.country_name 
+                                ? `${visit.city}, ${visit.country_name}`
+                                : visit.country_name || 'غير معروف'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               </div>
             )}

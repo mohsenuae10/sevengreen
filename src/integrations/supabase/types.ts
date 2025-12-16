@@ -202,6 +202,47 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_visits: {
+        Row: {
+          city: string | null
+          country_code: string | null
+          country_name: string | null
+          id: string
+          invoice_id: string
+          ip_address: string | null
+          user_agent: string | null
+          visited_at: string
+        }
+        Insert: {
+          city?: string | null
+          country_code?: string | null
+          country_name?: string | null
+          id?: string
+          invoice_id: string
+          ip_address?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Update: {
+          city?: string | null
+          country_code?: string | null
+          country_name?: string | null
+          id?: string
+          invoice_id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_visits_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           access_code: string
@@ -224,6 +265,7 @@ export type Database = {
           tax_number: string | null
           total_amount: number | null
           updated_at: string | null
+          view_count: number | null
         }
         Insert: {
           access_code?: string
@@ -246,6 +288,7 @@ export type Database = {
           tax_number?: string | null
           total_amount?: number | null
           updated_at?: string | null
+          view_count?: number | null
         }
         Update: {
           access_code?: string
@@ -268,6 +311,7 @@ export type Database = {
           tax_number?: string | null
           total_amount?: number | null
           updated_at?: string | null
+          view_count?: number | null
         }
         Relationships: [
           {
@@ -802,6 +846,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_invoice_views: {
+        Args: { invoice_uuid: string }
+        Returns: undefined
       }
     }
     Enums: {
