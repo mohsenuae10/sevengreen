@@ -1,14 +1,14 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, Download, Calendar, User, Phone, Receipt, Package, MapPin, Store, Hash } from 'lucide-react';
+import { FileText, Download, Calendar, User, Phone, Receipt, Package, MapPin, Store, Hash, Globe } from 'lucide-react';
 import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { ar, enUS } from 'date-fns/locale';
 import { SEOHead } from '@/components/SEO/SEOHead';
 
 interface Invoice {
@@ -32,9 +32,81 @@ interface Invoice {
   tax_number: string | null;
 }
 
+type Language = 'ar' | 'en';
+
+const translations = {
+  ar: {
+    loading: 'جاري تحميل الفاتورة...',
+    notFound: 'الفاتورة غير موجودة',
+    notFoundDesc: 'عذراً، لم نتمكن من العثور على هذه الفاتورة. قد تكون الفاتورة غير موجودة أو تم حذفها.',
+    viewPdf: 'عرض PDF',
+    download: 'تحميل',
+    invoice: 'فاتورة',
+    invoiceInfo: 'معلومات الفاتورة',
+    valid: 'صالحة',
+    customerName: 'اسم العميل',
+    phone: 'رقم الهاتف',
+    issueDate: 'تاريخ الإصدار',
+    amazonStore: 'اسم المتجر على أمازون',
+    taxNumber: 'الرقم الضريبي (VAT)',
+    shippingAddress: 'عنوان الشحن',
+    productDetails: 'تفاصيل المنتج',
+    product: 'المنتج',
+    quantity: 'الكمية',
+    unitPrice: 'سعر الوحدة',
+    total: 'الإجمالي',
+    invoiceSummary: 'ملخص الفاتورة',
+    subtotal: 'المجموع الفرعي',
+    tax: 'الضريبة (15%)',
+    finalTotal: 'الإجمالي النهائي',
+    notes: 'ملاحظات',
+    viewInvoicePdf: 'عرض الفاتورة PDF',
+    downloadInvoice: 'تحميل الفاتورة',
+    brandName: 'لمسة بيوتي',
+    thankYou: 'شكراً لتعاملكم معنا',
+    currency: 'ر.س',
+    switchLang: 'English'
+  },
+  en: {
+    loading: 'Loading invoice...',
+    notFound: 'Invoice Not Found',
+    notFoundDesc: 'Sorry, we could not find this invoice. It may not exist or has been deleted.',
+    viewPdf: 'View PDF',
+    download: 'Download',
+    invoice: 'Invoice',
+    invoiceInfo: 'Invoice Information',
+    valid: 'Valid',
+    customerName: 'Customer Name',
+    phone: 'Phone Number',
+    issueDate: 'Issue Date',
+    amazonStore: 'Amazon Store Name',
+    taxNumber: 'VAT Number',
+    shippingAddress: 'Shipping Address',
+    productDetails: 'Product Details',
+    product: 'Product',
+    quantity: 'Quantity',
+    unitPrice: 'Unit Price',
+    total: 'Total',
+    invoiceSummary: 'Invoice Summary',
+    subtotal: 'Subtotal',
+    tax: 'Tax (15%)',
+    finalTotal: 'Final Total',
+    notes: 'Notes',
+    viewInvoicePdf: 'View Invoice PDF',
+    downloadInvoice: 'Download Invoice',
+    brandName: 'Lamset Beauty',
+    thankYou: 'Thank you for your business',
+    currency: 'SAR',
+    switchLang: 'العربية'
+  }
+};
+
 const ViewInvoice = () => {
   const { accessCode } = useParams<{ accessCode: string }>();
   const visitTracked = useRef(false);
+  const [lang, setLang] = useState<Language>('ar');
+  const t = translations[lang];
+  const isRtl = lang === 'ar';
 
   // Track visit on page load
   useEffect(() => {
@@ -70,12 +142,16 @@ const ViewInvoice = () => {
     enabled: !!accessCode
   });
 
+  const toggleLanguage = () => {
+    setLang(lang === 'ar' ? 'en' : 'ar');
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جاري تحميل الفاتورة...</p>
+          <p className="text-muted-foreground">{t.loading}</p>
         </div>
       </div>
     );
@@ -83,14 +159,12 @@ const ViewInvoice = () => {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
         <Card className="max-w-md w-full text-center">
           <CardContent className="pt-8 pb-8">
             <FileText className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <h1 className="text-2xl font-bold mb-2">الفاتورة غير موجودة</h1>
-            <p className="text-muted-foreground">
-              عذراً، لم نتمكن من العثور على هذه الفاتورة. قد تكون الفاتورة غير موجودة أو تم حذفها.
-            </p>
+            <h1 className="text-2xl font-bold mb-2">{t.notFound}</h1>
+            <p className="text-muted-foreground">{t.notFoundDesc}</p>
           </CardContent>
         </Card>
       </div>
@@ -107,23 +181,35 @@ const ViewInvoice = () => {
     ? subtotal / invoice.quantity 
     : null;
 
+  const formatCurrency = (amount: number) => {
+    return `${amount.toFixed(2)} ${t.currency}`;
+  };
+
   return (
     <>
       <SEOHead
-        title={`فاتورة ${invoice.invoice_number} | لمسة بيوتي`}
-        description={`عرض فاتورة رقم ${invoice.invoice_number}`}
+        title={`${t.invoice} ${invoice.invoice_number} | ${t.brandName}`}
+        description={`${t.invoice} #${invoice.invoice_number}`}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-2xl mx-auto space-y-6">
+          {/* Language Toggle */}
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={toggleLanguage}>
+              <Globe className={`h-4 w-4 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+              {t.switchLang}
+            </Button>
+          </div>
+
           {/* Quick Actions - Top Buttons */}
           <div className="flex gap-3 justify-center">
             <Button
               size="lg"
               onClick={() => window.open(invoice.pdf_url, '_blank')}
             >
-              <FileText className="ml-2 h-5 w-5" />
-              عرض PDF
+              <FileText className={`h-5 w-5 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+              {t.viewPdf}
             </Button>
             <Button
               variant="outline"
@@ -135,8 +221,8 @@ const ViewInvoice = () => {
                 link.click();
               }}
             >
-              <Download className="ml-2 h-5 w-5" />
-              تحميل
+              <Download className={`h-5 w-5 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+              {t.download}
             </Button>
           </div>
 
@@ -145,7 +231,7 @@ const ViewInvoice = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
               <Receipt className="h-8 w-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold">فاتورة</h1>
+            <h1 className="text-2xl font-bold">{t.invoice}</h1>
             <p className="text-muted-foreground">#{invoice.invoice_number}</p>
           </div>
 
@@ -153,8 +239,8 @@ const ViewInvoice = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>معلومات الفاتورة</span>
-                <Badge variant="default">صالحة</Badge>
+                <span>{t.invoiceInfo}</span>
+                <Badge variant="default">{t.valid}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -163,7 +249,7 @@ const ViewInvoice = () => {
                   <div className="flex items-center gap-3">
                     <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">اسم العميل</p>
+                      <p className="text-sm text-muted-foreground">{t.customerName}</p>
                       <p className="font-medium">{invoice.customer_name}</p>
                     </div>
                   </div>
@@ -173,7 +259,7 @@ const ViewInvoice = () => {
                   <div className="flex items-center gap-3">
                     <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">رقم الهاتف</p>
+                      <p className="text-sm text-muted-foreground">{t.phone}</p>
                       <p className="font-medium" dir="ltr">{invoice.customer_phone}</p>
                     </div>
                   </div>
@@ -182,9 +268,9 @@ const ViewInvoice = () => {
                 <div className="flex items-center gap-3">
                   <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-muted-foreground">تاريخ الإصدار</p>
+                    <p className="text-sm text-muted-foreground">{t.issueDate}</p>
                     <p className="font-medium">
-                      {format(new Date(invoice.created_at), 'dd MMMM yyyy', { locale: ar })}
+                      {format(new Date(invoice.created_at), 'dd MMMM yyyy', { locale: isRtl ? ar : enUS })}
                     </p>
                   </div>
                 </div>
@@ -193,7 +279,7 @@ const ViewInvoice = () => {
                   <div className="flex items-center gap-3">
                     <Store className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">اسم المتجر على أمازون</p>
+                      <p className="text-sm text-muted-foreground">{t.amazonStore}</p>
                       <p className="font-medium">{invoice.amazon_store_name}</p>
                     </div>
                   </div>
@@ -203,7 +289,7 @@ const ViewInvoice = () => {
                   <div className="flex items-center gap-3">
                     <Hash className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">الرقم الضريبي (VAT)</p>
+                      <p className="text-sm text-muted-foreground">{t.taxNumber}</p>
                       <p className="font-medium" dir="ltr">{invoice.tax_number}</p>
                     </div>
                   </div>
@@ -214,7 +300,7 @@ const ViewInvoice = () => {
                 <div className="flex items-start gap-3 pt-4 border-t">
                   <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-muted-foreground">عنوان الشحن</p>
+                    <p className="text-sm text-muted-foreground">{t.shippingAddress}</p>
                     <p className="font-medium">{invoice.shipping_address}</p>
                   </div>
                 </div>
@@ -228,7 +314,7 @@ const ViewInvoice = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5" />
-                  تفاصيل المنتج
+                  {t.productDetails}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -256,10 +342,10 @@ const ViewInvoice = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-right">المنتج</TableHead>
-                        <TableHead className="text-center">الكمية</TableHead>
-                        <TableHead className="text-center">سعر الوحدة</TableHead>
-                        <TableHead className="text-left">الإجمالي</TableHead>
+                        <TableHead className={isRtl ? 'text-right' : 'text-left'}>{t.product}</TableHead>
+                        <TableHead className="text-center">{t.quantity}</TableHead>
+                        <TableHead className="text-center">{t.unitPrice}</TableHead>
+                        <TableHead className={isRtl ? 'text-left' : 'text-right'}>{t.total}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -267,10 +353,10 @@ const ViewInvoice = () => {
                         <TableCell className="font-medium">{invoice.product_name}</TableCell>
                         <TableCell className="text-center">{invoice.quantity || 1}</TableCell>
                         <TableCell className="text-center">
-                          {unitPrice ? `${unitPrice.toFixed(2)} ر.س` : '-'}
+                          {unitPrice ? formatCurrency(unitPrice) : '-'}
                         </TableCell>
-                        <TableCell className="text-left">
-                          {subtotal ? `${subtotal.toFixed(2)} ر.س` : '-'}
+                        <TableCell className={isRtl ? 'text-left' : 'text-right'}>
+                          {subtotal ? formatCurrency(subtotal) : '-'}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -283,35 +369,35 @@ const ViewInvoice = () => {
           {/* Totals */}
           <Card>
             <CardHeader>
-              <CardTitle>ملخص الفاتورة</CardTitle>
+              <CardTitle>{t.invoiceSummary}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {subtotal && (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">المجموع الفرعي</span>
-                  <span className="font-medium">{subtotal.toFixed(2)} ر.س</span>
+                  <span className="text-muted-foreground">{t.subtotal}</span>
+                  <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
               )}
               
               {invoice.tax_amount && (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">الضريبة (15%)</span>
-                  <span className="font-medium">{invoice.tax_amount.toFixed(2)} ر.س</span>
+                  <span className="text-muted-foreground">{t.tax}</span>
+                  <span className="font-medium">{formatCurrency(invoice.tax_amount)}</span>
                 </div>
               )}
 
               {invoice.total_amount && (
                 <div className="flex items-center justify-between pt-3 border-t">
-                  <span className="font-semibold text-lg">الإجمالي النهائي</span>
+                  <span className="font-semibold text-lg">{t.finalTotal}</span>
                   <span className="text-2xl font-bold text-primary">
-                    {invoice.total_amount.toFixed(2)} ر.س
+                    {formatCurrency(invoice.total_amount)}
                   </span>
                 </div>
               )}
 
               {invoice.notes && (
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground mb-1">ملاحظات</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t.notes}</p>
                   <p className="text-sm">{invoice.notes}</p>
                 </div>
               )}
@@ -327,8 +413,8 @@ const ViewInvoice = () => {
                   size="lg"
                   onClick={() => window.open(invoice.pdf_url, '_blank')}
                 >
-                  <FileText className="ml-2 h-5 w-5" />
-                  عرض الفاتورة PDF
+                  <FileText className={`h-5 w-5 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+                  {t.viewInvoicePdf}
                 </Button>
                 
                 <Button
@@ -342,8 +428,8 @@ const ViewInvoice = () => {
                     link.click();
                   }}
                 >
-                  <Download className="ml-2 h-5 w-5" />
-                  تحميل الفاتورة
+                  <Download className={`h-5 w-5 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+                  {t.downloadInvoice}
                 </Button>
               </div>
             </CardContent>
@@ -351,8 +437,8 @@ const ViewInvoice = () => {
 
           {/* Footer */}
           <div className="text-center text-sm text-muted-foreground">
-            <p>لمسة بيوتي</p>
-            <p>شكراً لتعاملكم معنا</p>
+            <p>{t.brandName}</p>
+            <p>{t.thankYou}</p>
           </div>
         </div>
       </div>
