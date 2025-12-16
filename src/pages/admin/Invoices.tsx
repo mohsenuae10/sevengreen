@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -215,6 +215,7 @@ const Invoices = () => {
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>إضافة فاتورة جديدة</DialogTitle>
+                <DialogDescription>ارفع ملف PDF للفاتورة وسيتم إنشاء QR Code تلقائياً</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
@@ -432,11 +433,11 @@ const Invoices = () => {
           </CardContent>
         </Card>
 
-        {/* QR Code Dialog */}
         <Dialog open={isQRDialogOpen} onOpenChange={setIsQRDialogOpen}>
           <DialogContent className="max-w-sm text-center">
             <DialogHeader>
               <DialogTitle>QR Code - فاتورة {selectedInvoice?.invoice_number}</DialogTitle>
+              <DialogDescription>امسح الكود لعرض الفاتورة</DialogDescription>
             </DialogHeader>
             {selectedInvoice && (
               <div className="space-y-4">
