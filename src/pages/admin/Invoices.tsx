@@ -90,18 +90,19 @@ const Invoices = () => {
 
       setIsUploading(true);
 
-      // Upload PDF
-      const fileName = `${Date.now()}-${pdfFile.name}`;
+      // Upload PDF - sanitize filename to remove Arabic and special characters
+      const fileExtension = pdfFile.name.split('.').pop() || 'pdf';
+      const sanitizedName = `invoice-${Date.now()}.${fileExtension}`;
       const { error: uploadError } = await supabase.storage
         .from('invoices')
-        .upload(fileName, pdfFile);
+        .upload(sanitizedName, pdfFile);
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('invoices')
-        .getPublicUrl(fileName);
+        .getPublicUrl(sanitizedName);
 
       // Create invoice record
       const { error: insertError } = await supabase
