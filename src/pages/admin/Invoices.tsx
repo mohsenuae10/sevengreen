@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Upload, QrCode, Download, Trash2, Eye, FileText, Pencil, BarChart3, Globe } from 'lucide-react';
+import { Plus, Upload, QrCode, Download, Trash2, Eye, FileText, Pencil, BarChart3, Globe, ImageIcon } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -77,6 +77,8 @@ const Invoices = () => {
   // New Amazon fields
   const [productName, setProductName] = useState('');
   const [productImageUrl, setProductImageUrl] = useState('');
+  const [productImageFile, setProductImageFile] = useState<File | null>(null);
+  const [imageInputType, setImageInputType] = useState<'url' | 'file'>('url');
   const [asin, setAsin] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [unitPrice, setUnitPrice] = useState('');
@@ -158,6 +160,24 @@ const Invoices = () => {
         .from('invoices')
         .getPublicUrl(sanitizedName);
 
+      // Handle product image upload if file is provided
+      let finalProductImageUrl = productImageUrl.trim() || null;
+      if (imageInputType === 'file' && productImageFile) {
+        const imgExtension = productImageFile.name.split('.').pop() || 'jpg';
+        const imgName = `product-${Date.now()}.${imgExtension}`;
+        const { error: imgUploadError } = await supabase.storage
+          .from('invoices')
+          .upload(imgName, productImageFile);
+
+        if (imgUploadError) throw imgUploadError;
+
+        const { data: imgUrlData } = supabase.storage
+          .from('invoices')
+          .getPublicUrl(imgName);
+
+        finalProductImageUrl = imgUrlData.publicUrl;
+      }
+
       // Create invoice record
       const { error: insertError } = await supabase
         .from('invoices')
@@ -171,7 +191,7 @@ const Invoices = () => {
           notes: notes.trim() || null,
           created_at: new Date(issueDate).toISOString(),
           product_name: productName.trim() || null,
-          product_image_url: productImageUrl.trim() || null,
+          product_image_url: finalProductImageUrl,
           asin: asin.trim() || null,
           quantity: quantity ? parseInt(quantity) : 1,
           tax_amount: taxAmount || null,
@@ -223,6 +243,24 @@ const Invoices = () => {
         pdfUrl = urlData.publicUrl;
       }
 
+      // Handle product image upload if file is provided
+      let finalProductImageUrl = productImageUrl.trim() || editingInvoice.product_image_url;
+      if (imageInputType === 'file' && productImageFile) {
+        const imgExtension = productImageFile.name.split('.').pop() || 'jpg';
+        const imgName = `product-${Date.now()}.${imgExtension}`;
+        const { error: imgUploadError } = await supabase.storage
+          .from('invoices')
+          .upload(imgName, productImageFile);
+
+        if (imgUploadError) throw imgUploadError;
+
+        const { data: imgUrlData } = supabase.storage
+          .from('invoices')
+          .getPublicUrl(imgName);
+
+        finalProductImageUrl = imgUrlData.publicUrl;
+      }
+
       // Update invoice record
       const { error: updateError } = await supabase
         .from('invoices')
@@ -236,7 +274,7 @@ const Invoices = () => {
           notes: notes.trim() || null,
           created_at: new Date(issueDate).toISOString(),
           product_name: productName.trim() || null,
-          product_image_url: productImageUrl.trim() || null,
+          product_image_url: finalProductImageUrl,
           asin: asin.trim() || null,
           quantity: quantity ? parseInt(quantity) : 1,
           tax_amount: taxAmount || null,
@@ -301,6 +339,8 @@ const Invoices = () => {
     setIssueDate(format(new Date(), 'yyyy-MM-dd'));
     setProductName('');
     setProductImageUrl('');
+    setProductImageFile(null);
+    setImageInputType('url');
     setAsin('');
     setQuantity('1');
     setUnitPrice('');
@@ -537,14 +577,59 @@ const Invoices = () => {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="productImageUrl">رابط صورة المنتج</Label>
-                  <Input
-                    id="productImageUrl"
-                    value={productImageUrl}
-                    onChange={(e) => setProductImageUrl(e.target.value)}
-                    placeholder="https://..."
-                  />
+                <div className="col-span-full">
+                  <Label>صورة المنتج</Label>
+                  <div className="flex gap-4 mt-2 mb-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="imageInputType"
+                        checked={imageInputType === 'url'}
+                        onChange={() => setImageInputType('url')}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm">رابط URL</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="imageInputType"
+                        checked={imageInputType === 'file'}
+                        onChange={() => setImageInputType('file')}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm">رفع صورة</span>
+                    </label>
+                  </div>
+                  
+                  {imageInputType === 'url' ? (
+                    <Input
+                      id="productImageUrl"
+                      value={productImageUrl}
+                      onChange={(e) => setProductImageUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  ) : (
+                    <div>
+                      <Input
+                        id="productImageFile"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setProductImageFile(e.target.files?.[0] || null)}
+                        className="cursor-pointer"
+                      />
+                      {productImageFile && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          تم اختيار: {productImageFile.name}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {isEditMode && editingInvoice?.product_image_url && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      الصورة الحالية: <a href={editingInvoice.product_image_url} target="_blank" className="text-primary underline">عرض</a>
+                    </p>
+                  )}
                 </div>
 
                 <div>
