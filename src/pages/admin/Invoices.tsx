@@ -36,6 +36,7 @@ interface Invoice {
   tax_amount: number | null;
   shipping_address: string | null;
   amazon_store_name: string | null;
+  tax_number: string | null;
 }
 
 interface Order {
@@ -70,6 +71,7 @@ const Invoices = () => {
   const [unitPrice, setUnitPrice] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
   const [amazonStoreName, setAmazonStoreName] = useState('');
+  const [taxNumber, setTaxNumber] = useState('');
 
   // Calculated values
   const subtotal = unitPrice && quantity ? parseFloat(unitPrice) * parseInt(quantity) : 0;
@@ -145,7 +147,8 @@ const Invoices = () => {
           quantity: quantity ? parseInt(quantity) : 1,
           tax_amount: taxAmount || null,
           shipping_address: shippingAddress.trim() || null,
-          amazon_store_name: amazonStoreName.trim() || null
+          amazon_store_name: amazonStoreName.trim() || null,
+          tax_number: taxNumber.trim() || null
         });
 
       if (insertError) throw insertError;
@@ -209,7 +212,8 @@ const Invoices = () => {
           quantity: quantity ? parseInt(quantity) : 1,
           tax_amount: taxAmount || null,
           shipping_address: shippingAddress.trim() || null,
-          amazon_store_name: amazonStoreName.trim() || null
+          amazon_store_name: amazonStoreName.trim() || null,
+          tax_number: taxNumber.trim() || null
         })
         .eq('id', editingInvoice.id);
 
@@ -273,6 +277,7 @@ const Invoices = () => {
     setUnitPrice('');
     setShippingAddress('');
     setAmazonStoreName('');
+    setTaxNumber('');
     setIsEditMode(false);
     setEditingInvoice(null);
   };
@@ -299,6 +304,7 @@ const Invoices = () => {
     setUnitPrice(calculatedUnitPrice > 0 ? calculatedUnitPrice.toFixed(2) : '');
     setShippingAddress(invoice.shipping_address || '');
     setAmazonStoreName(invoice.amazon_store_name || '');
+    setTaxNumber(invoice.tax_number || '');
     setPdfFile(null);
     setIsDialogOpen(true);
   };
@@ -489,6 +495,16 @@ const Invoices = () => {
                     value={amazonStoreName}
                     onChange={(e) => setAmazonStoreName(e.target.value)}
                     placeholder="Amazon Store Name"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="taxNumber">الرقم الضريبي (VAT)</Label>
+                  <Input
+                    id="taxNumber"
+                    value={taxNumber}
+                    onChange={(e) => setTaxNumber(e.target.value)}
+                    placeholder="300000000000003"
                   />
                 </div>
 

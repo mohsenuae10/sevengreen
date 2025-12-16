@@ -221,6 +221,7 @@ export type Database = {
           quantity: number | null
           shipping_address: string | null
           tax_amount: number | null
+          tax_number: string | null
           total_amount: number | null
           updated_at: string | null
         }
@@ -242,6 +243,7 @@ export type Database = {
           quantity?: number | null
           shipping_address?: string | null
           tax_amount?: number | null
+          tax_number?: string | null
           total_amount?: number | null
           updated_at?: string | null
         }
@@ -263,6 +265,7 @@ export type Database = {
           quantity?: number | null
           shipping_address?: string | null
           tax_amount?: number | null
+          tax_number?: string | null
           total_amount?: number | null
           updated_at?: string | null
         }

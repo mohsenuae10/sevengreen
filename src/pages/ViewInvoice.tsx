@@ -28,6 +28,7 @@ interface Invoice {
   tax_amount: number | null;
   shipping_address: string | null;
   amazon_store_name: string | null;
+  tax_number: string | null;
 }
 
 const ViewInvoice = () => {
@@ -95,6 +96,30 @@ const ViewInvoice = () => {
 
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4">
         <div className="max-w-2xl mx-auto space-y-6">
+          {/* Quick Actions - Top Buttons */}
+          <div className="flex gap-3 justify-center">
+            <Button
+              size="lg"
+              onClick={() => window.open(invoice.pdf_url, '_blank')}
+            >
+              <FileText className="ml-2 h-5 w-5" />
+              عرض PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = invoice.pdf_url;
+                link.download = `invoice-${invoice.invoice_number}.pdf`;
+                link.click();
+              }}
+            >
+              <Download className="ml-2 h-5 w-5" />
+              تحميل
+            </Button>
+          </div>
+
           {/* Header */}
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
@@ -150,6 +175,16 @@ const ViewInvoice = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">اسم المتجر على أمازون</p>
                       <p className="font-medium">{invoice.amazon_store_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {invoice.tax_number && (
+                  <div className="flex items-center gap-3">
+                    <Hash className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">الرقم الضريبي (VAT)</p>
+                      <p className="font-medium" dir="ltr">{invoice.tax_number}</p>
                     </div>
                   </div>
                 )}
