@@ -329,10 +329,9 @@ const ViewInvoice = () => {
                   <div className="flex-1 space-y-2">
                     <h3 className="font-semibold text-lg">{invoice.product_name}</h3>
                     {invoice.asin && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Hash className="h-4 w-4" />
-                        <span>ASIN: {invoice.asin}</span>
-                      </div>
+                      <Badge variant="secondary" className="text-base px-4 py-2 font-mono bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                        ASIN: {invoice.asin}
+                      </Badge>
                     )}
                   </div>
                 </div>
