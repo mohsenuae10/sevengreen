@@ -298,6 +298,15 @@ const Invoices = () => {
                   />
                 </div>
 
+                {(!pdfFile || !invoiceNumber.trim()) && (
+                  <p className="text-sm text-destructive mb-2">
+                    {!invoiceNumber.trim() && !pdfFile 
+                      ? '* يرجى إدخال رقم الفاتورة واختيار ملف PDF'
+                      : !invoiceNumber.trim() 
+                        ? '* يرجى إدخال رقم الفاتورة'
+                        : '* يرجى اختيار ملف PDF'}
+                  </p>
+                )}
                 <Button
                   onClick={() => createInvoice.mutate()}
                   disabled={isUploading || !pdfFile || !invoiceNumber.trim()}
