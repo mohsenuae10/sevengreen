@@ -52,6 +52,7 @@ const Invoices = () => {
   const [notes, setNotes] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [issueDate, setIssueDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   // Fetch invoices
   const { data: invoices, isLoading } = useQuery({
@@ -114,7 +115,8 @@ const Invoices = () => {
           order_id: orderId || null,
           pdf_url: urlData.publicUrl,
           total_amount: totalAmount ? parseFloat(totalAmount) : null,
-          notes: notes.trim() || null
+          notes: notes.trim() || null,
+          created_at: new Date(issueDate).toISOString()
         });
 
       if (insertError) throw insertError;
@@ -168,6 +170,7 @@ const Invoices = () => {
     setTotalAmount('');
     setNotes('');
     setPdfFile(null);
+    setIssueDate(format(new Date(), 'yyyy-MM-dd'));
   };
 
   const getInvoiceUrl = (accessCode: string) => {
@@ -268,6 +271,16 @@ const Invoices = () => {
                 </div>
 
                 <div>
+                  <Label htmlFor="issueDate">تاريخ الإصدار *</Label>
+                  <Input
+                    id="issueDate"
+                    type="date"
+                    value={issueDate}
+                    onChange={(e) => setIssueDate(e.target.value)}
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="totalAmount">المبلغ الإجمالي</Label>
                   <Input
                     id="totalAmount"
@@ -340,7 +353,7 @@ const Invoices = () => {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">الفواتير النشطة</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">الفواتير الصالحة</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{invoices?.filter(i => i.is_active).length || 0}</div>
@@ -398,7 +411,7 @@ const Invoices = () => {
                       </TableCell>
                       <TableCell>
                         <Badge variant={invoice.is_active ? 'default' : 'secondary'}>
-                          {invoice.is_active ? 'نشط' : 'معطل'}
+                          {invoice.is_active ? 'صالحة' : 'غير صالحة'}
                         </Badge>
                       </TableCell>
                       <TableCell>
