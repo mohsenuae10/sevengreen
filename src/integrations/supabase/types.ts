@@ -205,6 +205,8 @@ export type Database = {
       invoices: {
         Row: {
           access_code: string
+          amazon_store_name: string | null
+          asin: string | null
           created_at: string | null
           customer_name: string | null
           customer_phone: string | null
@@ -214,11 +216,18 @@ export type Database = {
           notes: string | null
           order_id: string | null
           pdf_url: string
+          product_image_url: string | null
+          product_name: string | null
+          quantity: number | null
+          shipping_address: string | null
+          tax_amount: number | null
           total_amount: number | null
           updated_at: string | null
         }
         Insert: {
           access_code?: string
+          amazon_store_name?: string | null
+          asin?: string | null
           created_at?: string | null
           customer_name?: string | null
           customer_phone?: string | null
@@ -228,11 +237,18 @@ export type Database = {
           notes?: string | null
           order_id?: string | null
           pdf_url: string
+          product_image_url?: string | null
+          product_name?: string | null
+          quantity?: number | null
+          shipping_address?: string | null
+          tax_amount?: number | null
           total_amount?: number | null
           updated_at?: string | null
         }
         Update: {
           access_code?: string
+          amazon_store_name?: string | null
+          asin?: string | null
           created_at?: string | null
           customer_name?: string | null
           customer_phone?: string | null
@@ -242,6 +258,11 @@ export type Database = {
           notes?: string | null
           order_id?: string | null
           pdf_url?: string
+          product_image_url?: string | null
+          product_name?: string | null
+          quantity?: number | null
+          shipping_address?: string | null
+          tax_amount?: number | null
           total_amount?: number | null
           updated_at?: string | null
         }

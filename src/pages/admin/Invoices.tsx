@@ -29,6 +29,13 @@ interface Invoice {
   notes: string | null;
   is_active: boolean;
   created_at: string;
+  product_name: string | null;
+  product_image_url: string | null;
+  asin: string | null;
+  quantity: number | null;
+  tax_amount: number | null;
+  shipping_address: string | null;
+  amazon_store_name: string | null;
 }
 
 interface Order {
@@ -53,6 +60,15 @@ const Invoices = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [issueDate, setIssueDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  
+  // New Amazon fields
+  const [productName, setProductName] = useState('');
+  const [productImageUrl, setProductImageUrl] = useState('');
+  const [asin, setAsin] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [taxAmount, setTaxAmount] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
+  const [amazonStoreName, setAmazonStoreName] = useState('');
 
   // Fetch invoices
   const { data: invoices, isLoading } = useQuery({
@@ -116,7 +132,14 @@ const Invoices = () => {
           pdf_url: urlData.publicUrl,
           total_amount: totalAmount ? parseFloat(totalAmount) : null,
           notes: notes.trim() || null,
-          created_at: new Date(issueDate).toISOString()
+          created_at: new Date(issueDate).toISOString(),
+          product_name: productName.trim() || null,
+          product_image_url: productImageUrl.trim() || null,
+          asin: asin.trim() || null,
+          quantity: quantity ? parseInt(quantity) : 1,
+          tax_amount: taxAmount ? parseFloat(taxAmount) : null,
+          shipping_address: shippingAddress.trim() || null,
+          amazon_store_name: amazonStoreName.trim() || null
         });
 
       if (insertError) throw insertError;
@@ -171,6 +194,13 @@ const Invoices = () => {
     setNotes('');
     setPdfFile(null);
     setIssueDate(format(new Date(), 'yyyy-MM-dd'));
+    setProductName('');
+    setProductImageUrl('');
+    setAsin('');
+    setQuantity('1');
+    setTaxAmount('');
+    setShippingAddress('');
+    setAmazonStoreName('');
   };
 
   const getInvoiceUrl = (accessCode: string) => {
@@ -217,12 +247,12 @@ const Invoices = () => {
                 إضافة فاتورة
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>إضافة فاتورة جديدة</DialogTitle>
                 <DialogDescription>ارفع ملف PDF للفاتورة وسيتم إنشاء QR Code تلقائياً</DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="invoiceNumber">رقم الفاتورة *</Label>
                   <Input
@@ -281,7 +311,7 @@ const Invoices = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="totalAmount">المبلغ الإجمالي</Label>
+                  <Label htmlFor="totalAmount">المبلغ الإجمالي (بدون الضريبة)</Label>
                   <Input
                     id="totalAmount"
                     type="number"
@@ -289,6 +319,89 @@ const Invoices = () => {
                     onChange={(e) => setTotalAmount(e.target.value)}
                     placeholder="0.00"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="taxAmount">الضريبة 15%</Label>
+                  <Input
+                    id="taxAmount"
+                    type="number"
+                    value={taxAmount}
+                    onChange={(e) => setTaxAmount(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+
+                {/* Amazon Product Details Section */}
+                <div className="col-span-full border-t pt-4 mt-2">
+                  <h3 className="font-semibold mb-3">تفاصيل المنتج (أمازون)</h3>
+                </div>
+
+                <div>
+                  <Label htmlFor="productName">اسم المنتج</Label>
+                  <Input
+                    id="productName"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder="اسم المنتج على أمازون"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="asin">رقم ASIN</Label>
+                  <Input
+                    id="asin"
+                    value={asin}
+                    onChange={(e) => setAsin(e.target.value)}
+                    placeholder="B0XXXXXXXXX"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="quantity">العدد</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    placeholder="1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="amazonStoreName">اسم المتجر على أمازون</Label>
+                  <Input
+                    id="amazonStoreName"
+                    value={amazonStoreName}
+                    onChange={(e) => setAmazonStoreName(e.target.value)}
+                    placeholder="Amazon Store Name"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="productImageUrl">رابط صورة المنتج</Label>
+                  <Input
+                    id="productImageUrl"
+                    value={productImageUrl}
+                    onChange={(e) => setProductImageUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="shippingAddress">عنوان الشحن</Label>
+                  <Input
+                    id="shippingAddress"
+                    value={shippingAddress}
+                    onChange={(e) => setShippingAddress(e.target.value)}
+                    placeholder="عنوان الشحن الكامل"
+                  />
+                </div>
+
+                {/* File Upload Section */}
+                <div className="col-span-full border-t pt-4 mt-2">
+                  <h3 className="font-semibold mb-3">ملف الفاتورة</h3>
                 </div>
 
                 <div>
@@ -314,7 +427,7 @@ const Invoices = () => {
                 </div>
 
                 {(!pdfFile || !invoiceNumber.trim()) && (
-                  <p className="text-sm text-destructive mb-2">
+                  <p className="col-span-full text-sm text-destructive mb-2">
                     {!invoiceNumber.trim() && !pdfFile 
                       ? '* يرجى إدخال رقم الفاتورة واختيار ملف PDF'
                       : !invoiceNumber.trim() 
@@ -325,7 +438,7 @@ const Invoices = () => {
                 <Button
                   onClick={() => createInvoice.mutate()}
                   disabled={isUploading || !pdfFile || !invoiceNumber.trim()}
-                  className="w-full"
+                  className="col-span-full w-full"
                 >
                   {isUploading ? (
                     <>جاري الرفع...</>
