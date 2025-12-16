@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Calendar, User, Phone, Receipt } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { FileText, Download, Calendar, User, Phone, Receipt, Package, MapPin, Store, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { SEOHead } from '@/components/SEO/SEOHead';
@@ -20,6 +21,13 @@ interface Invoice {
   notes: string | null;
   is_active: boolean;
   created_at: string;
+  product_name: string | null;
+  product_image_url: string | null;
+  asin: string | null;
+  quantity: number | null;
+  tax_amount: number | null;
+  shipping_address: string | null;
+  amazon_store_name: string | null;
 }
 
 const ViewInvoice = () => {
@@ -68,6 +76,16 @@ const ViewInvoice = () => {
     );
   }
 
+  // Calculate subtotal (total - tax)
+  const subtotal = invoice.total_amount && invoice.tax_amount 
+    ? invoice.total_amount - invoice.tax_amount 
+    : invoice.total_amount;
+
+  // Calculate unit price
+  const unitPrice = subtotal && invoice.quantity 
+    ? subtotal / invoice.quantity 
+    : null;
+
   return (
     <>
       <SEOHead
@@ -76,7 +94,7 @@ const ViewInvoice = () => {
       />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 px-4">
-        <div className="max-w-lg mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-6">
           {/* Header */}
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
@@ -86,53 +104,153 @@ const ViewInvoice = () => {
             <p className="text-muted-foreground">#{invoice.invoice_number}</p>
           </div>
 
-          {/* Invoice Details Card */}
+          {/* Invoice Header Info */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>تفاصيل الفاتورة</span>
-                <Badge variant="default">نشطة</Badge>
+                <span>معلومات الفاتورة</span>
+                <Badge variant="default">صالحة</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {invoice.customer_name && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {invoice.customer_name && (
+                  <div className="flex items-center gap-3">
+                    <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">اسم العميل</p>
+                      <p className="font-medium">{invoice.customer_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {invoice.customer_phone && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">رقم الهاتف</p>
+                      <p className="font-medium" dir="ltr">{invoice.customer_phone}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3">
-                  <User className="h-5 w-5 text-muted-foreground" />
+                  <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-muted-foreground">اسم العميل</p>
-                    <p className="font-medium">{invoice.customer_name}</p>
+                    <p className="text-sm text-muted-foreground">تاريخ الإصدار</p>
+                    <p className="font-medium">
+                      {format(new Date(invoice.created_at), 'dd MMMM yyyy', { locale: ar })}
+                    </p>
                   </div>
                 </div>
-              )}
 
-              {invoice.customer_phone && (
-                <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">رقم الهاتف</p>
-                    <p className="font-medium" dir="ltr">{invoice.customer_phone}</p>
+                {invoice.amazon_store_name && (
+                  <div className="flex items-center gap-3">
+                    <Store className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">اسم المتجر على أمازون</p>
+                      <p className="font-medium">{invoice.amazon_store_name}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">تاريخ الإصدار</p>
-                  <p className="font-medium">
-                    {format(new Date(invoice.created_at), 'dd MMMM yyyy', { locale: ar })}
-                  </p>
-                </div>
+                )}
               </div>
 
-              {invoice.total_amount && (
-                <div className="pt-4 border-t">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">المبلغ الإجمالي</span>
-                    <span className="text-2xl font-bold text-primary">
-                      {invoice.total_amount.toFixed(2)} ريال
-                    </span>
+              {invoice.shipping_address && (
+                <div className="flex items-start gap-3 pt-4 border-t">
+                  <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">عنوان الشحن</p>
+                    <p className="font-medium">{invoice.shipping_address}</p>
                   </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Product Details */}
+          {invoice.product_name && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  تفاصيل المنتج
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 mb-4">
+                  {invoice.product_image_url && (
+                    <img 
+                      src={invoice.product_image_url} 
+                      alt={invoice.product_name}
+                      className="w-24 h-24 object-cover rounded-lg border"
+                    />
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <h3 className="font-semibold text-lg">{invoice.product_name}</h3>
+                    {invoice.asin && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Hash className="h-4 w-4" />
+                        <span>ASIN: {invoice.asin}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Product Table */}
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">المنتج</TableHead>
+                        <TableHead className="text-center">الكمية</TableHead>
+                        <TableHead className="text-center">سعر الوحدة</TableHead>
+                        <TableHead className="text-left">الإجمالي</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">{invoice.product_name}</TableCell>
+                        <TableCell className="text-center">{invoice.quantity || 1}</TableCell>
+                        <TableCell className="text-center">
+                          {unitPrice ? `${unitPrice.toFixed(2)} ر.س` : '-'}
+                        </TableCell>
+                        <TableCell className="text-left">
+                          {subtotal ? `${subtotal.toFixed(2)} ر.س` : '-'}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Totals */}
+          <Card>
+            <CardHeader>
+              <CardTitle>ملخص الفاتورة</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {subtotal && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">المجموع الفرعي</span>
+                  <span className="font-medium">{subtotal.toFixed(2)} ر.س</span>
+                </div>
+              )}
+              
+              {invoice.tax_amount && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">الضريبة (15%)</span>
+                  <span className="font-medium">{invoice.tax_amount.toFixed(2)} ر.س</span>
+                </div>
+              )}
+
+              {invoice.total_amount && (
+                <div className="flex items-center justify-between pt-3 border-t">
+                  <span className="font-semibold text-lg">الإجمالي النهائي</span>
+                  <span className="text-2xl font-bold text-primary">
+                    {invoice.total_amount.toFixed(2)} ر.س
+                  </span>
                 </div>
               )}
 
