@@ -202,6 +202,59 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          access_code: string
+          created_at: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          invoice_number: string
+          is_active: boolean | null
+          notes: string | null
+          order_id: string | null
+          pdf_url: string
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_code?: string
+          created_at?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          invoice_number: string
+          is_active?: boolean | null
+          notes?: string | null
+          order_id?: string | null
+          pdf_url: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_code?: string
+          created_at?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          invoice_number?: string
+          is_active?: boolean | null
+          notes?: string | null
+          order_id?: string | null
+          pdf_url?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
