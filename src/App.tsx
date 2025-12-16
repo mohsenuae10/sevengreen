@@ -56,6 +56,10 @@ const AdminBlogPostEditor = lazy(() => import('@/pages/admin/BlogPostEditor'));
 const AdminBlogCategories = lazy(() => import('@/pages/admin/BlogCategories'));
 const AdminBlogTags = lazy(() => import('@/pages/admin/BlogTags'));
 
+// Invoice pages
+const AdminInvoices = lazy(() => import('@/pages/admin/Invoices'));
+const ViewInvoice = lazy(() => import('@/pages/ViewInvoice'));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -164,6 +168,18 @@ function App() {
               <Route path="/admin/blog-tags" element={
                 <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
                   <ProtectedRoute><AdminBlogTags /></ProtectedRoute>
+                </Suspense>
+              } />
+              <Route path="/admin/invoices" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ProtectedRoute><AdminInvoices /></ProtectedRoute>
+                </Suspense>
+              } />
+              
+              {/* Public Invoice View Route (outside main layout) */}
+              <Route path="/invoice/:accessCode" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+                  <ViewInvoice />
                 </Suspense>
               } />
               
