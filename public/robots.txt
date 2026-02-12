@@ -1,7 +1,11 @@
 # Robots.txt for Lamset Beauty Store
-# Last updated: 2025-12-08
+# Last updated: February 2026
 
-# Googlebot
+# Global crawl delay and request rate settings
+# Allows search engines to crawl efficiently without overloading the server
+Crawl-delay: 1
+
+# Googlebot - Full Access
 User-agent: Googlebot
 Allow: /
 Allow: /products
@@ -10,14 +14,25 @@ Allow: /blog
 Allow: /blog/
 Allow: /about
 Allow: /contact
+Allow: /category/
+Allow: /categories
+Allow: /sitemap.xml
+Allow: /sitemap-blog.xml
+Allow: /sitemap-products.xml
+Allow: /sitemap-pages.xml
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
+Disallow: /api/
+Disallow: /*.json$
+Disallow: *?utm_
+Crawl-delay: 0.5
 
-# Googlebot Images - allow all images
+# Googlebot Images - Full Access  
 User-agent: Googlebot-Image
 Allow: /
+Crawl-delay: 1
 
 # Bingbot
 User-agent: Bingbot
@@ -26,20 +41,56 @@ Allow: /products
 Allow: /product/
 Allow: /blog
 Allow: /blog/
+Allow: /category/
+Allow: /sitemap.xml
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
+Crawl-delay: 1
 
-# Social Media Crawlers - full access
+# Yahoo Bot (Slurp)
+User-agent: Slurp
+Allow: /
+Allow: /products
+Allow: /product/
+Allow: /blog
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /cart
+Crawl-delay: 1
+
+# Yandex bot
+User-agent: Yandex
+Allow: /
+Allow: /products
+Allow: /product/
+Allow: /blog
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /cart
+Crawl-delay: 1
+
+# Social Media Crawlers - Full Access
 User-agent: Twitterbot
 Allow: /
+Crawl-delay: 0
 
 User-agent: facebookexternalhit
 Allow: /
+Crawl-delay: 0
 
 User-agent: Whatsapp
 Allow: /
+Crawl-delay: 0
+
+User-agent: LinkedInBot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Pinterestbot
+Allow: /
+Crawl-delay: 0
 
 # All other bots
 User-agent: *
@@ -48,11 +99,25 @@ Allow: /products
 Allow: /product/
 Allow: /blog
 Allow: /blog/
+Allow: /category/
+Allow: /sitemap.xml
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
+Disallow: /api/
 Disallow: /*.json$
+Disallow: *?utm_
+Crawl-delay: 1
+
+# Prevent access to specific files
+Disallow: /js/
+Disallow: /css/
+Disallow: /.env
+Disallow: /.git
 
 # Sitemap Index - Contains all sitemaps
 Sitemap: https://lamsetbeauty.com/sitemap.xml
+Sitemap: https://lamsetbeauty.com/sitemap-blog.xml
+Sitemap: https://lamsetbeauty.com/sitemap-products.xml
+Sitemap: https://lamsetbeauty.com/sitemap-pages.xml
