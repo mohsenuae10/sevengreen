@@ -72,16 +72,7 @@ export const OptimizedImage = ({
         <div className="absolute inset-0 bg-gradient-to-br from-muted/20 via-muted/10 to-muted/20 animate-pulse" />
       )}
       <picture>
-        {/* WebP format for modern browsers */}
-        {src.includes('supabase.co/storage') && (
-          <source
-            type="image/webp"
-            srcSet={srcset || src}
-            sizes={sizes}
-          />
-        )}
-        
-        {/* Fallback to original format */}
+        {/* Responsive image with srcSet for Supabase images */}
         <img
           src={hasError ? '/placeholder.svg' : src}
           srcSet={srcset || undefined}

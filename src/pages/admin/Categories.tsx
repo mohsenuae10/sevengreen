@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { LayoutGrid, Plus, Pencil, Trash2, Loader2, RefreshCw, Upload } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { iconMap, DefaultIcon } from '@/utils/iconMap';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Category {
@@ -222,7 +222,7 @@ export default function Categories() {
   };
 
   const renderIcon = (iconName: string) => {
-    const Icon = (LucideIcons as any)[iconName] || LucideIcons.Sparkles;
+    const Icon = iconMap[iconName] || DefaultIcon;
     return <Icon className="h-5 w-5" />;
   };
 

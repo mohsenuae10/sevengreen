@@ -39,8 +39,8 @@ export const SEOHead = ({
   language = 'ar',
   enUrl,
 }: SEOHeadProps) => {
-  // Optimize title (max 45 chars for better SEO)
-  const optimizedTitle = title.length > 45 ? title.substring(0, 42) + '...' : title;
+  // Optimize title (max 60 chars - Google displays up to 60)
+  const optimizedTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;
   // Add site name only if not already included
   const fullTitle = title.includes('لمسة بيوتي') || title.includes('Lamset Beauty')
     ? optimizedTitle 

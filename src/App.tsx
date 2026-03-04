@@ -8,7 +8,9 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
-import Home from '@/pages/Home';
+
+// Lazy load Home page for better initial bundle
+const Home = lazy(() => import('@/pages/Home'));
 import Cart from '@/pages/Cart';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
@@ -63,9 +65,9 @@ const ViewInvoice = lazy(() => import('@/pages/ViewInvoice'));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // Always fresh data
-      gcTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: true,
+      staleTime: 1000 * 60 * 5, // 5 minutes cache for better performance
+      gcTime: 1000 * 60 * 10, // 10 minutes garbage collection
+      refetchOnWindowFocus: false,
       refetchOnMount: true,
       retry: 1,
     },
@@ -189,7 +191,11 @@ function App() {
                   <Header />
                   <main className="flex-1">
                     <Routes>
-                      <Route path="/" element={<Home />} />
+                      <Route path="/" element={
+                        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                          <Home />
+                        </Suspense>
+                      } />
                       <Route path="/products" element={
                         <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
                           <Products />

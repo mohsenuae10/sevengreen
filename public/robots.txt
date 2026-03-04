@@ -1,9 +1,5 @@
 # Robots.txt for Lamset Beauty Store
-# Last updated: February 2026
-
-# Global crawl delay and request rate settings
-# Allows search engines to crawl efficiently without overloading the server
-Crawl-delay: 1
+# Last updated: March 2026
 
 # Googlebot - Full Access
 User-agent: Googlebot
@@ -25,9 +21,7 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
 Disallow: /api/
-Disallow: /*.json$
 Disallow: *?utm_
-Crawl-delay: 0.5
 
 # Googlebot Images - Full Access  
 User-agent: Googlebot-Image
@@ -106,13 +100,10 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
 Disallow: /api/
-Disallow: /*.json$
 Disallow: *?utm_
 Crawl-delay: 1
 
-# Prevent access to specific files
-Disallow: /js/
-Disallow: /css/
+# Prevent access to sensitive files
 Disallow: /.env
 Disallow: /.git
 

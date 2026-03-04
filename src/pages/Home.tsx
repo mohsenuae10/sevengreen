@@ -1,5 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { PromoBanner } from '@/components/home/PromoBanner';
 import { CategoryShortcuts } from '@/components/home/CategoryShortcuts';
@@ -14,26 +13,20 @@ import { OrganizationSchema } from '@/components/SEO/OrganizationSchema';
 import { LocalBusinessSchema } from '@/components/SEO/LocalBusinessSchema';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import { FAQSchema } from '@/components/SEO/FAQSchema';
-import * as LucideIcons from 'lucide-react';
+import { iconMap, DefaultIcon } from '@/utils/iconMap';
 import { Button } from '@/components/ui/button';
 
 // Helper function to get icon component from icon name
 const getIconComponent = (iconName: string): JSX.Element => {
-  const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ className?: string }>;
-  if (!IconComponent || typeof IconComponent !== 'function') {
-    return <LucideIcons.Sparkles className="h-6 w-6 text-primary" />;
+  const IconComponent = iconMap[iconName];
+  if (!IconComponent) {
+    return <DefaultIcon className="h-6 w-6 text-primary" />;
   }
   return <IconComponent className="h-6 w-6 text-primary" />;
 };
 
 export default function Home() {
-  const queryClient = useQueryClient();
-  
-  // Clear old cache on mount
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['all-products'] });
-    queryClient.invalidateQueries({ queryKey: ['active-categories'] });
-  }, [queryClient]);
+  // Cache is managed by staleTime - no need to invalidate on every mount
 
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['all-products'],
@@ -47,8 +40,8 @@ export default function Home() {
       if (error) throw error;
       return data || [];
     },
-    staleTime: 0,
-    refetchOnMount: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    refetchOnMount: false,
   });
 
   // Fetch active categories from database
