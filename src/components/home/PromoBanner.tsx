@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { Tag, Truck, Leaf, Headphones, Sparkles, ShieldCheck, Gift, Percent, X } from 'lucide-react';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 interface PromoMessage {
   text: string;
@@ -25,6 +26,7 @@ const STORAGE_KEY = 'promo-banner-closed';
 
 export const PromoBanner = () => {
   const [isClosed, setIsClosed] = useState(false);
+  const { t, isRTL } = useLanguageCurrency();
 
   useEffect(() => {
     const closed = localStorage.getItem(STORAGE_KEY);
@@ -46,16 +48,16 @@ export const PromoBanner = () => {
   });
 
   const promoMessages: PromoMessage[] = (publicSettings?.promo_messages as unknown as PromoMessage[]) || [
-    { text: 'عرض خاص: خصم 20% على جميع المنتجات', icon: 'tag' },
-    { text: 'شحن مجاني لجميع الطلبات', icon: 'truck' },
-    { text: 'منتجات طبيعية 100%', icon: 'leaf' },
-    { text: 'دعم فني متاح 24/7', icon: 'headphones' },
+    { text: t('promo.defaultMsg1'), icon: 'tag' },
+    { text: t('promo.defaultMsg2'), icon: 'truck' },
+    { text: t('promo.defaultMsg3'), icon: 'leaf' },
+    { text: t('promo.defaultMsg4'), icon: 'headphones' },
   ];
 
   const [emblaRef] = useEmblaCarousel(
     { 
       loop: true,
-      direction: 'rtl',
+      direction: isRTL ? 'rtl' : 'ltr',
       align: 'center'
     },
     [Autoplay({ delay: 4000, stopOnInteraction: false })]
@@ -90,8 +92,8 @@ export const PromoBanner = () => {
       
       <button
         onClick={handleClose}
-        className="absolute left-4 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity"
-        aria-label="إغلاق"
+        className="absolute end-4 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity"
+        aria-label={t('promo.close')}
       >
         <X className="h-4 w-4" />
       </button>

@@ -7,12 +7,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Package, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { Helmet } from 'react-helmet-async';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 export default function OrderSuccess() {
   const { orderId } = useParams<{ orderId: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const [paymentUpdated, setPaymentUpdated] = useState(false);
+  const { t, language, getLocalizedPath, formatPrice } = useLanguageCurrency();
 
   // تحديث حالة الدفع فور الوصول للصفحة (بعد redirect من Stripe)
   useEffect(() => {
@@ -110,8 +112,8 @@ export default function OrderSuccess() {
     return (
       <>
         <SEOHead
-          title="جاري تحميل الطلب"
-          description="جاري تحميل تفاصيل طلبك من لمسة بيوتي"
+          title={t('orderSuccess.loadingTitle')}
+          description={t('orderSuccess.loadingDesc')}
         />
         <Helmet>
           <meta name="robots" content="noindex, nofollow" />
@@ -119,10 +121,10 @@ export default function OrderSuccess() {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center space-y-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">جاري تحميل تفاصيل الطلب...</p>
+            <p className="text-muted-foreground">{t('orderSuccess.loadingDetails')}</p>
             {retryCount > 0 && (
               <p className="text-sm text-muted-foreground">
-                محاولة {retryCount + 1} من 3...
+                {t('orderSuccess.attempt', { current: retryCount + 1, total: 3 })}
               </p>
             )}
           </div>
@@ -135,17 +137,17 @@ export default function OrderSuccess() {
     return (
       <>
         <SEOHead
-          title="الطلب غير موجود"
-          description="نعتذر، لم نتمكن من العثور على تفاصيل هذا الطلب"
+          title={t('orderSuccess.notFoundTitle')}
+          description={t('orderSuccess.notFoundDesc')}
         />
         <Helmet>
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold">الطلب غير موجود</h2>
+            <h2 className="text-2xl font-bold">{t('orderSuccess.notFoundTitle')}</h2>
             <Button asChild>
-              <Link to="/">العودة للرئيسية</Link>
+              <Link to={getLocalizedPath('/')}>{t('orderSuccess.backToHome')}</Link>
             </Button>
           </div>
         </div>
@@ -156,8 +158,8 @@ export default function OrderSuccess() {
   return (
     <>
       <SEOHead
-        title="تم استلام طلبك بنجاح"
-        description="شكراً لك على طلبك من لمسة بيوتي. سنتواصل معك قريباً."
+        title={t('orderSuccess.successTitle')}
+        description={t('orderSuccess.successDesc')}
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
@@ -168,9 +170,9 @@ export default function OrderSuccess() {
           <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
             <CheckCircle className="h-12 w-12 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-primary">تم استلام طلبك بنجاح!</h1>
+          <h1 className="text-3xl font-bold text-primary">{t('orderSuccess.orderReceived')}</h1>
           <p className="text-muted-foreground">
-            شكراً لك على الطلب. سيتم معالجته في أقرب وقت ممكن.
+            {t('orderSuccess.thankYou')}
           </p>
         </div>
 
@@ -179,16 +181,16 @@ export default function OrderSuccess() {
             <div className="flex items-start gap-4">
               <Package className="h-6 w-6 text-primary mt-1" />
               <div className="flex-1">
-                <h2 className="text-xl font-bold mb-2">تفاصيل الطلب</h2>
+                <h2 className="text-xl font-bold mb-2">{t('orderSuccess.orderDetails')}</h2>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">رقم الطلب:</span>
+                    <span className="text-muted-foreground">{t('orderSuccess.orderNumber')}</span>
                     <span className="font-medium">{order.order_number}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">التاريخ:</span>
+                    <span className="text-muted-foreground">{t('orderSuccess.date')}</span>
                     <span className="font-medium">
-                      {new Date(order.created_at).toLocaleString('ar-SA', {
+                      {new Date(order.created_at).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -196,7 +198,7 @@ export default function OrderSuccess() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">البريد الإلكتروني:</span>
+                    <span className="text-muted-foreground">{t('orderSuccess.email')}</span>
                     <span className="font-medium">{order.customer_email}</span>
                   </div>
                 </div>
@@ -204,14 +206,14 @@ export default function OrderSuccess() {
             </div>
 
             <div className="border-t pt-4">
-              <h3 className="font-bold mb-3">المنتجات المطلوبة</h3>
+              <h3 className="font-bold mb-3">{t('orderSuccess.orderedProducts')}</h3>
               <div className="space-y-2">
                 {order.order_items.map((item: any) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span>
                       {item.product_name} × {item.quantity}
                     </span>
-                    <span>{item.total_price.toFixed(2)} ريال</span>
+                    <span>{formatPrice(item.total_price)}</span>
                   </div>
                 ))}
               </div>
@@ -219,28 +221,28 @@ export default function OrderSuccess() {
 
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
-                <span>الإجمالي</span>
-                <span className="text-primary">{order.total_amount.toFixed(2)} ريال</span>
+                <span>{t('orderSuccess.total')}</span>
+                <span className="text-primary">{formatPrice(order.total_amount)}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <div className="bg-secondary/30 rounded-lg p-6 mb-6">
-          <h3 className="font-bold mb-2">ماذا بعد؟</h3>
+          <h3 className="font-bold mb-2">{t('orderSuccess.whatsNext')}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>• ستصلك رسالة تأكيد عبر البريد الإلكتروني</li>
-            <li>• سيتم معالجة طلبك خلال 1-2 يوم عمل</li>
-            <li>• سنرسل لك رقم تتبع الشحنة عبر البريد الإلكتروني</li>
+            <li>• {t('orderSuccess.confirmationEmail')}</li>
+            <li>• {t('orderSuccess.processingTime')}</li>
+            <li>• {t('orderSuccess.trackingNumber')}</li>
           </ul>
         </div>
 
         <div className="flex gap-4">
           <Button asChild size="lg" className="flex-1">
-            <Link to="/">العودة للرئيسية</Link>
+            <Link to={getLocalizedPath('/')}>{t('orderSuccess.backToHome')}</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="flex-1">
-            <Link to="/products">متابعة التسوق</Link>
+            <Link to={getLocalizedPath('/products')}>{t('orderSuccess.continueShopping')}</Link>
           </Button>
         </div>
       </div>

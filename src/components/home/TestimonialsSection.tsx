@@ -1,35 +1,38 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, Quote } from 'lucide-react';
-
-const testimonials = [
-  {
-    id: 1,
-    name: 'أحمد محمد',
-    avatar: '',
-    rating: 5,
-    text: 'منتجات رائعة وطبيعية 100%، جربت شامبو البار وكانت النتيجة مذهلة. شعري أصبح أكثر نعومة وحيوية.',
-    date: 'منذ أسبوعين',
-  },
-  {
-    id: 2,
-    name: 'فاطمة علي',
-    avatar: '',
-    rating: 5,
-    text: 'الشحن سريع والتغليف ممتاز. المنتجات الطبيعية من لمسة بيوتي غيرت روتين العناية بشعري تماماً.',
-    date: 'منذ شهر',
-  },
-  {
-    id: 3,
-    name: 'خالد سعيد',
-    avatar: '',
-    rating: 5,
-    text: 'أفضل متجر للمنتجات الطبيعية في السعودية. جودة عالية وأسعار مناسبة، أنصح به بشدة.',
-    date: 'منذ 3 أيام',
-  },
-];
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 export const TestimonialsSection = () => {
+  const { t } = useLanguageCurrency();
+
+  const testimonials = [
+    {
+      id: 1,
+      name: t('testimonials.t1Name'),
+      avatar: '',
+      rating: 5,
+      text: t('testimonials.t1Text'),
+      date: t('testimonials.t1Date'),
+    },
+    {
+      id: 2,
+      name: t('testimonials.t2Name'),
+      avatar: '',
+      rating: 5,
+      text: t('testimonials.t2Text'),
+      date: t('testimonials.t2Date'),
+    },
+    {
+      id: 3,
+      name: t('testimonials.t3Name'),
+      avatar: '',
+      rating: 5,
+      text: t('testimonials.t3Text'),
+      date: t('testimonials.t3Date'),
+    },
+  ];
+
   return (
     <section className="py-16 bg-secondary/30 relative overflow-hidden">
       {/* Subtle Background Pattern */}
@@ -42,13 +45,13 @@ export const TestimonialsSection = () => {
         <div className="text-center mb-10 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-primary/8 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4 border border-primary/15">
             <Quote className="h-3.5 w-3.5" />
-            آراء العملاء
+            {t('testimonials.badge')}
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            ماذا يقول عملاؤنا
+            {t('testimonials.title')}
           </h2>
           <p className="text-muted-foreground text-sm">
-            نفخر بثقة عملائنا وتجاربهم الإيجابية
+            {t('testimonials.proudText')}
           </p>
         </div>
 

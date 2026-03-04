@@ -3,8 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from '@/components/ProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Sparkles } from 'lucide-react';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 export const FeaturedProductsCarousel = () => {
+  const { t, isRTL } = useLanguageCurrency();
+
   const { data: products, isLoading } = useQuery({
     queryKey: ['featured-products'],
     queryFn: async () => {
@@ -34,13 +37,13 @@ export const FeaturedProductsCarousel = () => {
         <div className="text-center mb-10 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-primary/8 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4 border border-primary/15">
             <Sparkles className="h-4 w-4" />
-            الأكثر مبيعاً
+            {t('home.bestSelling')}
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            منتجاتنا المميزة
+            {t('home.ourFeaturedProducts')}
           </h2>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
-            اكتشف أكثر المنتجات شعبية وتميزاً لدى عملائنا
+            {t('home.featuredProductsDesc')}
           </p>
         </div>
 
@@ -49,7 +52,7 @@ export const FeaturedProductsCarousel = () => {
             opts={{
               align: "start",
               loop: true,
-              direction: "rtl",
+              direction: isRTL ? "rtl" : "ltr",
             }}
             className="w-full"
           >
@@ -61,8 +64,8 @@ export const FeaturedProductsCarousel = () => {
               ))}
             </CarouselContent>
             <div className="hidden md:block">
-              <CarouselPrevious className="left-auto -right-12 border-primary/20 text-primary hover:bg-primary hover:text-white" />
-              <CarouselNext className="right-auto -left-12 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+              <CarouselPrevious className={`${isRTL ? 'left-auto -right-12' : 'right-auto -left-12'} border-primary/20 text-primary hover:bg-primary hover:text-white`} />
+              <CarouselNext className={`${isRTL ? 'right-auto -left-12' : 'left-auto -right-12'} border-primary/20 text-primary hover:bg-primary hover:text-white`} />
             </div>
           </Carousel>
         </div>

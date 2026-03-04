@@ -2,29 +2,32 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import { OptimizedImage } from '@/components/OptimizedImage';
-import { Helmet } from 'react-helmet-async';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import LocalizedLink from '@/components/LocalizedLink';
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
+  const { t, language, formatPrice, getLocalizedField } = useLanguageCurrency();
+
+  const getItemName = (item: any) => {
+    return language === 'en' && item.name_en ? item.name_en : item.name_ar;
+  };
 
   if (items.length === 0) {
     return (
       <>
         <SEOHead
-          title="سلة التسوق"
-          description="سلة التسوق الخاصة بك في لمسة بيوتي للمنتجات الطبيعية"
+          title={t('cart.title')}
+          description={t('cart.title')}
+          noindex={true}
         />
-        <Helmet>
-          <meta name="robots" content="noindex, nofollow" />
-        </Helmet>
         <BreadcrumbSchema
           items={[
-            { name: 'الرئيسية', url: '/' },
-            { name: 'سلة التسوق', url: '/cart' },
+            { name: t('nav.home'), url: '/' },
+            { name: t('cart.title'), url: '/cart' },
           ]}
         />
         <div className="container mx-auto px-4 py-16">
@@ -32,12 +35,12 @@ export default function Cart() {
             <div className="mx-auto w-24 h-24 rounded-full bg-secondary flex items-center justify-center">
               <ShoppingBag className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h2 className="text-2xl font-bold">السلة فارغة</h2>
+            <h2 className="text-2xl font-bold">{t('cart.empty')}</h2>
             <p className="text-muted-foreground">
-              ابدأ بإضافة منتجات إلى سلة التسوق
+              {t('cart.emptyDesc')}
             </p>
             <Button asChild size="lg">
-              <Link to="/products">تصفح المنتجات</Link>
+              <LocalizedLink to="/products">{t('cart.continueShopping')}</LocalizedLink>
             </Button>
           </div>
         </div>
@@ -48,20 +51,18 @@ export default function Cart() {
   return (
     <>
       <SEOHead
-        title="سلة التسوق"
-        description="سلة التسوق الخاصة بك في لمسة بيوتي للمنتجات الطبيعية"
+        title={t('cart.title')}
+        description={t('cart.title')}
+        noindex={true}
       />
-      <Helmet>
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
       <BreadcrumbSchema
         items={[
-          { name: 'الرئيسية', url: '/' },
-          { name: 'سلة التسوق', url: '/cart' },
+          { name: t('nav.home'), url: '/' },
+          { name: t('cart.title'), url: '/cart' },
         ]}
       />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-primary mb-8">سلة التسوق</h1>
+        <h1 className="text-3xl font-bold text-primary mb-8">{t('cart.title')}</h1>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
@@ -72,20 +73,20 @@ export default function Cart() {
                   {item.image_url ? (
                     <OptimizedImage
                       src={item.image_url}
-                      alt={`${item.name_ar} - منتج طبيعي من لمسة بيوتي`}
+                      alt={`${getItemName(item)} - ${t('common.naturalProduct')}`}
                       className="w-24 h-24 flex-shrink-0"
                       aspectRatio="1/1"
                     />
                   ) : (
                     <div className="w-24 h-24 rounded-lg bg-secondary flex-shrink-0 flex items-center justify-center text-muted-foreground">
-                      صورة
+                      {t('common.noImage')}
                     </div>
                   )}
 
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-2">{item.name_ar}</h3>
+                    <h3 className="font-bold text-lg mb-2">{getItemName(item)}</h3>
                     <p className="text-primary font-bold mb-3">
-                      {item.price.toFixed(2)} ريال
+                      {formatPrice(item.price)}
                     </p>
 
                     <div className="flex items-center gap-4">
@@ -126,8 +127,8 @@ export default function Cart() {
                     </div>
                   </div>
 
-                  <div className="text-left font-bold">
-                    {(item.price * item.quantity).toFixed(2)} ريال
+                  <div className="font-bold">
+                    {formatPrice(item.price * item.quantity)}
                   </div>
                 </div>
               </CardContent>
@@ -138,32 +139,32 @@ export default function Cart() {
         <div className="lg:col-span-1">
           <Card className="sticky top-20">
             <CardContent className="p-6 space-y-4">
-              <h2 className="text-xl font-bold">ملخص الطلب</h2>
+              <h2 className="text-xl font-bold">{t('cart.orderSummary')}</h2>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">المجموع الفرعي</span>
-                  <span className="font-medium">{totalPrice.toFixed(2)} ريال</span>
+                  <span className="text-muted-foreground">{t('cart.subtotal')}</span>
+                  <span className="font-medium">{formatPrice(totalPrice)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">رسوم الشحن</span>
-                  <span className="font-medium">يتم حسابها لاحقاً</span>
+                  <span className="text-muted-foreground">{t('cart.shipping')}</span>
+                  <span className="font-medium">{t('cart.freeShipping')}</span>
                 </div>
               </div>
 
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-bold">
-                  <span>الإجمالي</span>
-                  <span className="text-primary">{totalPrice.toFixed(2)} ريال</span>
+                  <span>{t('cart.total')}</span>
+                  <span className="text-primary">{formatPrice(totalPrice)}</span>
                 </div>
               </div>
 
               <Button asChild size="lg" className="w-full">
-                <Link to="/checkout">إتمام الطلب</Link>
+                <LocalizedLink to="/checkout">{t('cart.checkout')}</LocalizedLink>
               </Button>
 
               <Button asChild variant="outline" size="lg" className="w-full">
-                <Link to="/products">متابعة التسوق</Link>
+                <LocalizedLink to="/products">{t('cart.continueShopping')}</LocalizedLink>
               </Button>
 
               {/* شعارات طرق الدفع */}

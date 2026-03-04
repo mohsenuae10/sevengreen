@@ -10,6 +10,7 @@ import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getCareType } from '@/utils/categoryHelpers';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,6 +21,7 @@ import {
 } from '@/components/ui/breadcrumb';
 
 export default function Products() {
+  const { t, language, getLocalizedField, getLocalizedPath } = useLanguageCurrency();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
@@ -66,7 +68,7 @@ export default function Products() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('name_ar, slug')
+        .select('name_ar, name_en, slug')
         .eq('is_active', true)
         .order('display_order');
       
@@ -75,38 +77,38 @@ export default function Products() {
     },
   });
 
-  const seoTitle = selectedCategory 
-    ? `منتجات ${selectedCategory}` 
-    : 'جميع المنتجات';
+  const seoTitle = selectedCategoryName 
+    ? t('products.categorySeo', { category: selectedCategoryName })
+    : t('products.allProductsSeo');
   
-  const seoDescription = selectedCategory
-    ? `تصفح مجموعة ${selectedCategory} من لمسة بيوتي - منتجات فاخرة للعناية بالبشرة والشعر`
-    : 'تصفح جميع منتجات لمسة بيوتي الفاخرة - مستحضرات تجميل ومنتجات العناية الأصلية';
+  const seoDescription = selectedCategoryName
+    ? t('products.categoryDesc', { category: selectedCategoryName })
+    : t('products.allProductsDesc');
 
   const canonicalUrl = selectedCategory 
-    ? `https://lamsetbeauty.com/products?category=${encodeURIComponent(selectedCategory)}`
-    : 'https://lamsetbeauty.com/products';
+    ? `https://lamsetbeauty.com/${language}/products?category=${encodeURIComponent(selectedCategory)}`
+    : `https://lamsetbeauty.com/${language}/products`;
 
   return (
     <main className="container mx-auto px-4 py-8" itemScope itemType="https://schema.org/CollectionPage">
       <SEOHead
-        title={selectedCategoryName ? `${selectedCategoryName} | منتجات طبيعية - لمسة بيوتي` : 'جميع المنتجات الطبيعية | لمسة بيوتي - شحن مجاني'}
-        description={selectedCategoryName ? `تسوق أفضل منتجات ${selectedCategoryName} الطبيعية 100% من لمسة بيوتي. ✓ جودة عالية ✓ شحن مجاني ✓ توصيل سريع للسعودية` : 'اكتشف مجموعتنا الكاملة من منتجات العناية الطبيعية - بار شامبو، سيروم، زيوت. ✓ منتجات أصلية ✓ شحن مجاني ✓ ضمان الجودة'}
-        keywords={selectedCategoryName ? `${selectedCategoryName}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية السعودية, شحن مجاني` : 'منتجات طبيعية, عناية بالبشرة, عناية بالشعر, لمسة بيوتي, شحن مجاني السعودية, منتجات عضوية'}
+        title={seoTitle}
+        description={seoDescription}
+        keywords={selectedCategoryName ? `${selectedCategoryName}, ${t('common.naturalProducts')}, ${t('common.brand')}` : `${t('common.naturalProducts')}, ${t('common.brand')}`}
         type="website"
         url={canonicalUrl}
       />
       <BreadcrumbSchema
         items={[
-          { name: 'الرئيسية', url: '/' },
-          { name: 'المنتجات', url: '/products' },
-          ...(selectedCategoryName ? [{ name: selectedCategoryName, url: `/products?category=${selectedCategory}` }] : []),
+          { name: t('nav.home'), url: getLocalizedPath('/') },
+          { name: t('nav.products'), url: getLocalizedPath('/products') },
+          ...(selectedCategoryName ? [{ name: selectedCategoryName, url: getLocalizedPath(`/products?category=${selectedCategory}`) }] : []),
         ]}
       />
       {products && products.length > 0 && (
         <ItemListSchema
           products={products}
-          listName={selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجات لمسة بيوتي'}
+          listName={selectedCategoryName ? t('products.categoryProducts', { category: selectedCategoryName }) : t('products.allProducts')}
           category={selectedCategoryName || undefined}
         />
       )}
@@ -115,13 +117,13 @@ export default function Products() {
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+            <BreadcrumbLink href={getLocalizedPath('/')}>{t('nav.home')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           {selectedCategoryName ? (
             <>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
+                <BreadcrumbLink href={getLocalizedPath('/products')}>{t('nav.products')}</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -130,7 +132,7 @@ export default function Products() {
             </>
           ) : (
             <BreadcrumbItem>
-              <BreadcrumbPage>المنتجات</BreadcrumbPage>
+              <BreadcrumbPage>{t('nav.products')}</BreadcrumbPage>
             </BreadcrumbItem>
           )}
         </BreadcrumbList>
@@ -139,13 +141,13 @@ export default function Products() {
       <div className="mb-8 space-y-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2" itemProp="name">
-            {selectedCategoryName ? `منتجات ${selectedCategoryName}` : 'جميع منتجاتنا الطبيعية'}
+            {selectedCategoryName ? t('products.categoryProducts', { category: selectedCategoryName }) : t('products.allProducts')}
           </h1>
           <p className="text-muted-foreground text-sm md:text-base" itemProp="description">
             {selectedCategoryName 
-              ? `اكتشف مجموعة ${selectedCategoryName} الطبيعية 100% من لمسة بيوتي`
-              : 'اكتشف مجموعتنا الكاملة من منتجات العناية الطبيعية'}
-            {products && ` (${products.length} منتج)`}
+              ? t('products.categoryDesc', { category: selectedCategoryName })
+              : t('products.allProductsDesc')}
+            {products && ` (${t('products.productCount', { count: products.length })})`}
           </p>
         </div>
         
@@ -158,9 +160,9 @@ export default function Products() {
             }}
             className="rounded-full"
           >
-            <span>الكل</span>
+            <span>{t('common.all')}</span>
             {!selectedCategory && products && (
-              <Badge variant="secondary" className="mr-2 text-xs">
+              <Badge variant="secondary" className="ms-2 text-xs">
                 {products.length}
               </Badge>
             )}
@@ -171,11 +173,11 @@ export default function Products() {
               variant={selectedCategory === category.slug ? 'default' : 'outline'}
               onClick={() => {
                 setSelectedCategory(category.slug);
-                setSelectedCategoryName(category.name_ar);
+                setSelectedCategoryName(getLocalizedField(category, 'name'));
               }}
               className="rounded-full"
             >
-              {category.name_ar}
+              {getLocalizedField(category, 'name')}
             </Button>
           ))}
         </div>
@@ -183,9 +185,9 @@ export default function Products() {
 
       {error ? (
         <div className="text-center py-12">
-          <p className="text-destructive mb-4">حدث خطأ في تحميل المنتجات</p>
+          <p className="text-destructive mb-4">{t('products.errorLoading')}</p>
           <Button onClick={() => window.location.reload()}>
-            إعادة المحاولة
+            {t('products.retry')}
           </Button>
         </div>
       ) : isLoading ? (
@@ -215,25 +217,23 @@ export default function Products() {
           {/* SEO Content Section */}
           {selectedCategoryName && (
             <section className="mt-12 prose prose-lg max-w-none">
-              <h2 className="text-2xl font-bold text-primary mb-4">عن منتجات {selectedCategoryName}</h2>
+              <h2 className="text-2xl font-bold text-primary mb-4">{t('products.aboutCategory', { category: selectedCategoryName })}</h2>
               <div className="text-muted-foreground leading-relaxed">
                 <p>
-                  تقدم لمسة بيوتي مجموعة متميزة من منتجات {selectedCategoryName} الطبيعية 100%، المصممة خصيصاً لتلبية احتياجاتك في العناية 
-                  {getCareType(selectedCategory || '')}.
-                  جميع منتجاتنا مصنوعة من مكونات عالية الجودة ومختارة بعناية لضمان أفضل النتائج.
+                  {t('products.aboutCategoryDesc', { category: selectedCategoryName, careType: getCareType(selectedCategory || '') })}
                 </p>
                 <p className="mt-4">
-                  <strong>لماذا تختار منتجات {selectedCategoryName} من لمسة بيوتي؟</strong>
+                  <strong>{t('products.whyChooseCategory', { category: selectedCategoryName })}</strong>
                 </p>
                 <ul className="list-disc list-inside mt-2 space-y-2">
-                  <li>✓ منتجات طبيعية 100% وآمنة للاستخدام اليومي</li>
-                  <li>✓ جودة عالية مضمونة ومنتجات أصلية</li>
-                  <li>✓ شحن مجاني وسريع لجميع مناطق المملكة</li>
-                  <li>✓ سياسة إرجاع مرنة لمدة 14 يومًا</li>
-                  <li>✓ خدمة عملاء متميزة على مدار الساعة</li>
+                  <li>{t('products.benefit1')}</li>
+                  <li>{t('products.benefit2')}</li>
+                  <li>{t('products.benefit3')}</li>
+                  <li>{t('products.benefit4')}</li>
+                  <li>{t('products.benefit5')}</li>
                 </ul>
                 <p className="mt-4">
-                  اطلب الآن واستمتع بتجربة تسوق مميزة مع توصيل سريع خلال 3-5 أيام عمل فقط!
+                  {t('products.orderNow')}
                 </p>
               </div>
             </section>
@@ -246,15 +246,15 @@ export default function Products() {
               <Package className="w-12 h-12 text-muted-foreground" />
             </div>
           </div>
-          <h3 className="text-xl font-semibold mb-2">لا توجد منتجات</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('products.noProducts')}</h3>
           <p className="text-muted-foreground mb-6">
             {selectedCategory
-              ? `لم نجد منتجات في هذا القسم`
-              : 'لا توجد منتجات متاحة حالياً'}
+              ? t('products.noProductsInCategory')
+              : t('products.noProductsAvailable')}
           </p>
           {selectedCategory && (
             <Button onClick={() => setSelectedCategory(null)}>
-              عرض جميع المنتجات
+              {t('products.showAllProducts')}
             </Button>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+﻿import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import ProductRating from '@/components/product/ProductRating';
 import TrustBadges from '@/components/product/TrustBadges';
 import SocialShare from '@/components/product/SocialShare';
@@ -22,6 +23,7 @@ import { ReviewForm } from '@/components/product/ReviewForm';
 import { ReviewsList } from '@/components/product/ReviewsList';
 import { ReviewSchema } from '@/components/SEO/ReviewSchema';
 import { getCareType } from '@/utils/categoryHelpers';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,23 +38,21 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const { t, language, getLocalizedField, getLocalizedPath, formatPrice, formatPriceRaw, isRTL } = useLanguageCurrency();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
       let query;
       
-      // التحقق إذا كان id هو UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '');
       
       if (isUUID) {
-        // جلب بواسطة UUID (للروابط القديمة)
         query = supabase
           .from('products')
           .select('*')
           .eq('id', id);
       } else {
-        // جلب بواسطة Slug (الروابط الجديدة)
         query = supabase
           .from('products')
           .select('*')
@@ -62,16 +62,14 @@ export default function ProductDetail() {
       const { data: productData, error: productError } = await query.maybeSingle();
       
       if (productError) throw productError;
-      if (!productData) throw new Error('المنتج غير موجود');
+      if (!productData) throw new Error('Product not found');
 
-      // جلب الصور المرتبطة
       const { data: images } = await supabase
         .from('product_images')
         .select('*')
         .eq('product_id', productData.id)
         .order('display_order', { ascending: true });
 
-      // جلب التقييمات
       const { data: reviews } = await supabase
         .from('reviews')
         .select('*')
@@ -79,7 +77,6 @@ export default function ProductDetail() {
         .eq('is_approved', true)
         .order('created_at', { ascending: false });
 
-      // جلب إحصائيات التقييم
       const { data: ratingStats } = await supabase.rpc('get_product_rating', {
         product_uuid: productData.id,
       });
@@ -93,20 +90,23 @@ export default function ProductDetail() {
     },
   });
 
-  // إعادة توجيه من UUID إلى Slug
   useEffect(() => {
     if (product && product.slug && id !== product.slug) {
-      navigate(`/product/${product.slug}`, { replace: true });
+      navigate(getLocalizedPath(`/product/${product.slug}`), { replace: true });
     }
-  }, [product, id, navigate]);
+  }, [product, id, navigate, getLocalizedPath]);
+
+  const productName = product ? getLocalizedField(product, 'name') : '';
+  const productCategory = product ? (getLocalizedField(product, 'category') || product.category) : '';
+  const productDescription = product ? getLocalizedField(product, 'description') : '';
 
   const handleAddToCart = () => {
     if (!product) return;
     
     if (product.stock_quantity <= 0) {
       toast({
-        title: 'غير متوفر',
-        description: 'هذا المنتج غير متوفر حالياً',
+        title: t('common.unavailable'),
+        description: t('common.unavailableDesc'),
         variant: 'destructive',
       });
       return;
@@ -122,8 +122,8 @@ export default function ProductDetail() {
     }
 
     toast({
-      title: 'تمت الإضافة',
-      description: `تم إضافة ${quantity}x ${product.name_ar} إلى السلة`,
+      title: t('common.added'),
+      description: t('product.addedToCartDesc', { quantity, name: productName }),
     });
   };
 
@@ -132,14 +132,13 @@ export default function ProductDetail() {
     
     if (product.stock_quantity <= 0) {
       toast({
-        title: 'غير متوفر',
-        description: 'هذا المنتج غير متوفر حالياً',
+        title: t('common.unavailable'),
+        description: t('common.unavailableDesc'),
         variant: 'destructive',
       });
       return;
     }
 
-    // Add to cart first
     for (let i = 0; i < quantity; i++) {
       addToCart({
         id: product.id,
@@ -149,15 +148,14 @@ export default function ProductDetail() {
       });
     }
 
-    // Navigate to checkout
-    navigate('/checkout');
+    navigate(getLocalizedPath('/checkout'));
   };
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="text-center">
-          <p className="text-muted-foreground">جاري التحميل...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -167,44 +165,44 @@ export default function ProductDetail() {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">المنتج غير موجود</h2>
-          <Button onClick={() => navigate('/products')}>
-            العودة للمنتجات
+          <h2 className="text-2xl font-bold">{t('product.notFound')}</h2>
+          <Button onClick={() => navigate(getLocalizedPath('/products'))}>
+            {t('product.backToProducts')}
           </Button>
         </div>
       </div>
     );
   }
 
-  const productUrl = `/product/${product.slug || product.id}`;
+  const productUrl = getLocalizedPath(`/product/${product.slug || product.id}`);
   const isInStock = product.stock_quantity > 0;
   
-  // جمع كل الصور للـ Schema
   const allImages = product.images.length > 0 
     ? product.images.map(img => img.image_url) 
     : product.image_url ? [product.image_url] : [];
+
+  const { amount: priceAmount, symbol: priceSymbol } = formatPriceRaw(product.price);
   
-  // FAQs المتعلقة بالمنتج
   const productFAQs = [
     {
-      question: `كيف أستخدم ${product.name_ar}؟`,
-      answer: product.how_to_use_ar || `للحصول على أفضل النتائج من ${product.name_ar}، يُنصح باتباع التعليمات الموجودة على العبوة. منتجاتنا مصممة لتكون سهلة الاستخدام ومناسبة للاستخدام اليومي.`,
+      question: t('productDetail.faqHowToUseQ', { name: productName }),
+      answer: getLocalizedField(product, 'how_to_use') || t('productDetail.faqHowToUseA', { name: productName }),
     },
     {
-      question: 'هل المنتج مناسب لجميع أنواع البشرة/الشعر؟',
-      answer: 'جميع منتجات لمسة بيوتي مصنوعة من مكونات طبيعية 100% وآمنة للاستخدام. ومع ذلك، ننصح بإجراء اختبار حساسية بسيط قبل الاستخدام الكامل.',
+      question: t('productDetail.faqSuitableQ'),
+      answer: t('productDetail.faqSuitableA'),
     },
     {
-      question: 'كم يستغرق الشحن؟',
-      answer: 'نوفر شحن مجاني لجميع أنحاء المملكة العربية السعودية. عادةً ما يستغرق التوصيل من 3 إلى 5 أيام عمل.',
+      question: t('productDetail.faqShippingQ'),
+      answer: t('productDetail.faqShippingA'),
     },
     {
-      question: 'هل يمكنني إرجاع المنتج؟',
-      answer: 'نعم، نقدم سياسة إرجاع مرنة لمدة 14 يومًا. يمكنك إرجاع المنتج إذا لم يكن مناسبًا لك، بشرط أن يكون في حالته الأصلية.',
+      question: t('productDetail.faqReturnQ'),
+      answer: t('productDetail.faqReturnA'),
     },
     {
-      question: `ما هي مكونات ${product.name_ar}؟`,
-      answer: product.ingredients_ar || 'جميع منتجاتنا مصنوعة من مكونات طبيعية عالية الجودة ومختارة بعناية لتوفير أفضل النتائج للعناية بالبشرة والشعر.',
+      question: t('productDetail.faqIngredientsQ', { name: productName }),
+      answer: getLocalizedField(product, 'ingredients') || t('productDetail.faqIngredientsA'),
     },
   ];
 
@@ -214,12 +212,12 @@ export default function ProductDetail() {
         title={
           product.seo_title 
             ? product.seo_title.length > 60 
-              ? `${product.name_ar} | لمسة بيوتي` 
+              ? `${productName} | ${t('common.storeName')}` 
               : product.seo_title
-            : `${product.name_ar} | لمسة بيوتي`
+            : `${productName} | ${t('common.storeName')}`
         }
-        description={product.seo_description || product.description_ar || `اكتشف ${product.name_ar} من لمسة بيوتي - منتج طبيعي 100% للعناية ${getCareType(product.category)} - شحن مجاني في السعودية`}
-        keywords={product.seo_keywords || `${product.name_ar}, ${product.category}, منتجات طبيعية, لمسة بيوتي, عناية طبيعية, منتجات عضوية السعودية, ${product.made_in || ''}`}
+        description={product.seo_description || productDescription || t('productDetail.seoDesc', { name: productName })}
+        keywords={product.seo_keywords || `${productName}, ${product.category}, ${t('common.naturalProducts')}, ${t('common.storeName')}, ${product.made_in || ''}`}
         image={allImages[0] || product.image_url || undefined}
         type="product"
         url={`https://lamsetbeauty.com${productUrl}`}
@@ -230,16 +228,16 @@ export default function ProductDetail() {
         modifiedTime={product.updated_at}
       />
       <ProductSchema
-        name={product.name_ar}
-        description={product.description_ar || product.seo_description || `${product.name_ar} - منتج طبيعي 100% من لمسة بيوتي`}
+        name={productName}
+        description={productDescription || product.seo_description || `${productName} - ${t('common.naturalProduct')}`}
         image={product.image_url || ''}
         images={allImages}
         price={Number(product.price)}
         currency="SAR"
         sku={product.id}
         availability={isInStock ? 'InStock' : 'OutOfStock'}
-        category={product.category_ar || product.category}
-        brand="لمسة بيوتي"
+        category={productCategory}
+        brand={t('common.brand')}
         gtin={product.gtin}
         mpn={product.mpn}
         slug={product.slug}
@@ -254,7 +252,7 @@ export default function ProductDetail() {
         videoUrl={product.video_url || undefined}
       />
       <ReviewSchema 
-        productName={product.name_ar}
+        productName={productName}
         reviews={product.reviews?.map((r: any) => ({
           author: r.customer_name,
           rating: r.rating,
@@ -265,10 +263,10 @@ export default function ProductDetail() {
       <FAQSchema faqs={product.faqs || productFAQs} />
       <BreadcrumbSchema
         items={[
-          { name: 'الرئيسية', url: '/' },
-          { name: 'المنتجات', url: '/products' },
-          { name: product.category_ar || product.category, url: `/products?category=${product.category}` },
-          { name: product.name_ar, url: productUrl },
+          { name: t('nav.home'), url: getLocalizedPath('/') },
+          { name: t('nav.products'), url: getLocalizedPath('/products') },
+          { name: productCategory, url: getLocalizedPath(`/products?category=${product.category}`) },
+          { name: productName, url: productUrl },
         ]}
       />
       
@@ -276,15 +274,15 @@ export default function ProductDetail() {
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+            <BreadcrumbLink href={getLocalizedPath('/')}>{t('nav.home')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
+            <BreadcrumbLink href={getLocalizedPath('/products')}>{t('nav.products')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{product.name_ar}</BreadcrumbPage>
+            <BreadcrumbPage>{productName}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -292,22 +290,19 @@ export default function ProductDetail() {
       <div className="grid md:grid-cols-2 gap-12">
         <ProductImageGallery 
           images={product.images.length > 0 ? product.images : [{ image_url: product.image_url }]}
-          productName={product.name_ar}
+          productName={productName}
         />
 
         <div className="space-y-8">
           <div className="space-y-4">
-            {/* Category Badge */}
             <Badge variant="secondary" className="text-sm bg-gradient-primary text-white hover:opacity-90 transition-opacity px-4 py-1.5">
-              {product.category_ar || product.category}
+              {productCategory}
             </Badge>
             
-            {/* Product Name */}
             <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent leading-tight" itemProp="name">
-              {product.name_ar}
+              {productName}
             </h1>
             
-            {/* Rating */}
             {product.ratingStats && product.ratingStats.review_count > 0 && (
               <div className="flex items-center gap-2">
                 <ProductRating 
@@ -318,28 +313,26 @@ export default function ProductDetail() {
               </div>
             )}
             
-            {/* SKU */}
             <p className="text-sm text-muted-foreground flex items-center gap-2">
-              <span className="font-medium">رمز المنتج:</span>
+              <span className="font-medium">{t('product.sku')}:</span>
               <span className="font-mono bg-muted px-3 py-1 rounded-md">{product.id.slice(0, 8).toUpperCase()}</span>
             </p>
           </div>
 
-          {/* Price Card */}
           <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-2 border-primary/20 shadow-soft">
             <div className="flex items-baseline gap-3 mb-2">
               <span className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-                {product.price.toFixed(2)}
+                {priceAmount}
               </span>
-              <span className="text-2xl text-muted-foreground font-medium">ريال</span>
+              <span className="text-2xl text-muted-foreground font-medium">{priceSymbol}</span>
             </div>
             {product.original_price && product.original_price > product.price && (
               <div className="flex items-center gap-3">
                 <span className="text-lg text-muted-foreground line-through">
-                  {product.original_price.toFixed(2)} ريال
+                  {formatPrice(product.original_price)}
                 </span>
                 <Badge variant="destructive" className="text-sm font-bold">
-                  خصم {Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                  {t('common.discount')} {Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
                 </Badge>
               </div>
             )}
@@ -347,7 +340,7 @@ export default function ProductDetail() {
 
           <div className="space-y-6">
             <div className="p-6 bg-card rounded-xl border shadow-sm">
-              <p className="text-sm font-semibold text-muted-foreground mb-4">اختر الكمية</p>
+              <p className="text-sm font-semibold text-muted-foreground mb-4">{t('product.chooseQuantity')}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Button
@@ -377,14 +370,14 @@ export default function ProductDetail() {
                   <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-950/20 rounded-lg">
                     <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                     <p className="text-sm font-medium text-green-700 dark:text-green-400">
-                      متوفر ({product.stock_quantity})
+                      {t('product.inStock')} ({product.stock_quantity})
                     </p>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950/20 rounded-lg">
                     <div className="h-2 w-2 rounded-full bg-red-500" />
                     <p className="text-sm font-medium text-red-700 dark:text-red-400">
-                      غير متوفر
+                      {t('product.outOfStock')}
                     </p>
                   </div>
                 )}
@@ -399,8 +392,8 @@ export default function ProductDetail() {
                 className="w-full h-14 text-lg font-semibold rounded-xl border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
                 disabled={product.stock_quantity <= 0}
               >
-                <ShoppingCart className="ml-2 h-6 w-6" />
-                أضف إلى السلة
+                <ShoppingCart className="me-2 h-6 w-6" />
+                {t('product.addToCart')}
               </Button>
               
               <Button
@@ -409,30 +402,27 @@ export default function ProductDetail() {
                 className="w-full h-14 text-lg font-semibold rounded-xl bg-gradient-primary hover:opacity-90 transition-all duration-300 shadow-soft hover:shadow-card"
                 disabled={product.stock_quantity <= 0}
               >
-                <Zap className="ml-2 h-6 w-6" />
-                اشتر الآن
+                <Zap className="me-2 h-6 w-6" />
+                {t('product.buyNow')}
               </Button>
               
-              {/* Share Button */}
               <SocialShare 
-                productName={product.name_ar}
+                productName={productName}
               />
             </div>
           </div>
 
-          {/* Trust Badges */}
           <TrustBadges />
         </div>
       </div>
 
-      {/* Product Details Tabs */}
       <ProductTabs
-        description={product.description_ar}
-        long_description_ar={product.long_description_ar}
-        ingredients={product.ingredients_ar}
-        howToUse={product.how_to_use_ar}
-        benefits={product.benefits_ar}
-        warnings={product.warnings_ar}
+        description={productDescription}
+        long_description_ar={getLocalizedField(product, 'long_description')}
+        ingredients={getLocalizedField(product, 'ingredients')}
+        howToUse={getLocalizedField(product, 'how_to_use')}
+        benefits={getLocalizedField(product, 'benefits')}
+        warnings={getLocalizedField(product, 'warnings')}
         sizeInfo={product.size_info}
         madeIn={product.made_in}
         key_features={product.key_features}
@@ -440,43 +430,39 @@ export default function ProductDetail() {
         faqs={product.faqs}
       />
 
-      {/* SEO-rich content section */}
-      {!product.long_description_ar && product.description_ar && (
+      {!getLocalizedField(product, 'long_description') && productDescription && (
         <section className="mt-8 prose prose-lg max-w-none" itemProp="description">
-          <h2 className="text-2xl font-bold text-primary mb-4">عن {product.name_ar}</h2>
+          <h2 className="text-2xl font-bold text-primary mb-4">{t('product.about')} {productName}</h2>
           <div className="text-muted-foreground leading-relaxed">
-            <p className="whitespace-pre-line">{product.description_ar}</p>
+            <p className="whitespace-pre-line">{productDescription}</p>
             
-            {product.category_ar && (
+            {productCategory && (
               <p className="mt-4">
-                يعد {product.name_ar} من أفضل منتجات {product.category_ar} الطبيعية المتوفرة في المملكة العربية السعودية. 
-                صُمم خصيصاً لتلبية احتياجات العناية {getCareType(product.category)} 
-                بأعلى معايير الجودة.
+                {t('productDetail.aboutCategoryText', { name: productName, category: productCategory })}
               </p>
             )}
             
             {product.made_in && (
               <p className="mt-3">
-                <strong>المنشأ:</strong> منتج أصلي من {product.made_in}، يتميز بجودة عالية ومكونات طبيعية 100%.
+                <strong>{t('productDetail.originLabel')}</strong> {t('productDetail.originText', { country: product.made_in })}
               </p>
             )}
             
             <p className="mt-3">
-              <strong>الشحن:</strong> نوفر شحن مجاني سريع لجميع مناطق المملكة العربية السعودية مع ضمان التوصيل خلال 3-5 أيام عمل.
+              <strong>{t('productDetail.shippingLabel')}</strong> {t('productDetail.shippingText')}
             </p>
             
             <p className="mt-3">
-              <strong>سياسة الإرجاع:</strong> نقدم سياسة إرجاع مرنة لمدة 14 يومًا لضمان رضاك التام عن المنتج.
+              <strong>{t('productDetail.returnLabel')}</strong> {t('productDetail.returnText')}
             </p>
           </div>
         </section>
       )}
 
-      {/* Reviews Section */}
       <div className="mt-16 space-y-8">
         <div className="text-center space-y-3">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">التقييمات والمراجعات</h2>
-          <p className="text-muted-foreground text-lg">شاركنا تجربتك مع المنتج</p>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">{t('product.reviewsTitle')}</h2>
+          <p className="text-muted-foreground text-lg">{t('product.shareExperience')}</p>
         </div>
         <div className="grid lg:grid-cols-2 gap-8">
           <ReviewsList productId={product.id} />
@@ -484,7 +470,6 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Related Products */}
       <RelatedProducts currentProductId={product.id} category={product.category} />
     </div>
   );

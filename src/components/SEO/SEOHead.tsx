@@ -1,4 +1,6 @@
 import { Helmet } from 'react-helmet-async';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import { DOMAIN, getAlternateUrl } from '@/i18n';
 
 interface SEOHeadProps {
   title: string;
@@ -16,8 +18,7 @@ interface SEOHeadProps {
   imageAlt?: string;
   author?: string;
   category?: string;
-  language?: 'ar' | 'en';
-  enUrl?: string;
+  noindex?: boolean;
 }
 
 export const SEOHead = ({
@@ -28,17 +29,20 @@ export const SEOHead = ({
   url,
   type = 'website',
   price,
-  currency = 'SAR',
+  currency: currencyProp,
   availability,
   publishedTime,
   modifiedTime,
   structuredData,
   imageAlt,
-  author = 'لمسة بيوتي',
+  author,
   category,
-  language = 'ar',
-  enUrl,
+  noindex = false,
 }: SEOHeadProps) => {
+  const { language, currency: activeCurrency } = useLanguageCurrency();
+  const seoAuthor = author || (language === 'ar' ? 'لمسة بيوتي' : 'Lamset Beauty');
+  const seoCurrency = currencyProp || activeCurrency;
+
   // Optimize title (max 60 chars - Google displays up to 60)
   const optimizedTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;
   // Add site name only if not already included
@@ -53,38 +57,45 @@ export const SEOHead = ({
     ? description.substring(0, 157) + '...'
     : description;
   
-  // SEO: Use provided URL or construct from window location (decode Arabic URLs properly)
+  // SEO: Use provided URL or construct from window location
   const decodedPath = decodeURIComponent(window.location.pathname);
-  // Ensure URL is always absolute
-  let currentUrl = url || `https://lamsetbeauty.com${decodedPath}`;
-  // If url prop is relative, make it absolute
+  let currentUrl = url || `${DOMAIN}${decodedPath}`;
   if (url && url.startsWith('/')) {
-    currentUrl = `https://lamsetbeauty.com${url}`;
+    currentUrl = `${DOMAIN}${url}`;
   }
+
+  // Generate alternate URLs for hreflang
+  const arUrl = getAlternateUrl(decodedPath, 'ar');
+  const enUrl = getAlternateUrl(decodedPath, 'en');
 
   return (
     <Helmet>
       {/* Primary Meta Tags */}
+      <html lang={language} dir={language === 'ar' ? 'rtl' : 'ltr'} />
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
       <meta name="description" content={optimizedDescription} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="application-name" content={language === 'ar' ? 'لمسة بيوتي' : 'Lamset Beauty'} />
-      <meta name="author" content={author} />
-      <meta name="publisher" content={author} />
-      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-      <meta name="googlebot" content="index, follow" />
+      <meta name="author" content={seoAuthor} />
+      <meta name="publisher" content={seoAuthor} />
+      {noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      )}
+      <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"} />
       <meta httpEquiv="content-language" content={language === 'ar' ? 'ar-SA' : 'en-US'} />
       <meta name="language" content={language === 'ar' ? 'Arabic' : 'English'} />
       {category && <meta name="article:section" content={category} />}
       
-      {/* Canonical & Alternate Languages */}
+      {/* Canonical & hreflang Alternate Languages */}
       <link rel="canonical" href={currentUrl} />
-      <link rel="alternate" hrefLang="ar" href={currentUrl} />
-      <link rel="alternate" hrefLang="ar-SA" href={currentUrl} />
-      {enUrl && <link rel="alternate" hrefLang="en" href={enUrl} />}
-      {enUrl && <link rel="alternate" hrefLang="en-US" href={enUrl} />}
-      <link rel="alternate" hrefLang="x-default" href={currentUrl} />
+      <link rel="alternate" hrefLang="ar" href={arUrl} />
+      <link rel="alternate" hrefLang="ar-SA" href={arUrl} />
+      <link rel="alternate" hrefLang="en" href={enUrl} />
+      <link rel="alternate" hrefLang="en-US" href={enUrl} />
+      <link rel="alternate" hrefLang="x-default" href={arUrl} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
@@ -107,7 +118,7 @@ export const SEOHead = ({
         <>
           {publishedTime && <meta property="article:published_time" content={publishedTime} />}
           {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-          <meta property="article:author" content={author} />
+          <meta property="article:author" content={seoAuthor} />
           {category && <meta property="article:section" content={category} />}
         </>
       )}
@@ -116,7 +127,7 @@ export const SEOHead = ({
       {type === 'product' && price && (
         <>
           <meta property="product:price:amount" content={price.toString()} />
-          <meta property="product:price:currency" content={currency} />
+          <meta property="product:price:currency" content={seoCurrency} />
           {availability && (
             <meta property="product:availability" content={availability} />
           )}

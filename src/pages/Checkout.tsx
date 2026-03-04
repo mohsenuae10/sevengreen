@@ -15,6 +15,7 @@ import { Loader2, ShoppingBag, CreditCard, Lock, ShieldCheck, Package, MapPin, M
 import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import { Helmet } from 'react-helmet-async';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 // قائمة الدول العربية ودول الخليج
 const ARAB_COUNTRIES = [
@@ -63,6 +64,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
   const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [expressAvailable, setExpressAvailable] = useState<boolean | null>(null);
+  const { t, getLocalizedPath, language } = useLanguageCurrency();
 
   const handlePaymentSuccess = async () => {
     try {
@@ -76,7 +78,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
       });
 
       clearCart();
-      navigate(`/order-success/${orderId}`);
+      navigate(getLocalizedPath(`/order-success/${orderId}`));
     } catch (error) {
       console.error('Error after payment:', error);
     }
@@ -102,7 +104,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
 
       if (error) {
         toast({
-          title: 'خطأ في الدفع',
+          title: t('checkout.paymentError'),
           description: error.message,
           variant: 'destructive',
         });
@@ -112,8 +114,8 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
     } catch (error) {
       console.error('Payment error:', error);
       toast({
-        title: 'خطأ',
-        description: 'حدث خطأ أثناء معالجة الدفع',
+        title: t('common.error'),
+        description: t('checkout.paymentProcessError'),
         variant: 'destructive',
       });
     } finally {
@@ -147,7 +149,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
       if (error) {
         console.error('❌ Apple Pay error:', error);
         toast({
-          title: 'خطأ في الدفع',
+          title: t('checkout.paymentError'),
           description: error.message,
           variant: 'destructive',
         });
@@ -156,8 +158,8 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
     } catch (error) {
       console.error('❌ Apple Pay exception:', error);
       toast({
-        title: 'خطأ',
-        description: 'حدث خطأ أثناء معالجة الدفع',
+        title: t('common.error'),
+        description: t('checkout.paymentProcessError'),
         variant: 'destructive',
       });
       setIsProcessing(false);
@@ -176,8 +178,8 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
             <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full mb-4">
               <ShieldCheck className="h-7 w-7 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">الدفع السريع والآمن</h3>
-            <p className="text-sm text-muted-foreground">ادفع بسرعة وأمان باستخدام Apple Pay أو Google Pay</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">{t('checkout.expressPayment')}</h3>
+            <p className="text-sm text-muted-foreground">{t('checkout.expressPaymentDesc')}</p>
           </div>
           
           <div className="bg-background/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
@@ -217,10 +219,10 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
           {expressAvailable === false && (
             <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl text-center backdrop-blur-sm">
               <div className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
-                الدفع السريع غير متاح حالياً
+                {t('checkout.expressNotAvailable')}
               </div>
               <div className="text-xs text-amber-700 dark:text-amber-300">
-                استخدم بطاقة الائتمان أدناه للمتابعة
+                {t('checkout.useCardInstead')}
               </div>
             </div>
           )}
@@ -234,7 +236,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
         </div>
         <div className="relative flex justify-center">
           <span className="bg-background px-6 py-2 text-sm font-bold text-muted-foreground rounded-full border-2 border-border shadow-sm">
-            أو ادفع بالبطاقة
+            {t('checkout.orPayByCard')}
           </span>
         </div>
       </div>
@@ -251,15 +253,15 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
                   <CreditCard className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">معلومات البطاقة</h3>
-                  <p className="text-xs text-muted-foreground">جميع المعلومات محمية ومشفرة</p>
+                  <h3 className="text-lg font-bold text-foreground">{t('checkout.cardInfo')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('checkout.cardInfoProtected')}</p>
                 </div>
             </div>
           </div>
             
             {/* شعارات طرق الدفع المقبولة */}
             <div className="mb-4">
-              <p className="text-xs text-muted-foreground mb-3 text-center">طرق الدفع المقبولة</p>
+              <p className="text-xs text-muted-foreground mb-3 text-center">{t('checkout.acceptedPayments')}</p>
               <div className="flex gap-2 justify-center flex-wrap">
                 {[
                   { name: 'Visa', file: 'visa.svg' },
@@ -304,12 +306,12 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
           {isProcessing ? (
             <div className="flex items-center gap-3">
               <Loader2 className="h-6 w-6 animate-spin" />
-              <span>جاري المعالجة الآمنة...</span>
+              <span>{t('checkout.processingSecure')}</span>
             </div>
           ) : (
             <div className="flex items-center gap-3">
               <Lock className="h-5 w-5" />
-              <span>إتمام الدفع الآمن</span>
+              <span>{t('checkout.completeSecurePayment')}</span>
               <ShieldCheck className="h-5 w-5" />
             </div>
           )}
@@ -318,7 +320,7 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
         <div className="flex items-center justify-center gap-3 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/50 rounded-xl">
           <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
           <span className="text-sm font-medium text-green-800 dark:text-green-200">
-            الدفع مشفر بالكامل وآمن بنسبة 100%
+            {t('checkout.paymentEncrypted')}
           </span>
         </div>
       </form>
@@ -334,6 +336,7 @@ export default function Checkout() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const { t, language, getLocalizedPath, formatPrice, isRTL } = useLanguageCurrency();
 
   const [formData, setFormData] = useState({
     customer_name: '',
@@ -406,11 +409,11 @@ export default function Checkout() {
       
       if (items.length === 0 && !clientSecret) {
         toast({
-          title: 'السلة فارغة',
-          description: 'يرجى إضافة منتجات للسلة أولاً',
+          title: t('cart.empty'),
+          description: t('checkout.addProductsFirst'),
           variant: 'destructive',
         });
-        navigate('/cart');
+        navigate(getLocalizedPath('/cart'));
       }
     }, 500);
     
@@ -422,7 +425,7 @@ export default function Checkout() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="mr-3 text-muted-foreground">جاري التحميل...</span>
+          <span className="ms-3 text-muted-foreground">{t('common.loading')}</span>
         </div>
       </div>
     );
@@ -440,8 +443,8 @@ export default function Checkout() {
 
     if (!formData.customer_name || !formData.customer_email || !formData.customer_phone || !formData.city || !formData.shipping_address) {
       toast({
-        title: 'خطأ',
-        description: 'يرجى ملء جميع الحقول المطلوبة',
+        title: t('common.error'),
+        description: t('checkout.fillRequiredFields'),
         variant: 'destructive',
       });
       return;
@@ -476,14 +479,14 @@ export default function Checkout() {
       setOrderNumber(data.order_number);
 
       toast({
-        title: 'تم إنشاء الطلب',
-        description: 'الآن قم بإتمام عملية الدفع',
+        title: t('checkout.orderCreated'),
+        description: t('checkout.completePaymentNow'),
       });
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
-        title: 'خطأ',
-        description: 'حدث خطأ أثناء إنشاء الطلب',
+        title: t('common.error'),
+        description: t('checkout.orderCreateError'),
         variant: 'destructive',
       });
     } finally {
@@ -494,17 +497,17 @@ export default function Checkout() {
   return (
     <>
       <SEOHead
-        title="إتمام الطلب"
-        description="أكمل طلبك من لمسة بيوتي للمنتجات الطبيعية"
+        title={t('checkout.title')}
+        description={t('checkout.seoDesc')}
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <BreadcrumbSchema
         items={[
-          { name: 'الرئيسية', url: '/' },
-          { name: 'سلة التسوق', url: '/cart' },
-          { name: 'إتمام الطلب', url: '/checkout' },
+          { name: t('nav.home'), url: getLocalizedPath('/') },
+          { name: t('cart.title'), url: getLocalizedPath('/cart') },
+          { name: t('checkout.title'), url: getLocalizedPath('/checkout') },
         ]}
       />
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -515,9 +518,9 @@ export default function Checkout() {
             <Package className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-l from-primary via-primary to-primary/80 bg-clip-text text-transparent mb-2">
-            إتمام الطلب
+            {t('checkout.title')}
           </h1>
-          <p className="text-muted-foreground">أكمل بياناتك لإتمام عملية الشراء الآمنة</p>
+          <p className="text-muted-foreground">{t('checkout.completeYourPurchase')}</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -532,8 +535,8 @@ export default function Checkout() {
                       <MapPin className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-foreground">معلومات الشحن</h2>
-                      <p className="text-sm text-muted-foreground">أدخل عنوانك لإتمام التوصيل</p>
+                      <h2 className="text-2xl font-bold text-foreground">{t('checkout.shippingInfo')}</h2>
+                      <p className="text-sm text-muted-foreground">{t('checkout.enterAddressForDelivery')}</p>
                     </div>
                   </div>
 
@@ -542,7 +545,7 @@ export default function Checkout() {
                       <div className="space-y-2">
                         <Label htmlFor="customer_name" className="flex items-center gap-2 text-sm font-medium">
                           <User className="h-4 w-4 text-primary" />
-                          الاسم الكامل *
+                          {t('checkout.fullName')} *
                         </Label>
                         <Input
                           id="customer_name"
@@ -551,14 +554,14 @@ export default function Checkout() {
                           onChange={handleInputChange}
                           required
                           className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
-                          placeholder="أدخل اسمك الكامل"
+                          placeholder={t('checkout.fullNamePlaceholder')}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="country_code" className="flex items-center gap-2 text-sm font-medium">
                           <Globe className="h-4 w-4 text-primary" />
-                          الدولة *
+                          {t('checkout.country')} *
                         </Label>
                         <Select
                           value={formData.country_code}
@@ -594,7 +597,7 @@ export default function Checkout() {
                     <div className="space-y-2">
                       <Label htmlFor="customer_phone" className="flex items-center gap-2 text-sm font-medium">
                         <Phone className="h-4 w-4 text-primary" />
-                        رقم الهاتف *
+                        {t('checkout.phone')} *
                       </Label>
                       <div className="relative">
                         <div className="absolute left-0 top-0 h-12 px-4 bg-muted/50 rounded-l-xl border-2 border-r-0 border-border flex items-center gap-2">
@@ -618,7 +621,7 @@ export default function Checkout() {
                     <div className="space-y-2">
                       <Label htmlFor="customer_email" className="flex items-center gap-2 text-sm font-medium">
                         <Mail className="h-4 w-4 text-primary" />
-                        البريد الإلكتروني *
+                        {t('checkout.email')} *
                       </Label>
                       <Input
                         id="customer_email"
@@ -636,7 +639,7 @@ export default function Checkout() {
                       <div className="space-y-2">
                         <Label htmlFor="city" className="flex items-center gap-2 text-sm font-medium">
                           <MapPin className="h-4 w-4 text-primary" />
-                          المدينة *
+                          {t('checkout.city')} *
                         </Label>
                         <Input
                           id="city"
@@ -645,14 +648,14 @@ export default function Checkout() {
                           onChange={handleInputChange}
                           required
                           className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
-                          placeholder="المدينة"
+                          placeholder={t('checkout.city')}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="shipping_address" className="flex items-center gap-2 text-sm font-medium">
                           <MapPin className="h-4 w-4 text-primary" />
-                          الحي *
+                          {t('checkout.neighborhood')} *
                         </Label>
                         <Input
                           id="shipping_address"
@@ -661,7 +664,7 @@ export default function Checkout() {
                           onChange={handleInputChange}
                           required
                           className="h-12 rounded-xl border-2 focus:border-primary transition-colors"
-                          placeholder="اسم الحي أو المنطقة"
+                          placeholder={t('checkout.neighborhoodPlaceholder')}
                         />
                       </div>
                     </div>
@@ -669,7 +672,7 @@ export default function Checkout() {
                     <div className="space-y-2">
                       <Label htmlFor="notes" className="flex items-center gap-2 text-sm font-medium">
                         <FileText className="h-4 w-4 text-primary" />
-                        ملاحظات إضافية (اختياري)
+                        {t('checkout.additionalNotes')}
                       </Label>
                       <Textarea
                         id="notes"
@@ -678,7 +681,7 @@ export default function Checkout() {
                         onChange={handleInputChange}
                         rows={2}
                         className="rounded-xl border-2 focus:border-primary transition-colors resize-none"
-                        placeholder="أي تعليمات خاصة للتوصيل..."
+                        placeholder={t('checkout.deliveryInstructions')}
                       />
                     </div>
 
@@ -690,13 +693,13 @@ export default function Checkout() {
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                          جاري المعالجة...
+                          <Loader2 className="me-2 h-5 w-5 animate-spin" />
+                          {t('checkout.processing')}
                         </>
                       ) : (
                         <>
-                          متابعة للدفع
-                          <CreditCard className="mr-2 h-5 w-5" />
+                          {t('checkout.proceedToPayment')}
+                          <CreditCard className="ms-2 h-5 w-5" />
                         </>
                       )}
                     </Button>
@@ -714,18 +717,18 @@ export default function Checkout() {
                       <Lock className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-foreground">الدفع الآمن</h2>
-                      <p className="text-sm text-muted-foreground">أكمل عملية الدفع بأمان تام</p>
+                      <h2 className="text-2xl font-bold text-foreground">{t('checkout.securePayment')}</h2>
+                      <p className="text-sm text-muted-foreground">{t('checkout.completePaymentSafely')}</p>
                     </div>
                   </div>
 
                   {!stripePromise ? (
                     <div className="p-8 text-center space-y-4 bg-destructive/10 rounded-xl border-2 border-destructive/20">
                       <div className="text-destructive text-lg font-bold">
-                        ⚠️ خطأ في تهيئة نظام الدفع
+                        ⚠️ {t('checkout.paymentSystemError')}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        يرجى التواصل مع الدعم الفني
+                        {t('checkout.contactSupport')}
                       </p>
                     </div>
                   ) : (
@@ -736,7 +739,7 @@ export default function Checkout() {
                         appearance: {
                           theme: 'stripe',
                         },
-                        locale: 'ar',
+                        locale: language === 'ar' ? 'ar' : 'en',
                       }}
                     >
                       <CheckoutForm
@@ -763,7 +766,7 @@ export default function Checkout() {
                       <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                         <ShoppingBag className="h-5 w-5 text-primary" />
                       </div>
-                      <h3 className="text-xl font-bold text-foreground">ملخص الطلب</h3>
+                      <h3 className="text-xl font-bold text-foreground">{t('cart.orderSummary')}</h3>
                     </div>
                   </div>
 
@@ -783,35 +786,35 @@ export default function Checkout() {
                             )}
                             <div className="flex-1 min-w-0">
                               <div className="font-medium text-sm mb-1 line-clamp-2">{item.name_ar}</div>
-                              <div className="text-xs text-muted-foreground">الكمية: {item.quantity}</div>
+                              <div className="text-xs text-muted-foreground">{t('product.quantity')}: {item.quantity}</div>
                             </div>
                           </div>
-                          <span className="font-bold text-primary whitespace-nowrap">{(item.price * item.quantity).toFixed(2)} ريال</span>
+                          <span className="font-bold text-primary whitespace-nowrap">{formatPrice(item.price * item.quantity)}</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="border-t-2 border-dashed border-border pt-4 space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground font-medium">المجموع الفرعي</span>
-                        <span className="font-bold">{totalPrice.toFixed(2)} ريال</span>
+                        <span className="text-muted-foreground font-medium">{t('cart.subtotal')}</span>
+                        <span className="font-bold">{formatPrice(totalPrice)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground font-medium">رسوم الشحن</span>
-                        <span className="font-bold text-green-600">مجاناً</span>
+                        <span className="text-muted-foreground font-medium">{t('cart.shipping')}</span>
+                        <span className="font-bold text-green-600">{t('cart.freeShipping')}</span>
                       </div>
                     </div>
 
                     <div className="border-t-2 border-border pt-4 bg-primary/5 -mx-6 px-6 py-4 rounded-b-2xl">
                       <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold text-foreground">الإجمالي</span>
-                        <span className="text-2xl font-bold text-primary">{totalPrice.toFixed(2)} ريال</span>
+                        <span className="text-lg font-bold text-foreground">{t('cart.total')}</span>
+                        <span className="text-2xl font-bold text-primary">{formatPrice(totalPrice)}</span>
                       </div>
                     </div>
 
                     {/* شعارات طرق الدفع */}
                     <div className="mt-4 pt-4 border-t">
-                      <p className="text-xs text-muted-foreground mb-3 text-center font-medium">طرق الدفع المقبولة</p>
+                      <p className="text-xs text-muted-foreground mb-3 text-center font-medium">{t('checkout.acceptedPayments')}</p>
                       <div className="flex gap-2 justify-center flex-wrap">
                         {[
                           { name: 'Visa', file: 'visa.svg' },

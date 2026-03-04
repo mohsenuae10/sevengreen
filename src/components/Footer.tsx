@@ -1,12 +1,15 @@
 import { Facebook, Instagram, Mail } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import { Separator } from '@/components/ui/separator';
 import logo from '@/assets/logo.png';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import LocalizedLink from './LocalizedLink';
 
 export const Footer = () => {
+  const { t, language, getLocalizedField } = useLanguageCurrency();
+  
   const { data: settings } = useQuery({
     queryKey: ['public-settings-footer'],
     queryFn: async () => {
@@ -19,11 +22,11 @@ export const Footer = () => {
   });
 
   const { data: categories } = useQuery({
-    queryKey: ['footer-categories'],
+    queryKey: ['footer-categories', language],
     queryFn: async () => {
       const { data } = await supabase
         .from('categories')
-        .select('name_ar, slug')
+        .select('name_ar, name_en, slug')
         .eq('is_active', true)
         .order('display_order')
         .limit(6);
@@ -31,6 +34,10 @@ export const Footer = () => {
       return data || [];
     },
   });
+
+  const storeName = language === 'ar' 
+    ? (settings?.store_name || 'لمسة بيوتي') 
+    : 'Lamset Beauty';
 
   return (
     <footer className="border-t bg-secondary/30 mt-auto">
@@ -42,91 +49,89 @@ export const Footer = () => {
               <div className="flex items-center gap-3 mb-3">
                 <img src={logo} alt="لمسة بيوتي | Lamset Beauty" className="h-20 w-20 object-contain" />
                 <h3 className="text-xl font-bold text-primary">
-                  {settings?.store_name || 'لمسة بيوتي'}
+                  {storeName}
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                متجرك المتخصص في منتجات الجمال والعناية الفاخرة - مستحضرات تجميل أصلية ومنتجات عناية مميزة 100%
+                {t('footer.storeDescription')}
               </p>
             </div>
             
             <div>
-              <h4 className="text-sm font-semibold mb-3 text-primary">النشرة البريدية</h4>
+              <h4 className="text-sm font-semibold mb-3 text-primary">{t('footer.newsletter')}</h4>
               <NewsletterForm />
             </div>
           </div>
 
           {/* Column 2: Quick Links */}
           <div>
-            <h3 className="text-lg font-bold text-primary mb-4">روابط سريعة</h3>
+            <h3 className="text-lg font-bold text-primary mb-4">{t('footer.quickLinks')}</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <LocalizedLink to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-primary rounded-full"></span>
-                  الرئيسية
-                </Link>
+                  {t('nav.home')}
+                </LocalizedLink>
               </li>
               <li>
-                <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <LocalizedLink to="/products" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-primary rounded-full"></span>
-                  المنتجات
-                </Link>
+                  {t('nav.products')}
+                </LocalizedLink>
               </li>
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <LocalizedLink to="/about" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-primary rounded-full"></span>
-                  من نحن
-                </Link>
+                  {t('nav.about')}
+                </LocalizedLink>
               </li>
               <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <LocalizedLink to="/contact" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-primary rounded-full"></span>
-                  اتصل بنا
-                </Link>
+                  {t('nav.contact')}
+                </LocalizedLink>
               </li>
               <li>
-                <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <LocalizedLink to="/faq" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-primary rounded-full"></span>
-                  الأسئلة الشائعة
-                </Link>
+                  {t('nav.faq')}
+                </LocalizedLink>
               </li>
               <li>
-                <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <LocalizedLink to="/blog" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-primary rounded-full"></span>
-                  المدونة
-                </Link>
+                  {t('nav.blog')}
+                </LocalizedLink>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Product Categories + Internal Linking */}
+          {/* Column 3: Product Categories */}
           <div>
-            <h3 className="text-lg font-bold text-primary mb-4">فئات المنتجات</h3>
+            <h3 className="text-lg font-bold text-primary mb-4">{t('footer.productCategories')}</h3>
             <ul className="space-y-3 text-sm">
               {categories && categories.length > 0 ? (
                 categories.map((category) => (
                   <li key={category.slug}>
-                    <Link 
+                    <LocalizedLink 
                       to={`/products?category=${encodeURIComponent(category.slug)}`}
                       className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
-                      aria-label={`تصفح منتجات ${category.name_ar}`}
                     >
                       <span className="w-1 h-1 bg-primary rounded-full" aria-hidden="true"></span>
-                      {category.name_ar}
-                    </Link>
+                      {getLocalizedField(category, 'name')}
+                    </LocalizedLink>
                   </li>
                 ))
               ) : (
-                <li className="text-muted-foreground text-sm">جاري التحميل...</li>
+                <li className="text-muted-foreground text-sm">{t('common.loading')}</li>
               )}
               <li>
-                <Link 
+                <LocalizedLink 
                   to="/products"
                   className="text-primary hover:underline transition-colors flex items-center gap-2 font-medium"
-                  aria-label="عرض جميع المنتجات"
                 >
-                  عرض جميع المنتجات ←
-                </Link>
+                  {t('nav.allProducts')} {language === 'ar' ? '←' : '→'}
+                </LocalizedLink>
               </li>
             </ul>
           </div>
@@ -134,37 +139,37 @@ export const Footer = () => {
           {/* Column 4: Policies + Payment Methods + Social */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-bold text-primary mb-4">السياسات</h3>
+              <h3 className="text-lg font-bold text-primary mb-4">{t('footer.policies')}</h3>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <LocalizedLink to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 bg-primary rounded-full"></span>
-                    سياسة الخصوصية
-                  </Link>
+                    {t('nav.privacyPolicy')}
+                  </LocalizedLink>
                 </li>
                 <li>
-                  <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <LocalizedLink to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 bg-primary rounded-full"></span>
-                    شروط الخدمة
-                  </Link>
+                    {t('nav.termsOfService')}
+                  </LocalizedLink>
                 </li>
                 <li>
-                  <Link to="/return-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <LocalizedLink to="/return-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 bg-primary rounded-full"></span>
-                    سياسة الإرجاع
-                  </Link>
+                    {t('nav.returnPolicy')}
+                  </LocalizedLink>
                 </li>
                 <li>
-                  <Link to="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <LocalizedLink to="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 bg-primary rounded-full"></span>
-                    سياسة الشحن
-                  </Link>
+                    {t('nav.shippingPolicy')}
+                  </LocalizedLink>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold mb-3 text-primary">طرق الدفع</h4>
+              <h4 className="text-sm font-semibold mb-3 text-primary">{t('footer.paymentMethods')}</h4>
               <div className="flex gap-2 flex-wrap items-center">
                 <div className="bg-background border rounded-md p-2 h-12 flex items-center justify-center min-w-[60px]">
                   <img src="/images/payment-icons/visa.svg" alt="Visa" className="h-8 w-auto object-contain" />
@@ -185,7 +190,7 @@ export const Footer = () => {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold mb-3 text-primary">تواصل معنا</h4>
+              <h4 className="text-sm font-semibold mb-3 text-primary">{t('footer.contactUs')}</h4>
               <div className="flex gap-3">
                 {settings?.facebook_url && (
                   <a 
@@ -218,7 +223,7 @@ export const Footer = () => {
         <Separator className="my-8" />
 
         <div className="text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} {settings?.store_name || 'لمسة بيوتي'}. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} {storeName}. {t('footer.copyright')}.</p>
         </div>
       </div>
     </footer>

@@ -1,32 +1,35 @@
 import { Shield, Truck, RotateCcw, Leaf } from 'lucide-react';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 export default function TrustBadges() {
+  const { t } = useLanguageCurrency();
+
   const badges = [
     {
       icon: Leaf,
-      title: 'منتجات طبيعية',
-      description: '100% طبيعي',
+      title: t('trustBadges.natural'),
+      description: t('trustBadges.naturalDesc'),
       gradient: 'from-green-500 to-emerald-600',
       bgGradient: 'from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20',
     },
     {
       icon: Shield,
-      title: 'جودة مضمونة',
-      description: 'منتجات أصلية',
+      title: t('trustBadges.genuine'),
+      description: t('trustBadges.genuineDesc'),
       gradient: 'from-blue-500 to-cyan-600',
       bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20',
     },
     {
       icon: Truck,
-      title: 'توصيل سريع',
-      description: 'شحن لجميع المدن',
+      title: t('trustBadges.fastShipping'),
+      description: t('trustBadges.fastShippingDesc'),
       gradient: 'from-purple-500 to-pink-600',
       bgGradient: 'from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20',
     },
     {
       icon: RotateCcw,
-      title: 'إرجاع مجاني',
-      description: 'خلال 14 يوم',
+      title: t('trustBadges.freeReturn'),
+      description: t('trustBadges.freeReturnDesc'),
       gradient: 'from-amber-500 to-orange-600',
       bgGradient: 'from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20',
     },

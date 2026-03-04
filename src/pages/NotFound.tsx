@@ -1,4 +1,4 @@
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,10 +7,12 @@ import { BreadcrumbSchema } from "@/components/SEO/BreadcrumbSchema";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { Home, Search, Package } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { useLanguageCurrency } from "@/contexts/LanguageCurrencyContext";
+import { LocalizedLink } from "@/components/LocalizedLink";
 
 const NotFound = () => {
   const location = useLocation();
+  const { t, isRTL } = useLanguageCurrency();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -33,16 +35,14 @@ const NotFound = () => {
   return (
     <>
       <SEOHead
-        title="الصفحة غير موجودة - 404"
-        description="عذراً، الصفحة التي تبحث عنها غير موجودة. تصفح منتجاتنا الطبيعية أو عد للصفحة الرئيسية."
+        title={t('notFound.seoTitle')}
+        description={t('notFound.seoDesc')}
+        noindex
       />
-      <Helmet>
-        <meta name="robots" content="noindex, follow" />
-      </Helmet>
       <BreadcrumbSchema
         items={[
-          { name: 'الرئيسية', url: '/' },
-          { name: '404 - الصفحة غير موجودة', url: location.pathname },
+          { name: t('nav.home'), url: '/' },
+          { name: t('notFound.title'), url: location.pathname },
         ]}
       />
 
@@ -52,24 +52,24 @@ const NotFound = () => {
           <h1 className="text-9xl font-bold text-primary mb-4">404</h1>
           
           {/* Error Message */}
-          <h2 className="text-3xl font-bold mb-4">الصفحة غير موجودة</h2>
+          <h2 className="text-3xl font-bold mb-4">{t('notFound.title')}</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            عذراً، الصفحة التي تبحث عنها غير متوفرة أو تم نقلها إلى عنوان آخر
+            {t('notFound.notAvailable')}
           </p>
 
           {/* Quick Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button asChild size="lg">
-              <Link to="/">
-                <Home className="ml-2 h-5 w-5" />
-                العودة للرئيسية
-              </Link>
+              <LocalizedLink to="/">
+                <Home className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {t('notFound.goHome')}
+              </LocalizedLink>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link to="/products">
-                <Package className="ml-2 h-5 w-5" />
-                تصفح المنتجات
-              </Link>
+              <LocalizedLink to="/products">
+                <Package className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {t('notFound.browseProducts')}
+              </LocalizedLink>
             </Button>
           </div>
 
@@ -77,20 +77,20 @@ const NotFound = () => {
           <div className="bg-card p-6 rounded-lg shadow-md mb-12">
             <h3 className="text-xl font-semibold mb-4 flex items-center justify-center gap-2">
               <Search className="h-5 w-5" />
-              روابط سريعة
+              {t('notFound.quickLinks')}
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <Link to="/about" className="text-primary hover:underline">من نحن</Link>
-              <Link to="/contact" className="text-primary hover:underline">اتصل بنا</Link>
-              <Link to="/faq" className="text-primary hover:underline">الأسئلة الشائعة</Link>
-              <Link to="/cart" className="text-primary hover:underline">سلة التسوق</Link>
+              <LocalizedLink to="/about" className="text-primary hover:underline">{t('nav.about')}</LocalizedLink>
+              <LocalizedLink to="/contact" className="text-primary hover:underline">{t('nav.contact')}</LocalizedLink>
+              <LocalizedLink to="/faq" className="text-primary hover:underline">{t('nav.faq')}</LocalizedLink>
+              <LocalizedLink to="/cart" className="text-primary hover:underline">{t('nav.cart')}</LocalizedLink>
             </div>
           </div>
 
           {/* Popular Products */}
           {popularProducts && popularProducts.length > 0 && (
             <div className="mt-16">
-              <h3 className="text-2xl font-bold mb-6">منتجات مقترحة</h3>
+              <h3 className="text-2xl font-bold mb-6">{t('notFound.suggestedProducts')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {popularProducts.map((product) => (
                   <ProductCard key={product.id} {...product} />

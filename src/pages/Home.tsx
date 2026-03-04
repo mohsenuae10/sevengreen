@@ -15,6 +15,7 @@ import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import { FAQSchema } from '@/components/SEO/FAQSchema';
 import { iconMap, DefaultIcon } from '@/utils/iconMap';
 import { Button } from '@/components/ui/button';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 // Helper function to get icon component from icon name
 const getIconComponent = (iconName: string): JSX.Element => {
@@ -26,6 +27,7 @@ const getIconComponent = (iconName: string): JSX.Element => {
 };
 
 export default function Home() {
+  const { t, getLocalizedField } = useLanguageCurrency();
   // Cache is managed by staleTime - no need to invalidate on every mount
 
   const { data: products, isLoading, error } = useQuery({
@@ -88,9 +90,9 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <SEOHead
-        title="لمسة بيوتي - منتجات طبيعية للعناية بالشعر والبشرة"
-        description="أفضل منتجات العناية الطبيعية في السعودية. بار شامبو، سيروم فيتامين سي، منتجات عضوية 100%. توصيل سريع لجميع مناطق المملكة."
-        keywords="لمسة بيوتي, بار شامبو طبيعي, شامبو صلب, سيروم فيتامين سي, منتجات طبيعية السعودية, العناية بالشعر الطبيعي, العناية بالبشرة, منتجات عضوية, جينسنغ, أعشاب طبيعية, توصيل سريع السعودية, Lamset Beauty, شامبو بالأعشاب, منتجات بدون كيماويات"
+        title={t('home.title')}
+        description={t('home.description')}
+        keywords="لمسة بيوتي, Lamset Beauty, بار شامبو طبيعي, سيروم فيتامين سي, منتجات طبيعية السعودية, natural beauty products Saudi Arabia"
         type="website"
         url="/"
       />
@@ -99,7 +101,7 @@ export default function Home() {
       
       <BreadcrumbSchema
         items={[
-          { name: 'الرئيسية', url: '/' }
+          { name: t('nav.home'), url: '/' }
         ]}
       />
       
@@ -129,7 +131,7 @@ export default function Home() {
       />
       
       {/* H1 - Critical for SEO */}
-      <h1 className="sr-only">لمسة بيوتي - أفضل منتجات العناية الطبيعية بالشعر والبشرة في السعودية</h1>
+      <h1 className="sr-only">{t('home.title')}</h1>
       
       {/* Promotional Banner (Rotating Messages) */}
       <PromoBanner />
@@ -158,9 +160,9 @@ export default function Home() {
           {error ? (
             <div className="text-center py-12 min-h-[600px] flex items-center justify-center">
               <div>
-                <p className="text-destructive mb-4">حدث خطأ في تحميل المنتجات</p>
+                <p className="text-destructive mb-4">{t('common.error')}</p>
                 <Button onClick={() => window.location.reload()}>
-                  إعادة المحاولة
+                  {t('common.error')}
                 </Button>
               </div>
             </div>
@@ -168,7 +170,7 @@ export default function Home() {
             <div className="text-center py-12 min-h-[600px] flex items-center justify-center">
               <div>
                 <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-                <p className="text-muted-foreground mt-4 text-sm">جاري التحميل...</p>
+                <p className="text-muted-foreground mt-4 text-sm">{t('common.loading')}</p>
               </div>
             </div>
           ) : products && products.length > 0 ? (
@@ -176,7 +178,7 @@ export default function Home() {
               {displayCategories.map((category, index) => (
                 <CategorySection
                   key={category.id}
-                  title={category.name_ar}
+                  title={getLocalizedField(category, 'name')}
                   category={category.slug}
                   products={products}
                   icon={getIconComponent(category.icon)}
@@ -189,7 +191,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-12 min-h-[600px] flex items-center justify-center">
-              <p className="text-muted-foreground">لا توجد منتجات حالياً</p>
+              <p className="text-muted-foreground">{t('common.loading')}</p>
             </div>
           )}
         </div>

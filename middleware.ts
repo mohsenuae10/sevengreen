@@ -55,6 +55,21 @@ export default async function middleware(request: Request) {
     return;
   }
 
+  // Redirect root / to /ar/ (default language)
+  if (url.pathname === '/' || url.pathname === '') {
+    return Response.redirect(new URL('/ar/', url.origin), 302);
+  }
+
+  // Redirect legacy paths without language prefix to /ar/...
+  const hasLangPrefix = /^\/(ar|en)(\/|$)/.test(url.pathname);
+  const isSpecialPath = url.pathname.startsWith('/admin') || 
+                        url.pathname.startsWith('/invoice/') ||
+                        url.pathname.startsWith('/sitemap');
+  
+  if (!hasLangPrefix && !isSpecialPath) {
+    return Response.redirect(new URL(`/ar${url.pathname}${url.search}`, url.origin), 301);
+  }
+
   // Check if the request is from a bot
   const isBot = BOT_AGENTS.some(bot => userAgent.includes(bot));
   

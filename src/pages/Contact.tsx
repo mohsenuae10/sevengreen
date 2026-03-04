@@ -11,16 +11,11 @@ import { MapPin, MessageCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
-
-const contactSchema = z.object({
-  name: z.string().trim().min(1, { message: "الاسم مطلوب" }).max(100, { message: "الاسم يجب أن يكون أقل من 100 حرف" }),
-  email: z.string().trim().email({ message: "البريد الإلكتروني غير صحيح" }).max(255, { message: "البريد الإلكتروني يجب أن يكون أقل من 255 حرف" }),
-  phone: z.string().trim().min(10, { message: "رقم الهاتف يجب أن يكون 10 أرقام على الأقل" }).max(15, { message: "رقم الهاتف يجب أن يكون أقل من 15 رقم" }),
-  message: z.string().trim().min(10, { message: "الرسالة يجب أن تكون 10 أحرف على الأقل" }).max(1000, { message: "الرسالة يجب أن تكون أقل من 1000 حرف" })
-});
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 export default function Contact() {
   const { toast } = useToast();
+  const { t, getLocalizedPath } = useLanguageCurrency();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,6 +24,13 @@ export default function Contact() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const contactSchema = z.object({
+    name: z.string().trim().min(1, { message: t('contact.nameRequired') }).max(100, { message: t('contact.nameTooLong') }),
+    email: z.string().trim().email({ message: t('contact.invalidEmail') }).max(255, { message: t('contact.emailTooLong') }),
+    phone: z.string().trim().min(10, { message: t('contact.phoneTooShort') }).max(15, { message: t('contact.phoneTooLong') }),
+    message: z.string().trim().min(10, { message: t('contact.messageTooShort') }).max(1000, { message: t('contact.messageTooLong') })
+  });
 
   const { data: settings } = useQuery({
     queryKey: ['public-settings-contact'],
@@ -42,8 +44,8 @@ export default function Contact() {
   });
 
   const breadcrumbs = [
-    { name: 'الرئيسية', url: '/' },
-    { name: 'اتصل بنا', url: '/contact' }
+    { name: t('nav.home'), url: getLocalizedPath('/') },
+    { name: t('nav.contact'), url: getLocalizedPath('/contact') }
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,22 +69,22 @@ export default function Contact() {
 
     try {
       const whatsappNumber = settings?.whatsapp_number || '';
-      const message = `مرحباً، أنا ${encodeURIComponent(formData.name)}\n\nالبريد الإلكتروني: ${encodeURIComponent(formData.email)}\nالهاتف: ${encodeURIComponent(formData.phone)}\n\nالرسالة:\n${encodeURIComponent(formData.message)}`;
+      const message = `${encodeURIComponent(formData.name)}\n\n${t('contact.email')}: ${encodeURIComponent(formData.email)}\n${t('contact.phone')}: ${encodeURIComponent(formData.phone)}\n\n${t('contact.message')}:\n${encodeURIComponent(formData.message)}`;
       
       if (whatsappNumber) {
         window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${message}`, '_blank');
       }
 
       toast({
-        title: 'تم إرسال رسالتك بنجاح',
-        description: 'سنتواصل معك في أقرب وقت ممكن',
+        title: t('contact.messageSent'),
+        description: t('contact.messageSentDesc'),
       });
 
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
       toast({
-        title: 'حدث خطأ',
-        description: 'يرجى المحاولة مرة أخرى',
+        title: t('contact.errorOccurred'),
+        description: t('contact.tryAgain'),
         variant: 'destructive',
       });
     } finally {
@@ -93,10 +95,10 @@ export default function Contact() {
   return (
     <>
       <SEOHead
-        title="اتصل بنا - لمسة بيوتي | Lamset Beauty"
-        description="تواصلي مع فريق لمسة بيوتي. نحن هنا للإجابة على استفساراتك حول منتجاتنا والإجابة على جميع أسئلتك."
-        keywords="اتصل بنا, تواصل معنا, خدمة العملاء, لمسة بيوتي"
-        url="https://lamsetbeauty.com/contact"
+        title={t('contact.title')}
+        description={t('contact.description')}
+        keywords={t('contact.seoKeywords')}
+        url={`https://lamsetbeauty.com${getLocalizedPath('/contact')}`}
         type="website"
       />
       <BreadcrumbSchema items={breadcrumbs} />
@@ -106,24 +108,24 @@ export default function Contact() {
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-5xl mx-auto">
               <h1 className="text-4xl font-bold text-center mb-4 text-primary">
-                اتصل بنا
+                {t('nav.contact')}
               </h1>
               <p className="text-center text-lg text-muted-foreground mb-12">
-                نحن هنا للإجابة على جميع استفساراتك
+                {t('contact.subtitle')}
               </p>
 
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>معلومات التواصل</CardTitle>
+                      <CardTitle>{t('contact.contactInfo')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {settings?.whatsapp_number && (
                         <div className="flex items-start gap-3">
                           <MessageCircle className="h-5 w-5 text-primary mt-1" />
                           <div>
-                            <p className="font-medium">واتساب</p>
+                            <p className="font-medium">{t('contact.whatsapp')}</p>
                             <a 
                               href={`https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '')}`}
                               target="_blank"
@@ -139,8 +141,8 @@ export default function Contact() {
                       <div className="flex items-start gap-3">
                         <MapPin className="h-5 w-5 text-primary mt-1" />
                         <div>
-                          <p className="font-medium">الموقع</p>
-                          <p className="text-muted-foreground">المملكة العربية السعودية</p>
+                          <p className="font-medium">{t('contact.location')}</p>
+                          <p className="text-muted-foreground">{t('contact.locationValue')}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -148,17 +150,17 @@ export default function Contact() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>ساعات العمل</CardTitle>
+                      <CardTitle>{t('contact.workingHours')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="font-medium">السبت - الخميس</span>
-                          <span className="text-muted-foreground">9:00 ص - 9:00 م</span>
+                          <span className="font-medium">{t('contact.satToThu')}</span>
+                          <span className="text-muted-foreground">{t('contact.satToThuHours')}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="font-medium">الجمعة</span>
-                          <span className="text-muted-foreground">عطلة</span>
+                          <span className="font-medium">{t('contact.friday')}</span>
+                          <span className="text-muted-foreground">{t('contact.holiday')}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -167,12 +169,12 @@ export default function Contact() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>أرسل لنا رسالة</CardTitle>
+                    <CardTitle>{t('contact.sendMessage')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
-                        <Label htmlFor="name">الاسم *</Label>
+                        <Label htmlFor="name">{t('contact.name')} *</Label>
                         <Input
                           id="name"
                           value={formData.name}
@@ -185,7 +187,7 @@ export default function Contact() {
                       </div>
 
                       <div>
-                        <Label htmlFor="email">البريد الإلكتروني *</Label>
+                        <Label htmlFor="email">{t('contact.email')} *</Label>
                         <Input
                           id="email"
                           type="email"
@@ -199,7 +201,7 @@ export default function Contact() {
                       </div>
 
                       <div>
-                        <Label htmlFor="phone">رقم الهاتف *</Label>
+                        <Label htmlFor="phone">{t('contact.phone')} *</Label>
                         <Input
                           id="phone"
                           type="tel"
@@ -213,7 +215,7 @@ export default function Contact() {
                       </div>
 
                       <div>
-                        <Label htmlFor="message">رسالتك *</Label>
+                        <Label htmlFor="message">{t('contact.message')} *</Label>
                         <Textarea
                           id="message"
                           rows={5}
@@ -227,7 +229,7 @@ export default function Contact() {
                       </div>
 
                       <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'جاري الإرسال...' : 'إرسال الرسالة'}
+                        {isSubmitting ? t('contact.sending') : t('contact.send')}
                       </Button>
                     </form>
                   </CardContent>

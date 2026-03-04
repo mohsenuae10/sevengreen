@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { ShoppingCart, Heart, ShoppingBag } from 'lucide-react';
@@ -9,23 +9,31 @@ import ProductRating from './product/ProductRating';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import LocalizedLink from './LocalizedLink';
 
 interface ProductCardProps {
   id: string;
   name_ar: string;
+  name_en?: string;
   price: number;
   image_url: string | null;
   stock_quantity: number;
   category?: string;
   category_ar?: string | null;
+  category_en?: string | null;
   slug?: string | null;
   showCartButtonOnly?: boolean;
 }
 
-export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, category, category_ar, slug, showCartButtonOnly = false }: ProductCardProps) => {
+export const ProductCard = ({ id, name_ar, name_en, price, image_url, stock_quantity, category, category_ar, category_en, slug, showCartButtonOnly = false }: ProductCardProps) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
+  const { t, language, formatPrice, formatPriceRaw, getLocalizedPath, getLocalizedField } = useLanguageCurrency();
+
+  const productName = language === 'en' && name_en ? name_en : name_ar;
+  const categoryName = language === 'en' && category_en ? category_en : (category_ar || '');
 
   // جلب التقييمات من قاعدة البيانات
   const { data: ratingData } = useQuery({
@@ -59,17 +67,17 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
     e.preventDefault();
     if (stock_quantity <= 0) {
       toast({
-        title: 'غير متوفر',
-        description: 'هذا المنتج غير متوفر حالياً',
+        title: t('common.unavailable'),
+        description: t('common.unavailableDesc'),
         variant: 'destructive',
       });
       return;
     }
 
-    addToCart({ id, name_ar, price, image_url });
+    addToCart({ id, name_ar, name_en, price, image_url });
     toast({
-      title: 'تمت الإضافة',
-      description: `تم إضافة ${name_ar} إلى السلة`,
+      title: t('common.added'),
+      description: t('product.addedToCart', { name: productName }),
     });
   };
 
@@ -77,40 +85,44 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
     e.preventDefault();
     if (stock_quantity <= 0) {
       toast({
-        title: 'غير متوفر',
-        description: 'هذا المنتج غير متوفر حالياً',
+        title: t('common.unavailable'),
+        description: t('common.unavailableDesc'),
         variant: 'destructive',
       });
       return;
     }
 
-    addToCart({ id, name_ar, price, image_url });
-    navigate('/checkout');
+    addToCart({ id, name_ar, name_en, price, image_url });
+    navigate(getLocalizedPath('/checkout'));
   };
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsFavorite(!isFavorite);
     toast({
-      title: isFavorite ? 'تمت الإزالة' : 'تمت الإضافة',
-      description: isFavorite ? 'تم إزالة المنتج من المفضلة' : 'تم إضافة المنتج للمفضلة',
+      title: isFavorite ? t('common.removed') : t('common.added'),
+      description: isFavorite ? t('common.removedFromFavorites') : t('common.addedToFavorites'),
     });
   };
+
+  const priceInfo = formatPriceRaw(price);
+  const oldPriceFormatted = formatPrice(oldPrice);
+  const savingsFormatted = formatPrice(oldPrice - price);
 
   return (
     <Card className="overflow-hidden transition-all duration-500 group relative bg-white h-full flex flex-col border border-gray-100 hover:border-primary/25 hover:shadow-card animate-fade-in rounded-2xl">
       {/* شارة الخصم */}
       {hasDiscount && (
-        <div className="absolute top-3 right-3 z-20 bg-primary text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-soft">
-          خصم {discountPercentage}%
+        <div className="absolute top-3 end-3 z-20 bg-primary text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-soft">
+          {discountPercentage}% {t('common.discount')}
         </div>
       )}
 
       {/* أيقونة المفضلة */}
       <button
         onClick={toggleFavorite}
-        className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-secondary transition-all duration-300 shadow-sm border border-gray-100/80 group/fav"
-        aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+        className="absolute top-3 start-3 z-20 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-secondary transition-all duration-300 shadow-sm border border-gray-100/80 group/fav"
+        aria-label={isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
       >
         <Heart
           className={`h-3.5 w-3.5 transition-all duration-300 ${
@@ -120,12 +132,12 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
       </button>
 
       {/* صورة المنتج */}
-      <Link to={`/product/${slug || id}`} className="relative overflow-hidden bg-secondary/30">
+      <LocalizedLink to={`/product/${slug || id}`} className="relative overflow-hidden bg-secondary/30">
         <div className="relative">
           {image_url ? (
             <OptimizedImage
               src={image_url}
-              alt={`${name_ar}${category_ar ? ` - ${category_ar}` : ''} - منتج طبيعي من لمسة بيوتي`}
+              alt={`${productName}${categoryName ? ` - ${categoryName}` : ''} - ${t('common.naturalProduct')}`}
               className="aspect-square group-hover:scale-105 transition-transform duration-500"
               aspectRatio="1/1"
               width={350}
@@ -133,7 +145,7 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
             />
           ) : (
             <div className="aspect-square bg-secondary/50 flex items-center justify-center text-muted-foreground text-xs">
-              لا توجد صورة
+              {t('common.noImage')}
             </div>
           )}
         </div>
@@ -142,19 +154,19 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         {stock_quantity <= 0 && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
             <span className="bg-gray-800 text-white text-xs font-bold px-4 py-1.5 rounded-full">
-              نفذت الكمية
+              {t('common.outOfStock')}
             </span>
           </div>
         )}
-      </Link>
+      </LocalizedLink>
       
       <CardContent className="p-3.5 flex-1 flex flex-col gap-2 relative">
         {/* اسم المنتج */}
-        <Link to={`/product/${slug || id}`} className="flex-1">
+        <LocalizedLink to={`/product/${slug || id}`} className="flex-1">
           <h3 className="font-bold text-[13px] text-center text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2 leading-relaxed min-h-[2.5rem] flex items-center justify-center">
-            {name_ar}
+            {productName}
           </h3>
-        </Link>
+        </LocalizedLink>
 
         {/* التقييم */}
         {ratingData && ratingData.review_count > 0 && (
@@ -172,17 +184,17 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
         <div className="text-center py-1.5">
           <div className="flex items-baseline justify-center gap-1.5">
             <span className="text-xl font-black text-primary">
-              {price.toFixed(2)}
+              {priceInfo.amount}
             </span>
-            <span className="text-[11px] font-semibold text-primary/60">ر.س</span>
+            <span className="text-[11px] font-semibold text-primary/60">{priceInfo.symbol}</span>
           </div>
           {hasDiscount && (
             <div className="flex items-center justify-center gap-2 mt-0.5">
               <span className="text-[11px] text-muted-foreground line-through">
-                {oldPrice.toFixed(2)} ر.س
+                {oldPriceFormatted}
               </span>
               <span className="text-[10px] text-primary font-bold bg-primary/10 px-1.5 py-0.5 rounded">
-                وفّر {(oldPrice - price).toFixed(0)} ر.س
+                {t('common.save_amount')} {savingsFormatted}
               </span>
             </div>
           )}
@@ -197,8 +209,8 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
               className="w-full h-9 rounded-xl text-xs font-bold transition-all duration-300 bg-primary hover:bg-primary-dark shadow-sm hover:shadow-soft border-0"
               disabled={stock_quantity <= 0}
             >
-              <ShoppingCart className="h-3.5 w-3.5 ml-1.5" />
-              أضف للسلة
+              <ShoppingCart className="h-3.5 w-3.5 me-1.5" />
+              {t('product.addToCart')}
             </Button>
           ) : (
             <>
@@ -217,8 +229,8 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
                 className="flex-1 h-9 rounded-xl text-xs font-bold transition-all duration-300 bg-primary hover:bg-primary-dark shadow-sm hover:shadow-soft border-0"
                 disabled={stock_quantity <= 0}
               >
-                <ShoppingBag className="h-3.5 w-3.5 ml-1.5" />
-                اشتر الآن
+                <ShoppingBag className="h-3.5 w-3.5 me-1.5" />
+                {t('product.buyNow')}
               </Button>
             </>
           )}

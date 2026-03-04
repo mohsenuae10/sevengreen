@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator 
 } from '@/components/ui/breadcrumb';
 import { ChevronLeft, Sparkles, Leaf, Shield, Award } from 'lucide-react';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 // Category content for SEO - Topic Clusters
 const categoryContent: Record<string, {
@@ -131,6 +132,7 @@ const categoryContent: Record<string, {
 
 const CategoryLanding = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { t, getLocalizedField, getLocalizedPath } = useLanguageCurrency();
 
   // Fetch category details
   const { data: category, isLoading: categoryLoading } = useQuery({
@@ -200,9 +202,12 @@ const CategoryLanding = () => {
     return <Navigate to="/products" replace />;
   }
 
+  const categoryName = category ? (getLocalizedField(category, 'name') || category.name_ar) : '';
+  const categoryDescription = category ? (getLocalizedField(category, 'description') || category.description_ar) : '';
+
   const content = categoryContent[slug] || {
-    title: category?.name_ar || 'المنتجات',
-    description: category?.description_ar || 'تصفح منتجاتنا المميزة',
+    title: categoryName || t('nav.products'),
+    description: categoryDescription || t('blog.searchArticles'),
     longDescription: '',
     benefits: [],
     tips: [],
@@ -210,9 +215,9 @@ const CategoryLanding = () => {
   };
 
   const breadcrumbItems = [
-    { name: 'الرئيسية', url: '/' },
-    { name: 'المنتجات', url: '/products' },
-    { name: category?.name_ar || content.title, url: `/category/${slug}` },
+    { name: t('nav.home'), url: getLocalizedPath('/') },
+    { name: t('nav.products'), url: getLocalizedPath('/products') },
+    { name: categoryName || content.title, url: getLocalizedPath(`/category/${slug}`) },
   ];
 
   if (categoryLoading) {
@@ -234,19 +239,19 @@ const CategoryLanding = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       <SEOHead
-        title={`${content.title} | لمسة بيوتي - شحن مجاني السعودية`}
+        title={`${content.title} | ${t('common.storeName')} - ${t('category.freeShipping')}`}
         description={content.description}
         keywords={content.keywords}
-        url={`https://lamsetbeauty.com/category/${slug}`}
+        url={`https://lamsetbeauty.com${getLocalizedPath(`/category/${slug}`)}`}
       />
       <BreadcrumbSchema items={breadcrumbItems} />
       {products && products.length > 0 && (
         <ItemListSchema 
           products={products} 
           listName={content.title}
-          category={category.name_ar}
+          category={categoryName}
         />
       )}
 
@@ -266,19 +271,19 @@ const CategoryLanding = () => {
           <Breadcrumb className="mb-6">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+                <BreadcrumbLink href={getLocalizedPath('/')}>{t('nav.home')}</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
                 <ChevronLeft className="h-4 w-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
+                <BreadcrumbLink href={getLocalizedPath('/products')}>{t('nav.products')}</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
                 <ChevronLeft className="h-4 w-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbPage>{category.name_ar}</BreadcrumbPage>
+                <BreadcrumbPage>{categoryName}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -315,7 +320,7 @@ const CategoryLanding = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold mb-8">
-            جميع منتجات {category.name_ar} ({products?.length || 0} منتج)
+            {t('category.allProductsIn', { name: categoryName })} ({products?.length || 0} {t('category.productCount', { count: products?.length || 0 })})
           </h2>
           
           {productsLoading ? (
@@ -332,9 +337,9 @@ const CategoryLanding = () => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">لا توجد منتجات في هذه الفئة حالياً</p>
-              <Link to="/products" className="text-primary hover:underline mt-4 inline-block">
-                تصفح جميع المنتجات
+              <p className="text-muted-foreground">{t('category.noProducts')}</p>
+              <Link to={getLocalizedPath('/products')} className="text-primary hover:underline mt-4 inline-block">
+                {t('category.browseAll')}
               </Link>
             </div>
           )}
@@ -346,14 +351,14 @@ const CategoryLanding = () => {
         <section className="py-12 bg-muted/20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
-              <h2 className="text-2xl font-bold mb-6">لماذا تختارين منتجات {category.name_ar} من لمسة بيوتي؟</h2>
+              <h2 className="text-2xl font-bold mb-6">{t('category.whyChoose', { name: categoryName })}</h2>
               <p className="text-muted-foreground leading-relaxed">
                 {content.longDescription}
               </p>
               
               {content.tips.length > 0 && (
                 <>
-                  <h3 className="text-xl font-bold mt-8 mb-4">نصائح للاستخدام الأمثل</h3>
+                  <h3 className="text-xl font-bold mt-8 mb-4">{t('category.usageTips')}</h3>
                   <ul className="space-y-2">
                     {content.tips.map((tip, index) => (
                       <li key={index} className="flex items-start gap-2 text-muted-foreground">
@@ -373,12 +378,12 @@ const CategoryLanding = () => {
       {relatedPosts && relatedPosts.length > 0 && (
         <section className="py-12">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-8">مقالات ذات صلة بـ{category.name_ar}</h2>
+            <h2 className="text-2xl font-bold mb-8">{t('category.relatedArticles', { name: categoryName })}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedPosts.map((post) => (
                 <Link 
                   key={post.id} 
-                  to={`/blog/${post.slug}`}
+                  to={getLocalizedPath(`/blog/${post.slug}`)}
                   className="group block bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
                   {post.featured_image && (
@@ -405,10 +410,10 @@ const CategoryLanding = () => {
             </div>
             <div className="text-center mt-8">
               <Link 
-                to="/blog" 
+                to={getLocalizedPath('/blog')} 
                 className="text-primary hover:underline font-medium"
               >
-                عرض جميع المقالات ←
+                {t('category.viewAllArticles')} ←
               </Link>
             </div>
           </div>
@@ -418,14 +423,14 @@ const CategoryLanding = () => {
       {/* Other Categories - Internal Linking */}
       <section className="py-12 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-8 text-center">تصفح فئات أخرى</h2>
+          <h2 className="text-2xl font-bold mb-8 text-center">{t('category.browseOther')}</h2>
           <div className="flex flex-wrap justify-center gap-4">
             {Object.keys(categoryContent)
               .filter(catSlug => catSlug !== slug)
               .map(catSlug => (
                 <Link
                   key={catSlug}
-                  to={`/category/${catSlug}`}
+                  to={getLocalizedPath(`/category/${catSlug}`)}
                   className="px-6 py-3 bg-background rounded-full shadow-sm hover:shadow-md hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   {categoryContent[catSlug].title.replace('منتجات ', '').replace(' الطبيعية', '').replace(' الفاخرة', '')}

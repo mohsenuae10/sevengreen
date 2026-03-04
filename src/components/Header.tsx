@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ShoppingCart, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/contexts/CartContext';
@@ -15,19 +14,23 @@ import {
 } from './ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import logo from '@/assets/logo.png';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import { LanguageSwitcher, CurrencySwitcher } from './LanguageSwitcher';
+import LocalizedLink from './LocalizedLink';
 
 export const Header = () => {
   const { totalItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+  const { t, language, getLocalizedField } = useLanguageCurrency();
 
   // Fetch categories from database
   const { data: categories } = useQuery({
-    queryKey: ['header-categories'],
+    queryKey: ['header-categories', language],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('name_ar, slug')
+        .select('name_ar, name_en, slug')
         .eq('is_active', true)
         .order('display_order');
       
@@ -44,6 +47,8 @@ export const Header = () => {
     setDesktopMenuOpen(false);
   };
 
+  const getCategoryName = (cat: any) => getLocalizedField(cat, 'name');
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -56,56 +61,60 @@ export const Header = () => {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-background">
+              <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[300px] bg-background">
                 <nav className="flex flex-col gap-4 mt-8">
-                  <Link 
+                  <LocalizedLink 
                     to="/" 
                     onClick={handleMobileNavClick}
                     className="text-base font-medium hover:text-primary transition-colors py-2"
                   >
-                    الرئيسية
-                  </Link>
+                    {t('nav.home')}
+                  </LocalizedLink>
                   <div className="border-t pt-2">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2">الأقسام</p>
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">{t('nav.categories')}</p>
                     {categories?.map((category) => (
-                      <Link
+                      <LocalizedLink
                         key={category.slug}
                         to={`/products?category=${category.slug}`}
                         onClick={handleMobileNavClick}
-                        className="block text-sm hover:text-primary transition-colors py-2 pr-4"
+                        className="block text-sm hover:text-primary transition-colors py-2 px-4"
                       >
-                        {category.name_ar}
-                      </Link>
+                        {getCategoryName(category)}
+                      </LocalizedLink>
                     ))}
                   </div>
-                  <Link 
+                  <LocalizedLink 
                     to="/products" 
                     onClick={handleMobileNavClick}
                     className="text-base font-medium hover:text-primary transition-colors py-2"
                   >
-                    جميع المنتجات
-                  </Link>
-                  <Link 
+                    {t('nav.allProducts')}
+                  </LocalizedLink>
+                  <LocalizedLink 
                     to="/about" 
                     onClick={handleMobileNavClick}
                     className="text-base font-medium hover:text-primary transition-colors py-2"
                   >
-                    من نحن
-                  </Link>
-                  <Link 
+                    {t('nav.about')}
+                  </LocalizedLink>
+                  <LocalizedLink 
                     to="/contact" 
                     onClick={handleMobileNavClick}
                     className="text-base font-medium hover:text-primary transition-colors py-2"
                   >
-                    اتصل بنا
-                  </Link>
-                  <Link 
+                    {t('nav.contact')}
+                  </LocalizedLink>
+                  <LocalizedLink 
                     to="/blog" 
                     onClick={handleMobileNavClick}
                     className="text-base font-medium hover:text-primary transition-colors py-2"
                   >
-                    المدونة
-                  </Link>
+                    {t('nav.blog')}
+                  </LocalizedLink>
+                  <div className="border-t pt-4 flex items-center gap-2">
+                    <LanguageSwitcher />
+                    <CurrencySwitcher />
+                  </div>
                 </nav>
               </SheetContent>
             </Sheet>
@@ -119,20 +128,20 @@ export const Header = () => {
                   className="bg-transparent"
                   onClick={() => setDesktopMenuOpen(!desktopMenuOpen)}
                 >
-                  الأقسام
+                  {t('nav.categories')}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="bg-background border shadow-lg">
                   <div className="grid gap-3 p-4 w-[400px]">
                     <div className="grid grid-cols-2 gap-2">
                       {categories?.map((category) => (
-                        <Link
+                        <LocalizedLink
                           key={category.slug}
                           to={`/products?category=${category.slug}`}
                           onClick={handleDesktopCategoryClick}
                           className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground animate-fade-in"
                         >
-                          <div className="text-sm font-medium leading-none">{category.name_ar}</div>
-                        </Link>
+                          <div className="text-sm font-medium leading-none">{getCategoryName(category)}</div>
+                        </LocalizedLink>
                       ))}
                     </div>
                   </div>
@@ -140,60 +149,70 @@ export const Header = () => {
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <Link to="/" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
-                  الرئيسية
-                </Link>
+                <LocalizedLink to="/" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
+                  {t('nav.home')}
+                </LocalizedLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/products" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
-                  المنتجات
-                </Link>
+                <LocalizedLink to="/products" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
+                  {t('nav.products')}
+                </LocalizedLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/about" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
-                  من نحن
-                </Link>
+                <LocalizedLink to="/about" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
+                  {t('nav.about')}
+                </LocalizedLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/contact" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
-                  اتصل بنا
-                </Link>
+                <LocalizedLink to="/contact" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
+                  {t('nav.contact')}
+                </LocalizedLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/blog" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
-                  المدونة
-                </Link>
+                <LocalizedLink to="/blog" className="inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
+                  {t('nav.blog')}
+                </LocalizedLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
 
           {/* Logo in Center */}
-          <Link to="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
+          <LocalizedLink to="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
             <img src={logo} alt="لمسة بيوتي | Lamset Beauty" className="h-16 w-16 object-contain" />
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-primary">لمسة بيوتي</span>
-              <span className="text-xs text-muted-foreground font-medium">Lamset Beauty</span>
+              <span className="text-xl font-bold text-primary">
+                {language === 'ar' ? 'لمسة بيوتي' : 'Lamset Beauty'}
+              </span>
+              <span className="text-xs text-muted-foreground font-medium">
+                {language === 'ar' ? 'Lamset Beauty' : 'لمسة بيوتي'}
+              </span>
             </div>
-          </Link>
+          </LocalizedLink>
 
-          {/* Cart */}
-          <Link to="/cart">
-            <Button variant="outline" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
-                <Badge 
-                  className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-accent text-accent-foreground"
-                  variant="default"
-                >
-                  {totalItems}
-                </Badge>
-              )}
-            </Button>
-          </Link>
+          {/* Right side: Language/Currency Switchers + Cart */}
+          <div className="flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-0.5">
+              <LanguageSwitcher />
+              <CurrencySwitcher />
+            </div>
+            <LocalizedLink to="/cart">
+              <Button variant="outline" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <Badge 
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-accent text-accent-foreground"
+                    variant="default"
+                  >
+                    {totalItems}
+                  </Badge>
+                )}
+              </Button>
+            </LocalizedLink>
+          </div>
         </div>
       </div>
     </header>

@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 interface SocialShareProps {
   productName: string;
@@ -14,8 +15,9 @@ interface SocialShareProps {
 }
 
 export default function SocialShare({ productName, productUrl }: SocialShareProps) {
+  const { t } = useLanguageCurrency();
   const url = productUrl || window.location.href;
-  const text = `تحقق من هذا المنتج: ${productName}`;
+  const text = t('social.checkProduct', { name: productName });
 
   const shareToWhatsApp = () => {
     window.open(
@@ -42,13 +44,13 @@ export default function SocialShare({ productName, productUrl }: SocialShareProp
     try {
       await navigator.clipboard.writeText(url);
       toast({
-        title: 'تم النسخ!',
-        description: 'تم نسخ رابط المنتج',
+        title: t('social.linkCopiedTitle'),
+        description: t('social.linkCopiedDesc'),
       });
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل نسخ الرابط',
+        title: t('social.copyFailed'),
+        description: t('social.copyFailedDesc'),
         variant: 'destructive',
       });
     }
@@ -64,19 +66,19 @@ export default function SocialShare({ productName, productUrl }: SocialShareProp
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={shareToWhatsApp} className="gap-2">
           <MessageCircle className="h-4 w-4" />
-          <span>واتساب</span>
+          <span>{t('social.shareOnWhatsApp')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={shareToTwitter} className="gap-2">
           <Twitter className="h-4 w-4" />
-          <span>تويتر</span>
+          <span>{t('social.shareOnTwitter')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={shareToFacebook} className="gap-2">
           <Facebook className="h-4 w-4" />
-          <span>فيسبوك</span>
+          <span>{t('social.shareOnFacebook')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={copyLink} className="gap-2">
           <Copy className="h-4 w-4" />
-          <span>نسخ الرابط</span>
+          <span>{t('social.copyLink')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { LocalizedLink } from "@/components/LocalizedLink";
 
 interface PromotionalBannerProps {
   bannerUrl: string;
@@ -8,7 +8,7 @@ interface PromotionalBannerProps {
 
 export const PromotionalBanner = ({ bannerUrl, productId, offerDescription }: PromotionalBannerProps) => {
   return (
-    <Link 
+    <LocalizedLink 
       to={`/product/${productId}`}
       className="block w-full overflow-hidden group"
     >
@@ -20,6 +20,6 @@ export const PromotionalBanner = ({ bannerUrl, productId, offerDescription }: Pr
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
       </div>
-    </Link>
+    </LocalizedLink>
   );
 };

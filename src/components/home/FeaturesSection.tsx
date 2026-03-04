@@ -1,56 +1,59 @@
 import { Leaf, Sparkles, Heart, Truck, Shield, HeartHandshake } from 'lucide-react';
-
-const features = [
-  {
-    icon: Sparkles,
-    title: 'منتجات فاخرة',
-    description: 'مستحضرات تجميل عالية الجودة من أفضل العلامات التجارية',
-  },
-  {
-    icon: Shield,
-    title: 'منتجات أصلية 100%',
-    description: 'ضمان الأصالة لجميع منتجاتنا',
-  },
-  {
-    icon: Truck,
-    title: 'شحن سريع',
-    description: 'توصيل سريع لجميع مدن المملكة',
-  },
-  {
-    icon: Heart,
-    title: 'عناية شخصية',
-    description: 'استشارات مجانية لاختيار المنتج المناسب',
-  },
-  {
-    icon: Leaf,
-    title: 'مكونات طبيعية',
-    description: 'منتجات بمكونات طبيعية وآمنة للاستخدام اليومي',
-  },
-  {
-    icon: HeartHandshake,
-    title: 'دعم مستمر',
-    description: 'فريق دعم جاهز لخدمتك على مدار الساعة',
-  },
-];
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 export const FeaturesSection = () => {
+  const { t } = useLanguageCurrency();
+
+  const features = [
+    {
+      icon: Sparkles,
+      title: t('features.luxury'),
+      description: t('features.luxuryDesc'),
+    },
+    {
+      icon: Shield,
+      title: t('features.original'),
+      description: t('features.originalDesc'),
+    },
+    {
+      icon: Truck,
+      title: t('features.fastDelivery'),
+      description: t('features.fastDeliveryDesc'),
+    },
+    {
+      icon: Heart,
+      title: t('features.personalCare'),
+      description: t('features.personalCareDesc'),
+    },
+    {
+      icon: Leaf,
+      title: t('features.naturalIngredients'),
+      description: t('features.naturalIngredientsDesc'),
+    },
+    {
+      icon: HeartHandshake,
+      title: t('features.support'),
+      description: t('features.supportDesc'),
+    },
+  ];
+
   return (
     <section className="py-16 bg-white relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-            لماذا تختار لمسة بيوتي؟
+            {t('home.whyChooseUs')}
           </h2>
           <div className="w-16 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-dark rounded-full mx-auto mb-4"></div>
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-            نقدم لك أفضل تجربة تسوق مع منتجات جمال فاخرة عالية الجودة
+            {t('home.whyChooseUsDesc')}
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
           {features.map((feature, index) => (
             <div
-              key={feature.title}
+              key={index}
               className="group text-center p-5 md:p-6 rounded-2xl bg-secondary/40 hover:bg-secondary/70 border border-transparent hover:border-primary/10 transition-all duration-300 animate-fade-in"
               style={{ animationDelay: `${index * 0.08}s` }}
             >

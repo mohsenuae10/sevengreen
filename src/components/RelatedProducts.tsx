@@ -1,21 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from './ProductCard';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import { LocalizedLink } from '@/components/LocalizedLink';
 
 interface RelatedProductsProps {
   currentProductId: string;
   category: string;
   categoryAr?: string;
+  categoryEn?: string;
 }
 
-export const RelatedProducts = ({ currentProductId, category, categoryAr }: RelatedProductsProps) => {
+export const RelatedProducts = ({ currentProductId, category, categoryAr, categoryEn }: RelatedProductsProps) => {
+  const { t, language, isRTL } = useLanguageCurrency();
+
   const { data: products, isLoading } = useQuery({
     queryKey: ['related-products', category, currentProductId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name_ar, price, image_url, category, category_ar, slug, stock_quantity, is_active')
+        .select('id, name_ar, name_en, price, image_url, category, category_ar, slug, stock_quantity, is_active')
         .eq('category', category)
         .eq('is_active', true)
         .neq('id', currentProductId)
@@ -33,18 +37,20 @@ export const RelatedProducts = ({ currentProductId, category, categoryAr }: Rela
     return null;
   }
 
+  const categoryName = language === 'en' ? (categoryEn || categoryAr || category) : (categoryAr || category);
+
   return (
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold">منتجات ذات صلة</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">{t('product.relatedProducts')}</h2>
           {/* Strategic Internal Link to Category Page */}
-          <Link 
+          <LocalizedLink 
             to={`/category/${category}`}
             className="text-primary hover:underline font-medium text-sm md:text-base"
           >
-            عرض جميع منتجات {categoryAr || 'هذه الفئة'} ←
-          </Link>
+            {t('product.viewAllCategory', { category: categoryName })} {isRTL ? '←' : '→'}
+          </LocalizedLink>
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 items-stretch">
@@ -56,14 +62,14 @@ export const RelatedProducts = ({ currentProductId, category, categoryAr }: Rela
         {/* Additional Internal Links for SEO */}
         <div className="mt-8 pt-8 border-t border-border">
           <p className="text-sm text-muted-foreground text-center">
-            تبحثين عن المزيد؟ تصفحي{' '}
-            <Link to="/products" className="text-primary hover:underline">
-              جميع منتجاتنا
-            </Link>
-            {' '}أو اقرئي{' '}
-            <Link to="/blog" className="text-primary hover:underline">
-              مقالات العناية بالجمال
-            </Link>
+            {t('product.lookingForMore')}{' '}
+            <LocalizedLink to="/products" className="text-primary hover:underline">
+              {t('product.allOurProducts')}
+            </LocalizedLink>
+            {' '}{t('product.orRead')}{' '}
+            <LocalizedLink to="/blog" className="text-primary hover:underline">
+              {t('product.beautyArticles')}
+            </LocalizedLink>
           </p>
         </div>
       </div>

@@ -12,10 +12,14 @@ import { Calendar, Clock, Eye, ArrowRight, Share2, Facebook, Twitter } from 'luc
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useEffect } from 'react';
+import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t, language, getLocalizedField, getLocalizedPath } = useLanguageCurrency();
+
+  const dateLocale = language === 'ar' ? ar : undefined;
 
   const { data: post, isLoading, error } = useQuery({
     queryKey: ['blog-post', slug],
@@ -81,7 +85,7 @@ const BlogPost = () => {
   });
 
   if (error) {
-    navigate('/blog');
+    navigate(getLocalizedPath('/blog'));
     return null;
   }
 
@@ -100,28 +104,32 @@ const BlogPost = () => {
   if (!post) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">المقال غير موجود</h1>
-        <Link to="/blog">
-          <Button>العودة للمدونة</Button>
+        <h1 className="text-2xl font-bold mb-4">{t('blog.postNotFound')}</h1>
+        <Link to={getLocalizedPath('/blog')}>
+          <Button>{t('blog.backToBlog')}</Button>
         </Link>
       </div>
     );
   }
 
+  const postTitle = getLocalizedField(post, 'title');
+  const postExcerpt = getLocalizedField(post, 'excerpt');
+  const postContent = getLocalizedField(post, 'content');
+
   const breadcrumbItems = [
-    { name: 'الرئيسية', url: '/' },
-    { name: 'المدونة', url: '/blog' },
-    ...(post.blog_categories ? [{ name: post.blog_categories.name_ar, url: `/blog?category=${post.blog_categories.slug}` }] : []),
-    { name: post.title_ar, url: `/blog/${post.slug}` },
+    { name: t('nav.home'), url: getLocalizedPath('/') },
+    { name: t('nav.blog'), url: getLocalizedPath('/blog') },
+    ...(post.blog_categories ? [{ name: getLocalizedField(post.blog_categories, 'name'), url: getLocalizedPath(`/blog?category=${post.blog_categories.slug}`) }] : []),
+    { name: postTitle, url: getLocalizedPath(`/blog/${post.slug}`) },
   ];
 
-  const shareUrl = `https://lamsetbeauty.com/blog/${post.slug}`;
+  const shareUrl = `https://lamsetbeauty.com${getLocalizedPath(`/blog/${post.slug}`)}`;
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={post.meta_title || `${post.title_ar} | مدونة لمسة بيوتي`}
-        description={post.meta_description || post.excerpt_ar || ''}
+        title={post.meta_title || `${postTitle} | ${t('blog.title')}`}
+        description={post.meta_description || postExcerpt || ''}
         keywords={post.meta_keywords || ''}
         url={shareUrl}
         image={post.featured_image || undefined}
@@ -130,8 +138,8 @@ const BlogPost = () => {
         modifiedTime={post.updated_at || undefined}
       />
       <ArticleSchema
-        title={post.title_ar}
-        description={post.excerpt_ar || ''}
+        title={postTitle}
+        description={postExcerpt || ''}
         image={post.featured_image || undefined}
         datePublished={post.published_at || post.created_at || ''}
         dateModified={post.updated_at || undefined}
@@ -141,9 +149,9 @@ const BlogPost = () => {
 
       <article className="container mx-auto px-4 py-8">
         {/* Back button */}
-        <Link to="/blog" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6">
+        <Link to={getLocalizedPath('/blog')} className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6">
           <ArrowRight className="h-4 w-4" />
-          العودة للمدونة
+          {t('blog.backToBlog')}
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -152,26 +160,26 @@ const BlogPost = () => {
             {/* Header */}
             <header className="mb-8">
               {post.blog_categories && (
-                <Link to={`/blog?category=${post.blog_categories.slug}`}>
+                <Link to={getLocalizedPath(`/blog?category=${post.blog_categories.slug}`)}>
                   <Badge variant="secondary" className="mb-4">
-                    {post.blog_categories.name_ar}
+                    {getLocalizedField(post.blog_categories, 'name')}
                   </Badge>
                 </Link>
               )}
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title_ar}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">{postTitle}</h1>
               
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {post.published_at && format(new Date(post.published_at), 'd MMMM yyyy', { locale: ar })}
+                  {post.published_at && format(new Date(post.published_at), 'd MMMM yyyy', { locale: dateLocale })}
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  {post.reading_time} دقيقة للقراءة
+                  {post.reading_time} {t('blog.minuteRead')}
                 </span>
                 <span className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
-                  {post.views} مشاهدة
+                  {post.views} {t('blog.viewCount')}
                 </span>
               </div>
             </header>
@@ -181,7 +189,7 @@ const BlogPost = () => {
               <div className="aspect-video overflow-hidden rounded-lg mb-8">
                 <img
                   src={post.featured_image}
-                  alt={post.title_ar}
+                  alt={postTitle}
                   className="w-full h-full object-cover"
                   loading="eager"
                   fetchPriority="high"
@@ -192,15 +200,15 @@ const BlogPost = () => {
             {/* Content */}
             <div 
               className="prose-arabic mb-8"
-              dangerouslySetInnerHTML={{ __html: post.content_ar }}
+              dangerouslySetInnerHTML={{ __html: postContent }}
             />
 
             {/* Tags */}
             {postTags && postTags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-8">
                 {postTags.map((tag: any) => (
-                  <Link key={tag.id} to={`/blog?tag=${tag.slug}`}>
-                    <Badge variant="outline">#{tag.name_ar}</Badge>
+                  <Link key={tag.id} to={getLocalizedPath(`/blog?tag=${tag.slug}`)}>
+                    <Badge variant="outline">#{getLocalizedField(tag, 'name')}</Badge>
                   </Link>
                 ))}
               </div>
@@ -210,7 +218,7 @@ const BlogPost = () => {
             <div className="border-t pt-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Share2 className="h-4 w-4" />
-                شارك المقال
+                {t('blog.shareArticle')}
               </h3>
               <div className="flex gap-2">
                 <a
@@ -222,7 +230,7 @@ const BlogPost = () => {
                   <Facebook className="h-5 w-5" />
                 </a>
                 <a
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title_ar)}`}
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(postTitle)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-sky-500 text-white hover:bg-sky-600 transition-colors"
@@ -230,7 +238,7 @@ const BlogPost = () => {
                   <Twitter className="h-5 w-5" />
                 </a>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(post.title_ar + ' ' + shareUrl)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(postTitle + ' ' + shareUrl)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
@@ -248,25 +256,25 @@ const BlogPost = () => {
             {relatedPosts && relatedPosts.length > 0 && (
               <Card>
                 <CardHeader>
-                  <h3 className="font-semibold">مقالات ذات صلة</h3>
+                  <h3 className="font-semibold">{t('blog.relatedPosts')}</h3>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {relatedPosts.map((related) => (
-                    <Link key={related.id} to={`/blog/${related.slug}`} className="block group">
+                    <Link key={related.id} to={getLocalizedPath(`/blog/${related.slug}`)} className="block group">
                       <div className="flex gap-3">
                         {related.featured_image && (
                           <img
                             src={related.featured_image}
-                            alt={related.title_ar}
+                            alt={getLocalizedField(related, 'title')}
                             className="w-16 h-16 object-cover rounded"
                           />
                         )}
                         <div>
                           <h4 className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
-                            {related.title_ar}
+                            {getLocalizedField(related, 'title')}
                           </h4>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {related.published_at && format(new Date(related.published_at), 'd MMM yyyy', { locale: ar })}
+                            {related.published_at && format(new Date(related.published_at), 'd MMM yyyy', { locale: dateLocale })}
                           </p>
                         </div>
                       </div>
