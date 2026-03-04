@@ -42,7 +42,7 @@ export const CategoryShortcuts = () => {
   if (!categories || categories.length === 0) return null;
 
   return (
-    <section className="py-6 bg-gradient-to-b from-background to-muted/20 animate-fade-in">
+    <section className="py-6 bg-white animate-fade-in border-b border-gray-50">
       <div className="container mx-auto px-4">
         <Carousel
           opts={{
@@ -67,8 +67,8 @@ export const CategoryShortcuts = () => {
                 >
                   <div className="flex flex-col items-center gap-2">
                     {/* الدائرة */}
-                    <div className="relative w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-full bg-gradient-to-br from-primary-light/20 to-accent p-1.5 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
-                      <div className="w-full h-full rounded-full overflow-hidden bg-white shadow-soft">
+                    <div className="relative w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-full bg-gradient-to-br from-secondary via-secondary to-primary/5 p-[3px] transition-all duration-300 group-hover:scale-105 group-hover:shadow-soft cursor-pointer">
+                      <div className="w-full h-full rounded-full overflow-hidden bg-white">
                         <OptimizedImage
                           src={category.banner_url || ''}
                           alt={category.name_ar}
@@ -78,7 +78,7 @@ export const CategoryShortcuts = () => {
                       </div>
                     </div>
                     {/* اسم القسم */}
-                    <span className="text-sm md:text-base font-medium text-center text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                    <span className="text-xs md:text-sm font-medium text-center text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2">
                       {category.name_ar}
                     </span>
                   </div>
@@ -87,8 +87,8 @@ export const CategoryShortcuts = () => {
             ))}
           </CarouselContent>
           <div className="hidden md:block">
-            <CarouselPrevious className="left-auto -right-12" />
-            <CarouselNext className="right-auto -left-12" />
+            <CarouselPrevious className="left-auto -right-12 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+            <CarouselNext className="right-auto -left-12 border-primary/20 text-primary hover:bg-primary hover:text-white" />
           </div>
         </Carousel>
       </div>

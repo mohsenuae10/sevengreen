@@ -1,11 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { ShoppingCart, Heart, Zap } from 'lucide-react';
+import { ShoppingCart, Heart, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import { OptimizedImage } from './OptimizedImage';
-import { Badge } from './ui/badge';
 import ProductRating from './product/ProductRating';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -56,12 +55,6 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   const discountPercentage = hasDiscount ? Math.floor(discountSeed * 30) + 10 : 0;
   const oldPrice = hasDiscount ? price / (1 - discountPercentage / 100) : price;
 
-  const badges = ['الأكثر مبيعاً', 'منتج جديد', 'عرض خاص', 'الأكثر شعبية'];
-  const badgeSeed = seededRandom(id + 'badge');
-  const hasBadge = badgeSeed > 0.5;
-  const badgeIndex = Math.floor(seededRandom(id + 'badgeType', badges.length));
-  const randomBadge = badges[badgeIndex];
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     if (stock_quantity <= 0) {
@@ -105,131 +98,106 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
   };
 
   return (
-    <Card className="overflow-hidden transition-all duration-700 group relative bg-gradient-to-br from-white via-gray-50/30 to-white h-full flex flex-col border-2 border-transparent hover:border-primary/30 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] animate-fade-in rounded-2xl backdrop-blur-sm">
-      {/* Overlay Effect on Hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-2xl" />
-      
-      {/* شارة الخصم الدائرية */}
+    <Card className="overflow-hidden transition-all duration-500 group relative bg-white h-full flex flex-col border border-gray-100 hover:border-primary/25 hover:shadow-card animate-fade-in rounded-2xl">
+      {/* شارة الخصم */}
       {hasDiscount && (
-        <div className="absolute top-3 right-3 z-20 w-14 h-14 rounded-full bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex flex-col items-center justify-center shadow-2xl shadow-red-500/50 border-2 border-white transform rotate-12 group-hover:rotate-0 transition-transform duration-500">
-          <span className="text-white font-black text-[11px] leading-none">-{discountPercentage}%</span>
-          <span className="text-white/90 font-bold text-[7px] leading-none">خصم</span>
+        <div className="absolute top-3 right-3 z-20 bg-primary text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-soft">
+          خصم {discountPercentage}%
         </div>
-      )}
-
-      {/* شارة المنتج */}
-      {hasBadge && !hasDiscount && (
-        <Badge className="absolute top-3 right-3 z-20 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-[9px] px-2.5 py-1 shadow-xl shadow-emerald-500/30 border border-white/20 rounded-lg">
-          ✨ {randomBadge}
-        </Badge>
       )}
 
       {/* أيقونة المفضلة */}
       <button
         onClick={toggleFavorite}
-        className="absolute top-3 left-3 z-20 w-9 h-9 rounded-xl bg-white/95 backdrop-blur-xl flex items-center justify-center hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-100 group/fav"
+        className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-secondary transition-all duration-300 shadow-sm border border-gray-100/80 group/fav"
         aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
       >
         <Heart
-          className={`h-4 w-4 transition-all duration-300 ${
-            isFavorite ? 'fill-red-500 text-red-500 animate-pulse' : 'text-gray-300 group-hover/fav:text-red-400 group-hover/fav:scale-110'
+          className={`h-3.5 w-3.5 transition-all duration-300 ${
+            isFavorite ? 'fill-primary text-primary' : 'text-gray-400 group-hover/fav:text-primary'
           }`}
         />
       </button>
 
       {/* صورة المنتج */}
-      <Link to={`/product/${slug || id}`} className="relative overflow-hidden group/image bg-gradient-to-br from-gray-50 to-white p-2">
-        <div className="rounded-xl overflow-hidden shadow-inner relative">
+      <Link to={`/product/${slug || id}`} className="relative overflow-hidden bg-secondary/30">
+        <div className="relative">
           {image_url ? (
             <OptimizedImage
               src={image_url}
               alt={`${name_ar}${category_ar ? ` - ${category_ar}` : ''} - منتج طبيعي من لمسة بيوتي`}
-              className="aspect-square group-hover:scale-110 group-hover:rotate-2 transition-all duration-700 group-hover:brightness-110"
+              className="aspect-square group-hover:scale-105 transition-transform duration-500"
               aspectRatio="1/1"
               width={350}
               height={350}
             />
           ) : (
-            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-muted-foreground text-[8px]">
+            <div className="aspect-square bg-secondary/50 flex items-center justify-center text-muted-foreground text-xs">
               لا توجد صورة
             </div>
           )}
-          {/* تأثير لامع عند التمرير */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
         </div>
-        {/* إطار داخلي متوهج */}
-        <div className="absolute inset-2 rounded-xl border-2 border-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+        {/* حالة نفاد المخزون */}
+        {stock_quantity <= 0 && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+            <span className="bg-gray-800 text-white text-xs font-bold px-4 py-1.5 rounded-full">
+              نفذت الكمية
+            </span>
+          </div>
+        )}
       </Link>
       
-      <CardContent className="p-4 flex-1 flex flex-col gap-2.5 relative z-10">
-        {/* اسم المنتج مع خلفية */}
-        <Link to={`/product/${slug || id}`}>
-          <div className="bg-gradient-to-r from-gray-50/80 via-white/80 to-gray-50/80 backdrop-blur-sm rounded-lg p-2.5 border border-gray-100/50 group-hover:border-primary/20 transition-all duration-300 min-h-[3rem] flex items-center justify-center">
-            <h3 className="font-extrabold text-sm text-center text-gray-800 group-hover:text-primary transition-colors duration-300 line-clamp-2 leading-snug">
-              {name_ar}
-            </h3>
-          </div>
+      <CardContent className="p-3.5 flex-1 flex flex-col gap-2 relative">
+        {/* اسم المنتج */}
+        <Link to={`/product/${slug || id}`} className="flex-1">
+          <h3 className="font-bold text-[13px] text-center text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2 leading-relaxed min-h-[2.5rem] flex items-center justify-center">
+            {name_ar}
+          </h3>
         </Link>
 
-        {/* التقييم مع خلفية */}
+        {/* التقييم */}
         {ratingData && ratingData.review_count > 0 && (
           <div className="flex justify-center">
-            <div className="bg-amber-50/80 backdrop-blur-sm px-3 py-1 rounded-full border border-amber-100">
-              <ProductRating 
-                rating={Number(ratingData.average_rating) || 0} 
-                reviewCount={ratingData.review_count}
-                showCount={true}
-                size="xs"
-              />
-            </div>
+            <ProductRating 
+              rating={Number(ratingData.average_rating) || 0} 
+              reviewCount={ratingData.review_count}
+              showCount={true}
+              size="xs"
+            />
           </div>
         )}
 
-        {/* قسم السعر مع تصميم جديد */}
-        <div className="relative">
-          <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm rounded-xl p-3 border-2 border-primary/20 shadow-lg shadow-primary/5 group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-300">
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-primary bg-gradient-to-br from-primary to-primary-dark bg-clip-text text-transparent">
-                  {price.toFixed(2)}
-                </span>
-                <span className="text-sm font-bold text-primary/70">ر.س</span>
-              </div>
-            </div>
-            {hasDiscount && (
-              <div className="flex items-center justify-center gap-2 mt-1 pt-1 border-t border-primary/10">
-                <span className="text-xs text-gray-400 line-through font-medium">
-                  {oldPrice.toFixed(2)} ر.س
-                </span>
-                <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
-                  وفّر {(oldPrice - price).toFixed(2)} ر.س
-                </span>
-              </div>
-            )}
+        {/* السعر */}
+        <div className="text-center py-1.5">
+          <div className="flex items-baseline justify-center gap-1.5">
+            <span className="text-xl font-black text-primary">
+              {price.toFixed(2)}
+            </span>
+            <span className="text-[11px] font-semibold text-primary/60">ر.س</span>
           </div>
+          {hasDiscount && (
+            <div className="flex items-center justify-center gap-2 mt-0.5">
+              <span className="text-[11px] text-muted-foreground line-through">
+                {oldPrice.toFixed(2)} ر.س
+              </span>
+              <span className="text-[10px] text-primary font-bold bg-primary/10 px-1.5 py-0.5 rounded">
+                وفّر {(oldPrice - price).toFixed(0)} ر.س
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* رسالة غير متوفر */}
-        {stock_quantity <= 0 && (
-          <div className="bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-lg py-2 px-3 shadow-sm">
-            <p className="text-xs text-red-600 text-center font-extrabold flex items-center justify-center gap-1">
-              <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              نفذت الكمية
-            </p>
-          </div>
-        )}
-
-        {/* أزرار الإجراءات بتصميم جديد */}
-        <div className="flex gap-2 mt-auto">
+        {/* أزرار الإجراءات */}
+        <div className="flex gap-1.5 mt-auto pt-1">
           {showCartButtonOnly ? (
             <Button
               onClick={handleAddToCart}
               size="sm"
-              className="w-full h-11 rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all duration-300 bg-gradient-to-r from-primary via-primary-dark to-primary hover:shadow-2xl hover:shadow-primary/40 border-0 relative overflow-hidden group/btn"
+              className="w-full h-9 rounded-xl text-xs font-bold transition-all duration-300 bg-primary hover:bg-primary-dark shadow-sm hover:shadow-soft border-0"
               disabled={stock_quantity <= 0}
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></span>
-              <ShoppingCart className="h-4 w-4 ml-2" />
+              <ShoppingCart className="h-3.5 w-3.5 ml-1.5" />
               أضف للسلة
             </Button>
           ) : (
@@ -238,21 +206,19 @@ export const ProductCard = ({ id, name_ar, price, image_url, stock_quantity, cat
                 onClick={handleAddToCart}
                 variant="outline"
                 size="sm"
-                className="flex-1 h-11 rounded-xl border-2 border-primary/40 hover:border-primary bg-white hover:bg-primary text-primary hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/20 active:scale-95 group/cart font-bold relative overflow-hidden"
+                className="h-9 w-9 min-w-[36px] rounded-xl border border-primary/30 bg-white hover:bg-primary/5 text-primary transition-all duration-300 p-0 flex items-center justify-center"
                 disabled={stock_quantity <= 0}
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 -translate-x-full group-hover/cart:translate-x-full transition-transform duration-500"></span>
-                <ShoppingCart className="h-4 w-4 group-hover/cart:animate-bounce relative z-10" />
+                <ShoppingCart className="h-3.5 w-3.5" />
               </Button>
               <Button
                 onClick={handleBuyNow}
                 size="sm"
-                className="flex-[2.5] h-11 rounded-xl text-sm font-extrabold hover:scale-[1.02] active:scale-95 transition-all duration-300 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/50 border-0 relative overflow-hidden group/buy"
+                className="flex-1 h-9 rounded-xl text-xs font-bold transition-all duration-300 bg-primary hover:bg-primary-dark shadow-sm hover:shadow-soft border-0"
                 disabled={stock_quantity <= 0}
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover/buy:translate-x-full transition-transform duration-700"></span>
-                <Zap className="h-4 w-4 ml-1.5 group-hover/buy:animate-pulse relative z-10" />
-                <span className="relative z-10">اشتر الآن</span>
+                <ShoppingBag className="h-3.5 w-3.5 ml-1.5" />
+                اشتر الآن
               </Button>
             </>
           )}
