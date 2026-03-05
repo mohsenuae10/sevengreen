@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from '@/hooks/useNextRouter';
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Clock, CreditCard, Truck, Download, LayoutGrid, Image, FileText, FolderOpen, Tags, Receipt } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Download, LayoutGrid, Image, FileText, FolderOpen, Tags, Receipt } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,10 +22,7 @@ const navItems = [
   { title: 'استيراد منتج', url: '/admin/import-product', icon: Download },
   { title: 'البنرات الترويجية', url: '/admin/promotional-banners', icon: Image },
   { title: 'الفواتير', url: '/admin/invoices', icon: Receipt },
-  { title: 'جميع الطلبات', url: '/admin/orders', icon: ShoppingCart },
-  { title: 'قيد انتظار الدفع', url: '/admin/orders/pending-payment', icon: Clock },
-  { title: 'الطلبات المدفوعة', url: '/admin/orders/paid', icon: CreditCard },
-  { title: 'الطلبات المشحونة', url: '/admin/orders/shipped', icon: Truck },
+  { title: 'الطلبات', url: '/admin/orders', icon: ShoppingCart },
   { title: 'المقالات', url: '/admin/blog', icon: FileText },
   { title: 'تصنيفات المدونة', url: '/admin/blog-categories', icon: FolderOpen },
   { title: 'وسوم المدونة', url: '/admin/blog-tags', icon: Tags },
