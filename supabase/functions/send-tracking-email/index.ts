@@ -59,7 +59,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `لمسة بيوتي - Lamset Beauty <noreply@lamsetbeauty.com>`,
+        from: `لمسة بيوتي - Lamset Beauty <orders@lamsetbeauty.com>`,
         to: [order.customer_email],
         subject: `🚚 شحنة في الطريق إليك! - رقم التتبع: ${tracking_number}`,
         html: `

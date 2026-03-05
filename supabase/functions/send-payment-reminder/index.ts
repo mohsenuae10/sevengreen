@@ -89,12 +89,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `لمسة بيوتي <noreply@lamsetbeauty.com>`,
-        reply_to: 'support@lamsetbeauty.com',
+        from: `لمسة بيوتي <orders@lamsetbeauty.com>`,
+        reply_to: 'orders@lamsetbeauty.com',
         to: [order.customer_email],
         subject: `${order.customer_name}، طلبك ${order.order_number} بحاجة لإتمام الدفع`,
         headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@lamsetbeauty.com>`,
+          'List-Unsubscribe': `<mailto:orders@lamsetbeauty.com>`,
           'X-Priority': '3',
           'X-Entity-Ref-ID': order.order_number,
           'Precedence': 'bulk',
@@ -161,7 +161,7 @@ serve(async (req) => {
               <p style="margin: 5px 0; color: #888; font-size: 13px;">لمسة بيوتي - Lamset Beauty</p>
               <p style="margin: 5px 0; color: #999; font-size: 12px;">متجر لمسة بيوتي للعناية الطبيعية</p>
               <p style="margin: 10px 0 5px 0; color: #999; font-size: 12px;">© 2025 جميع الحقوق محفوظة</p>
-              <p style="margin: 5px 0; color: #666; font-size: 12px;">support@lamsetbeauty.com</p>
+              <p style="margin: 5px 0; color: #666; font-size: 12px;">orders@lamsetbeauty.com</p>
             </div>
           </div>
         </body>

@@ -61,12 +61,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `لمسة بيوتي <noreply@lamsetbeauty.com>`,
-        reply_to: 'support@lamsetbeauty.com',
+        from: `لمسة بيوتي <orders@lamsetbeauty.com>`,
+        reply_to: 'orders@lamsetbeauty.com',
         to: [order.customer_email],
         subject: `${order.customer_name}، تم تأكيد طلبك ${order.order_number} بنجاح ✅`,
         headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@lamsetbeauty.com>`,
+          'List-Unsubscribe': `<mailto:orders@lamsetbeauty.com>`,
           'X-Priority': '3',
           'X-Entity-Ref-ID': order.order_number,
           'Precedence': 'bulk',
