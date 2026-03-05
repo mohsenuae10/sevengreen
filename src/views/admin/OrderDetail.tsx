@@ -92,6 +92,18 @@ export default function AdminOrderDetail() {
           toast.success('تم إرسال إشعار الشحن للعميل');
         }
       }
+      
+      // إرسال إشعار تغيير حالة الطلب (لجميع الحالات ما عدا shipped التي تُرسل عبر send-tracking-email)
+      if (updates.status && updates.status !== 'shipped') {
+        try {
+          await supabase.functions.invoke('send-order-status-update', {
+            body: { order_id: id, new_status: updates.status, old_status: order?.status },
+          });
+          toast.success('تم إرسال إشعار تحديث الحالة للعميل');
+        } catch (emailError) {
+          console.error('Error sending status update email:', emailError);
+        }
+      }
     },
     onError: () => {
       toast.error('حدث خطأ أثناء تحديث الطلب');

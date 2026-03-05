@@ -12,6 +12,12 @@ verify_jwt = false
 [functions.send-payment-reminder]
 verify_jwt = false
 
+[functions.send-order-status-update]
+verify_jwt = false
+
+[functions.send-payment-confirmed]
+verify_jwt = false
+
 [functions.sales-stats]
 verify_jwt = false
 

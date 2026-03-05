@@ -77,7 +77,18 @@ serve(async (req) => {
         });
         console.log("✅ Confirmation email sent");
       } catch (emailError) {
-        console.error("⚠️ Error sending email (non-critical):", emailError);
+        console.error("⚠️ Error sending confirmation email (non-critical):", emailError);
+      }
+
+      // Send payment confirmed email
+      try {
+        console.log("💳 Sending payment confirmation email...");
+        await supabaseClient.functions.invoke("send-payment-confirmed", {
+          body: { order_id: orderId },
+        });
+        console.log("✅ Payment confirmation email sent");
+      } catch (emailError) {
+        console.error("⚠️ Error sending payment confirmation email (non-critical):", emailError);
         // Don't fail the webhook if email fails
       }
     }

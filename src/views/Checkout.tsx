@@ -76,7 +76,13 @@ function CheckoutForm({ clientSecret, orderId, orderNumber }: CheckoutFormProps)
         .update({ payment_status: 'completed' })
         .eq('id', orderId);
 
+      // إرسال إيميل تأكيد الطلب
       await supabase.functions.invoke('send-order-confirmation', {
+        body: { order_id: orderId },
+      });
+
+      // إرسال إيميل تأكيد الدفع
+      await supabase.functions.invoke('send-payment-confirmed', {
         body: { order_id: orderId },
       });
 

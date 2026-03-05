@@ -57,7 +57,17 @@ export default function OrderSuccess() {
               });
               console.log('✅ Confirmation email sent');
             } catch (emailError) {
-              console.error('❌ Error sending email:', emailError);
+              console.error('❌ Error sending confirmation email:', emailError);
+            }
+
+            // إرسال بريد تأكيد الدفع
+            try {
+              await supabase.functions.invoke('send-payment-confirmed', {
+                body: { order_id: orderId },
+              });
+              console.log('✅ Payment confirmation email sent');
+            } catch (emailError) {
+              console.error('❌ Error sending payment confirmation email:', emailError);
             }
           }
         } catch (error) {
