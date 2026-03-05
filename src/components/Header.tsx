@@ -13,7 +13,8 @@ import {
   NavigationMenuTrigger,
 } from './ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import logo from '@/assets/logo.png';
+import logoImg from '@/assets/logo.png';
+const logo = typeof logoImg === 'string' ? logoImg : logoImg.src;
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import { LanguageSwitcher, CurrencySwitcher } from './LanguageSwitcher';
 import LocalizedLink from './LocalizedLink';
@@ -28,7 +29,7 @@ export const Header = () => {
   const { data: categories } = useQuery({
     queryKey: ['header-categories', language],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('categories')
         .select('name_ar, name_en, slug')
         .eq('is_active', true)

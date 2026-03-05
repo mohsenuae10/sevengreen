@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 interface AdminAuthContextType {
   user: User | null;
@@ -14,12 +14,15 @@ interface AdminAuthContextType {
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
+/**
+ * Next.js-compatible AdminAuth provider — uses next/router instead of react-router-dom.
+ */
+export const AdminAuthProviderNext = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const checkAdminRole = async (userId: string) => {
     const { data, error } = await supabase
@@ -33,15 +36,12 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener - NO ASYNC to avoid deadlock
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Only synchronous updates
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Defer admin check with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
             checkAdminRole(session.user.id).then(adminStatus => {
@@ -54,7 +54,6 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -70,14 +69,9 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      return { error };
-    }
+    if (error) return { error };
 
     if (data.user) {
       const adminStatus = await checkAdminRole(data.user.id);
@@ -86,13 +80,12 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: { message: 'ليس لديك صلاحية الوصول لهذه الصفحة' } };
       }
     }
-
     return { error: null };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate('/admin/login');
+    router.push('/admin/login');
   };
 
   return (
@@ -101,6 +94,9 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     </AdminAuthContext.Provider>
   );
 };
+
+/** Legacy alias */
+export const AdminAuthProvider = AdminAuthProviderNext;
 
 export const useAdminAuth = () => {
   const context = useContext(AdminAuthContext);

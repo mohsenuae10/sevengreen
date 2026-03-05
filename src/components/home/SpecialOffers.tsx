@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Gift, Percent, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/hooks/useNextRouter';
 
 export const SpecialOffers = () => {
   return (

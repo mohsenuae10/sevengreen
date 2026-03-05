@@ -23,12 +23,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return [];
     const saved = localStorage.getItem('sevengreen-cart');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('sevengreen-cart', JSON.stringify(items));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sevengreen-cart', JSON.stringify(items));
+    }
   }, [items]);
 
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
@@ -63,7 +66,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem('sevengreen-cart');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sevengreen-cart');
+    }
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);

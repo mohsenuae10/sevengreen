@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import Head from 'next/head';
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import { DOMAIN, getAlternateUrl } from '@/i18n';
 
@@ -57,8 +57,10 @@ export const SEOHead = ({
     ? description.substring(0, 157) + '...'
     : description;
   
-  // SEO: Use provided URL or construct from window location
-  const decodedPath = decodeURIComponent(window.location.pathname);
+  // SSR-safe URL computation
+  const decodedPath = typeof window !== 'undefined'
+    ? decodeURIComponent(window.location.pathname)
+    : url || `/${language}`;
   let currentUrl = url || `${DOMAIN}${decodedPath}`;
   if (url && url.startsWith('/')) {
     currentUrl = `${DOMAIN}${url}`;
@@ -69,9 +71,8 @@ export const SEOHead = ({
   const enUrl = getAlternateUrl(decodedPath, 'en');
 
   return (
-    <Helmet>
+    <Head>
       {/* Primary Meta Tags */}
-      <html lang={language} dir={language === 'ar' ? 'rtl' : 'ltr'} />
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
       <meta name="description" content={optimizedDescription} />
@@ -79,12 +80,11 @@ export const SEOHead = ({
       <meta name="application-name" content={language === 'ar' ? 'لمسة بيوتي' : 'Lamset Beauty'} />
       <meta name="author" content={seoAuthor} />
       <meta name="publisher" content={seoAuthor} />
-      {noindex ? (
-        <meta name="robots" content="noindex, nofollow" />
-      ) : (
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-      )}
-      <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"} />
+      <meta
+        name="robots"
+        content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
+      />
+      <meta name="googlebot" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
       <meta httpEquiv="content-language" content={language === 'ar' ? 'ar-SA' : 'en-US'} />
       <meta name="language" content={language === 'ar' ? 'Arabic' : 'English'} />
       {category && <meta name="article:section" content={category} />}
@@ -114,25 +114,25 @@ export const SEOHead = ({
       {language === 'en' && <meta property="og:locale:alternate" content="ar_SA" />}
 
       {/* Article-specific Open Graph tags */}
+      {type === 'article' && publishedTime && (
+        <meta property="article:published_time" content={publishedTime} />
+      )}
+      {type === 'article' && modifiedTime && (
+        <meta property="article:modified_time" content={modifiedTime} />
+      )}
       {type === 'article' && (
-        <>
-          {publishedTime && <meta property="article:published_time" content={publishedTime} />}
-          {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-          <meta property="article:author" content={seoAuthor} />
-          {category && <meta property="article:section" content={category} />}
-        </>
+        <meta property="article:author" content={seoAuthor} />
       )}
 
       {/* Product-specific Open Graph tags */}
       {type === 'product' && price && (
-        <>
-          <meta property="product:price:amount" content={price.toString()} />
-          <meta property="product:price:currency" content={seoCurrency} />
-          {availability && (
-            <meta property="product:availability" content={availability} />
-          )}
-          {modifiedTime && <meta property="og:updated_time" content={modifiedTime} />}
-        </>
+        <meta property="product:price:amount" content={price.toString()} />
+      )}
+      {type === 'product' && price && (
+        <meta property="product:price:currency" content={seoCurrency} />
+      )}
+      {type === 'product' && availability && (
+        <meta property="product:availability" content={availability} />
       )}
 
       {/* Twitter */}
@@ -148,16 +148,14 @@ export const SEOHead = ({
 
       {/* JSON-LD Structured Data */}
       {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       )}
 
       {/* Additional SEO Meta Tags */}
       <meta name="revisit-after" content="7 days" />
-      <meta name="expires" content="604800" />
-      <link rel="icon" href="/favicon.ico" />
-      <link rel="apple-touch-icon" href="/favicon.png" />
-    </Helmet>
+    </Head>
   );
 };

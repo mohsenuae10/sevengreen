@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import Head from 'next/head';
 
 interface Review {
   author: string;
@@ -37,12 +37,10 @@ export const ReviewSchema = ({ productName, reviews }: ReviewSchemaProps) => {
   }));
 
   return (
-    <Helmet>
+    <Head>
       {schemas.map((schema, index) => (
-        <script key={index} type="application/ld+json">
-          {JSON.stringify(schema)}
-        </script>
+        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       ))}
-    </Helmet>
+    </Head>
   );
 };

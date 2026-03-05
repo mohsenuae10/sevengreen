@@ -1,24 +1,26 @@
 import { forwardRef } from 'react';
-import { Link, LinkProps } from 'react-router-dom';
+import Link from 'next/link';
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 
-interface LocalizedLinkProps extends Omit<LinkProps, 'to'> {
+interface LocalizedLinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
   to: string;
+  replace?: boolean;
+  prefetch?: boolean;
 }
 
 /**
- * A wrapper around react-router-dom's Link that automatically adds
+ * A wrapper around next/link that automatically adds
  * the current language prefix to the path.
- * 
+ *
  * Usage: <LocalizedLink to="/products">Products</LocalizedLink>
- * Renders: <Link to="/ar/products">Products</Link> (if language is Arabic)
+ * Renders: <Link href="/ar/products">Products</Link> (if language is Arabic)
  */
 export const LocalizedLink = forwardRef<HTMLAnchorElement, LocalizedLinkProps>(
-  ({ to, ...props }, ref) => {
+  ({ to, replace, prefetch, children, ...props }, ref) => {
     const { getLocalizedPath } = useLanguageCurrency();
 
     // Don't localize external links, admin paths, hash links, or sitemap paths
-    const shouldLocalize = 
+    const shouldLocalize =
       typeof to === 'string' &&
       !to.startsWith('http') &&
       !to.startsWith('#') &&
@@ -29,7 +31,11 @@ export const LocalizedLink = forwardRef<HTMLAnchorElement, LocalizedLinkProps>(
 
     const localizedTo = shouldLocalize ? getLocalizedPath(to) : to;
 
-    return <Link ref={ref} to={localizedTo} {...props} />;
+    return (
+      <Link href={localizedTo} replace={replace} prefetch={prefetch} ref={ref} {...props}>
+        {children}
+      </Link>
+    );
   }
 );
 

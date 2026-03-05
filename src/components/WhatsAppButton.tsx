@@ -1,7 +1,7 @@
 import { MessageCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/hooks/useNextRouter';
 
 export const WhatsAppButton = () => {
   const location = useLocation();

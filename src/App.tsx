@@ -12,57 +12,57 @@ import { WhatsAppButton } from '@/components/WhatsAppButton';
 import '@/i18n';
 
 // Lazy load Home page for better initial bundle
-const Home = lazy(() => import('@/pages/Home'));
-import Cart from '@/pages/Cart';
-import About from '@/pages/About';
-import Contact from '@/pages/Contact';
-import FAQ from '@/pages/FAQ';
-import PrivacyPolicy from '@/pages/PrivacyPolicy';
-import TermsOfService from '@/pages/TermsOfService';
-import ReturnPolicy from '@/pages/ReturnPolicy';
-import ShippingPolicy from '@/pages/ShippingPolicy';
-import NotFound from '@/pages/NotFound';
-import SitemapXML from '@/pages/SitemapXML';
-import SitemapProductsXML from '@/pages/SitemapProductsXML';
-import SitemapPagesXML from '@/pages/SitemapPagesXML';
+const Home = lazy(() => import('@/views/Home'));
+import Cart from '@/views/Cart';
+import About from '@/views/About';
+import Contact from '@/views/Contact';
+import FAQ from '@/views/FAQ';
+import PrivacyPolicy from '@/views/PrivacyPolicy';
+import TermsOfService from '@/views/TermsOfService';
+import ReturnPolicy from '@/views/ReturnPolicy';
+import ShippingPolicy from '@/views/ShippingPolicy';
+import NotFound from '@/views/NotFound';
+import SitemapXML from '@/views/SitemapXML';
+import SitemapProductsXML from '@/views/SitemapProductsXML';
+import SitemapPagesXML from '@/views/SitemapPagesXML';
 
 // Lazy load category landing page
-const CategoryLanding = lazy(() => import('@/pages/CategoryLanding'));
+const CategoryLanding = lazy(() => import('@/views/CategoryLanding'));
 
 // Lazy load blog pages
-const Blog = lazy(() => import('@/pages/Blog'));
-const BlogPost = lazy(() => import('@/pages/BlogPost'));
+const Blog = lazy(() => import('@/views/Blog'));
+const BlogPost = lazy(() => import('@/views/BlogPost'));
 
 // Lazy load heavy pages
-const Products = lazy(() => import('@/pages/Products'));
-const ProductDetail = lazy(() => import('@/pages/ProductDetail'));
-const Checkout = lazy(() => import('@/pages/Checkout'));
-const OrderSuccess = lazy(() => import('@/pages/OrderSuccess'));
+const Products = lazy(() => import('@/views/Products'));
+const ProductDetail = lazy(() => import('@/views/ProductDetail'));
+const Checkout = lazy(() => import('@/views/Checkout'));
+const OrderSuccess = lazy(() => import('@/views/OrderSuccess'));
 
 // Lazy load admin pages
-const AdminLogin = lazy(() => import('@/pages/admin/Login'));
-const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'));
-const AdminCategories = lazy(() => import('@/pages/admin/Categories'));
-const AdminProducts = lazy(() => import('@/pages/admin/Products'));
-const AdminImportProduct = lazy(() => import('@/pages/admin/ImportProduct'));
-const AdminPromotionalBanners = lazy(() => import('@/pages/admin/PromotionalBanners'));
-const AdminOrders = lazy(() => import('@/pages/admin/Orders'));
-const AdminOrderDetail = lazy(() => import('@/pages/admin/OrderDetail'));
-const AdminSettings = lazy(() => import('@/pages/admin/Settings'));
-const PendingPaymentOrders = lazy(() => import('@/pages/admin/PendingPaymentOrders'));
-const PaidOrders = lazy(() => import('@/pages/admin/PaidOrders'));
-const ShippedOrders = lazy(() => import('@/pages/admin/ShippedOrders'));
-const MigrateImages = lazy(() => import('@/pages/admin/MigrateImages'));
+const AdminLogin = lazy(() => import('@/views/admin/Login'));
+const AdminDashboard = lazy(() => import('@/views/admin/Dashboard'));
+const AdminCategories = lazy(() => import('@/views/admin/Categories'));
+const AdminProducts = lazy(() => import('@/views/admin/Products'));
+const AdminImportProduct = lazy(() => import('@/views/admin/ImportProduct'));
+const AdminPromotionalBanners = lazy(() => import('@/views/admin/PromotionalBanners'));
+const AdminOrders = lazy(() => import('@/views/admin/Orders'));
+const AdminOrderDetail = lazy(() => import('@/views/admin/OrderDetail'));
+const AdminSettings = lazy(() => import('@/views/admin/Settings'));
+const PendingPaymentOrders = lazy(() => import('@/views/admin/PendingPaymentOrders'));
+const PaidOrders = lazy(() => import('@/views/admin/PaidOrders'));
+const ShippedOrders = lazy(() => import('@/views/admin/ShippedOrders'));
+const MigrateImages = lazy(() => import('@/views/admin/MigrateImages'));
 
 // Blog admin pages
-const AdminBlogPosts = lazy(() => import('@/pages/admin/BlogPosts'));
-const AdminBlogPostEditor = lazy(() => import('@/pages/admin/BlogPostEditor'));
-const AdminBlogCategories = lazy(() => import('@/pages/admin/BlogCategories'));
-const AdminBlogTags = lazy(() => import('@/pages/admin/BlogTags'));
+const AdminBlogPosts = lazy(() => import('@/views/admin/BlogPosts'));
+const AdminBlogPostEditor = lazy(() => import('@/views/admin/BlogPostEditor'));
+const AdminBlogCategories = lazy(() => import('@/views/admin/BlogCategories'));
+const AdminBlogTags = lazy(() => import('@/views/admin/BlogTags'));
 
 // Invoice pages
-const AdminInvoices = lazy(() => import('@/pages/admin/Invoices'));
-const ViewInvoice = lazy(() => import('@/pages/ViewInvoice'));
+const AdminInvoices = lazy(() => import('@/views/admin/Invoices'));
+const ViewInvoice = lazy(() => import('@/views/ViewInvoice'));
 
 const queryClient = new QueryClient({
   defaultOptions: {

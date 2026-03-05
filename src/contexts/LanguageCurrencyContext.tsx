@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import {
   SupportedLanguage,
@@ -63,18 +63,22 @@ interface LanguageCurrencyContextType {
 
 const LanguageCurrencyContext = createContext<LanguageCurrencyContextType | undefined>(undefined);
 
-export const LanguageCurrencyProvider = ({ children }: { children: ReactNode }) => {
+/**
+ * Next.js-compatible provider – uses next/router instead of react-router-dom.
+ */
+export const LanguageCurrencyProviderNext = ({ children }: { children: ReactNode }) => {
   const { i18n, t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
 
   // Initialize language from URL
   const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-    return getLanguageFromPath(location.pathname);
+    if (typeof window === 'undefined') return DEFAULT_LANGUAGE;
+    return getLanguageFromPath(window.location.pathname);
   });
 
   // Initialize currency from localStorage
   const [currency, setCurrencyState] = useState<SupportedCurrency>(() => {
+    if (typeof window === 'undefined') return 'SAR';
     const saved = localStorage.getItem('lamset-currency');
     if (saved && (saved === 'SAR' || saved === 'USD')) {
       return saved;
@@ -100,29 +104,32 @@ export const LanguageCurrencyProvider = ({ children }: { children: ReactNode }) 
     document.documentElement.setAttribute('data-lang', language);
   }, [language, dir]);
 
-  // Sync language from URL changes
+  // Sync language from URL changes (next/router)
   useEffect(() => {
-    const urlLang = getLanguageFromPath(location.pathname);
+    const urlLang = getLanguageFromPath(router.asPath);
     if (urlLang !== language) {
       setLanguageState(urlLang);
     }
-  }, [location.pathname]);
+  }, [router.asPath]);
 
   // Save currency to localStorage
   useEffect(() => {
     localStorage.setItem('lamset-currency', currency);
   }, [currency]);
 
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : router.asPath.split('?')[0];
+  const search = typeof window !== 'undefined' ? window.location.search : '';
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+
   const setLanguage = useCallback((lang: SupportedLanguage) => {
     if (!SUPPORTED_LANGUAGES.includes(lang)) return;
     
     setLanguageState(lang);
     
-    // Navigate to the same page but with the new language prefix
-    const currentPathWithoutLang = stripLanguagePrefix(location.pathname);
+    const currentPathWithoutLang = stripLanguagePrefix(pathname);
     const newPath = addLanguagePrefix(currentPathWithoutLang, lang);
-    navigate(newPath + location.search + location.hash, { replace: true });
-  }, [location, navigate]);
+    router.replace(newPath + search + hash);
+  }, [pathname, search, hash, router]);
 
   const setCurrency = useCallback((cur: SupportedCurrency) => {
     setCurrencyState(cur);
@@ -150,15 +157,13 @@ export const LanguageCurrencyProvider = ({ children }: { children: ReactNode }) 
     };
   }, [convertPrice, currencyConfig, language]);
 
-  // Get localized field from a database record
-  // e.g., getLocalizedField(product, 'name') returns product.name_ar or product.name_en
   const getLocalizedField = useCallback(<T extends Record<string, any>>(
     item: T,
     fieldBase: string,
     fallbackField?: string
   ): string => {
     const localizedKey = `${fieldBase}_${language}`;
-    const fallbackKey = fallbackField || `${fieldBase}_ar`; // Always fallback to Arabic
+    const fallbackKey = fallbackField || `${fieldBase}_ar`;
     return (item[localizedKey] as string) || (item[fallbackKey] as string) || '';
   }, [language]);
 
@@ -168,11 +173,11 @@ export const LanguageCurrencyProvider = ({ children }: { children: ReactNode }) 
   }, [language]);
 
   const getAlternateLangPath = useCallback((path?: string): string => {
-    const currentPath = path || location.pathname;
+    const currentPath = path || pathname;
     const cleanPath = stripLanguagePrefix(currentPath);
     const alternateLang = language === 'ar' ? 'en' : 'ar';
     return addLanguagePrefix(cleanPath, alternateLang);
-  }, [language, location.pathname]);
+  }, [language, pathname]);
 
   return (
     <LanguageCurrencyContext.Provider
@@ -197,6 +202,9 @@ export const LanguageCurrencyProvider = ({ children }: { children: ReactNode }) 
     </LanguageCurrencyContext.Provider>
   );
 };
+
+/** Legacy alias for backward compat */
+export const LanguageCurrencyProvider = LanguageCurrencyProviderNext;
 
 export const useLanguageCurrency = () => {
   const context = useContext(LanguageCurrencyContext);

@@ -2,7 +2,8 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import defaultBanner from '@/assets/categories/hair-care-banner.jpg';
+import defaultBannerImg from '@/assets/categories/hair-care-banner.jpg';
+const defaultBanner = typeof defaultBannerImg === 'string' ? defaultBannerImg : defaultBannerImg.src;
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import { LocalizedLink } from '@/components/LocalizedLink';
 

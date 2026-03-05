@@ -13,7 +13,7 @@ export const CategoryShortcuts = () => {
   const { data: categories, isLoading } = useQuery({
     queryKey: ['category-shortcuts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('categories')
         .select('id, name_ar, name_en, slug, banner_url')
         .eq('is_active', true)

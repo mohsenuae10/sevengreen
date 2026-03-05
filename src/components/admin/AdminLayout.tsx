@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Helmet } from 'react-helmet-async';
+import Head from 'next/head';
 import { AdminSidebar } from './AdminSidebar';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 
@@ -10,9 +10,9 @@ interface AdminLayoutProps {
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <>
-      <Helmet>
+      <Head>
         <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      </Head>
       <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen w-full bg-background" dir="rtl">
         <AdminSidebar />

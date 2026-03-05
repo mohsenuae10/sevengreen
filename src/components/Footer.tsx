@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import { Separator } from '@/components/ui/separator';
-import logo from '@/assets/logo.png';
+import logoImg from '@/assets/logo.png';
+const logo = typeof logoImg === 'string' ? logoImg : logoImg.src;
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
 import LocalizedLink from './LocalizedLink';
 
@@ -24,7 +25,7 @@ export const Footer = () => {
   const { data: categories } = useQuery({
     queryKey: ['footer-categories', language],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('categories')
         .select('name_ar, name_en, slug')
         .eq('is_active', true)

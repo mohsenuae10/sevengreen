@@ -17,7 +17,7 @@ export const RelatedProducts = ({ currentProductId, category, categoryAr, catego
   const { data: products, isLoading } = useQuery({
     queryKey: ['related-products', category, currentProductId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('products')
         .select('id, name_ar, name_en, price, image_url, category, category_ar, slug, stock_quantity, is_active')
         .eq('category', category)

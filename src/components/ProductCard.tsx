@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/hooks/useNextRouter';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { ShoppingCart, Heart, ShoppingBag } from 'lucide-react';
