@@ -31,7 +31,7 @@ export const Header = () => {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from('categories')
-        .select('name_ar, name_en, slug')
+        .select('*')
         .eq('is_active', true)
         .order('display_order');
       

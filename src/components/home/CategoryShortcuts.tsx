@@ -15,7 +15,7 @@ export const CategoryShortcuts = () => {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from('categories')
-        .select('id, name_ar, name_en, slug, banner_url')
+        .select('*')
         .eq('is_active', true)
         .not('banner_url', 'is', null)
         .order('display_order');
