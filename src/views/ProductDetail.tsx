@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/breadcrumb';
 
 export default function ProductDetail() {
-  const { slug: id } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
