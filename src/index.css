@@ -243,3 +243,65 @@
     @apply bg-muted/50;
   }
 }
+
+/* Category Banner Shimmer Sweep Animation */
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(200%) skewX(-15deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+[dir="rtl"] .shimmer-strip {
+  animation-name: shimmer-sweep-rtl !important;
+}
+
+@keyframes shimmer-sweep-rtl {
+  0% {
+    transform: translateX(100%) skewX(15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(-200%) skewX(15deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-200%) skewX(15deg);
+    opacity: 0;
+  }
+}
+
+.shimmer-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.25) 40%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.25) 60%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+}

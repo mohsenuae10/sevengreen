@@ -60,6 +60,9 @@ export const CategorySection = ({ title, category, products, icon, delay = '0s',
           <div className={`absolute inset-0 bg-gradient-to-${isRTL ? 'l' : 'r'} from-primary-dark/90 via-primary/70 to-primary/40`}></div>
         </div>
         
+        {/* Shimmer Sweep Effect */}
+        <div className="shimmer-strip" aria-hidden="true"></div>
+        
         <div className="relative z-10 py-8 px-6 md:py-10 md:px-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {icon && (

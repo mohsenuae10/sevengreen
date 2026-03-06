@@ -256,7 +256,7 @@ const CategoryLanding = () => {
       )}
 
       {/* Hero Section with Category Banner */}
-      <section className="relative bg-gradient-to-bl from-primary/10 via-background to-secondary/10 py-12 md:py-16">
+      <section className="relative bg-gradient-to-bl from-primary/10 via-background to-secondary/10 py-12 md:py-16 overflow-hidden">
         {category.banner_url && (
           <div className="absolute inset-0 opacity-10">
             <img 
@@ -266,6 +266,9 @@ const CategoryLanding = () => {
             />
           </div>
         )}
+        {/* Shimmer Sweep Effect */}
+        <div className="shimmer-strip" aria-hidden="true"></div>
+        
         <div className="container mx-auto px-4 relative z-10">
           {/* Breadcrumb */}
           <Breadcrumb className="mb-6">
