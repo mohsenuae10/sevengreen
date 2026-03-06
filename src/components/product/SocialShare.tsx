@@ -16,7 +16,7 @@ interface SocialShareProps {
 
 export default function SocialShare({ productName, productUrl }: SocialShareProps) {
   const { t } = useLanguageCurrency();
-  const url = productUrl || window.location.href;
+  const url = productUrl || (typeof window !== 'undefined' ? window.location.href : '');
   const text = t('social.checkProduct', { name: productName });
 
   const shareToWhatsApp = () => {
