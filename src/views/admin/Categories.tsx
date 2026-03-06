@@ -17,8 +17,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface Category {
   id: string;
   name_ar: string;
+  name_en: string | null;
   slug: string;
   description_ar: string | null;
+  description_en: string | null;
   banner_url: string | null;
   icon: string;
   display_order: number;
@@ -37,7 +39,9 @@ export default function Categories() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({
     name_ar: '',
+    name_en: '',
     description_ar: '',
+    description_en: '',
     icon: 'Sparkles',
     display_order: 0,
     is_active: true,
@@ -193,7 +197,9 @@ export default function Categories() {
   const resetForm = () => {
     setFormData({
       name_ar: '',
+      name_en: '',
       description_ar: '',
+      description_en: '',
       icon: 'Sparkles',
       display_order: 0,
       is_active: true,
@@ -206,7 +212,9 @@ export default function Categories() {
     setEditingCategory(category);
     setFormData({
       name_ar: category.name_ar,
+      name_en: category.name_en || '',
       description_ar: category.description_ar || '',
+      description_en: category.description_en || '',
       icon: category.icon,
       display_order: category.display_order,
       is_active: category.is_active,
@@ -261,22 +269,47 @@ export default function Categories() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name_ar">اسم القسم *</Label>
+                  <Label htmlFor="name_ar">اسم القسم (عربي) *</Label>
                   <Input
                     id="name_ar"
                     value={formData.name_ar}
                     onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
                     required
+                    dir="rtl"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="description_ar">الوصف</Label>
+                  <Label htmlFor="name_en">Category Name (English)</Label>
+                  <Input
+                    id="name_en"
+                    value={formData.name_en}
+                    onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                    placeholder="Category name in English"
+                    dir="ltr"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description_ar">الوصف (عربي)</Label>
                   <Textarea
                     id="description_ar"
                     value={formData.description_ar}
                     onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
                     rows={3}
+                    dir="rtl"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description_en">Description (English)</Label>
+                  <Textarea
+                    id="description_en"
+                    value={formData.description_en}
+                    onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
+                    placeholder="Category description in English..."
+                    rows={3}
+                    dir="ltr"
                   />
                 </div>
 

@@ -240,21 +240,31 @@ export default function AdminProducts() {
 function ProductForm({ product, onClose }: { product?: any; onClose: () => void }) {
   const [formData, setFormData] = useState({
     name_ar: product?.name_ar || '',
+    name_en: product?.name_en || '',
     description_ar: product?.description_ar || '',
+    description_en: product?.description_en || '',
     ingredients_ar: product?.ingredients_ar || '',
+    ingredients_en: product?.ingredients_en || '',
     how_to_use_ar: product?.how_to_use_ar || '',
+    how_to_use_en: product?.how_to_use_en || '',
     benefits_ar: product?.benefits_ar || '',
+    benefits_en: product?.benefits_en || '',
     warnings_ar: product?.warnings_ar || '',
+    warnings_en: product?.warnings_en || '',
     size_info: product?.size_info || '',
     made_in: product?.made_in || '',
     price: product?.price || '',
     category: product?.category || '',
     category_ar: product?.category_ar || '',
+    category_en: product?.category_en || '',
     stock_quantity: product?.stock_quantity || '',
     image_url: product?.image_url || '',
     seo_title: product?.seo_title || '',
+    seo_title_en: product?.seo_title_en || '',
     seo_description: product?.seo_description || '',
+    seo_description_en: product?.seo_description_en || '',
     seo_keywords: product?.seo_keywords || '',
+    seo_keywords_en: product?.seo_keywords_en || '',
     slug: product?.slug || '',
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -270,13 +280,13 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('categories')
-        .select('name_ar, slug')
+        .select('name_ar, name_en, slug')
         .eq('is_active', true)
         .order('display_order', { ascending: true });
       if (error) throw error;
-      return data;
+      return data as { name_ar: string; name_en?: string; slug: string }[];
     },
   });
 
@@ -551,21 +561,31 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
       // تنظيف البيانات
       const productData = {
         name_ar: formData.name_ar.trim(),
+        name_en: formData.name_en?.trim() || null,
         description_ar: formData.description_ar?.trim() || null,
+        description_en: formData.description_en?.trim() || null,
         ingredients_ar: (formData.ingredients_ar && typeof formData.ingredients_ar === 'string') ? formData.ingredients_ar.trim() : null,
+        ingredients_en: (formData.ingredients_en && typeof formData.ingredients_en === 'string') ? formData.ingredients_en.trim() : null,
         how_to_use_ar: (formData.how_to_use_ar && typeof formData.how_to_use_ar === 'string') ? formData.how_to_use_ar.trim() : null,
+        how_to_use_en: (formData.how_to_use_en && typeof formData.how_to_use_en === 'string') ? formData.how_to_use_en.trim() : null,
         benefits_ar: (formData.benefits_ar && typeof formData.benefits_ar === 'string') ? formData.benefits_ar.trim() : null,
+        benefits_en: (formData.benefits_en && typeof formData.benefits_en === 'string') ? formData.benefits_en.trim() : null,
         warnings_ar: (formData.warnings_ar && typeof formData.warnings_ar === 'string') ? formData.warnings_ar.trim() : null,
+        warnings_en: (formData.warnings_en && typeof formData.warnings_en === 'string') ? formData.warnings_en.trim() : null,
         size_info: formData.size_info?.trim() || null,
         made_in: formData.made_in?.trim() || null,
         price: parseFloat(formData.price as any),
         category: formData.category.trim(),
         category_ar: formData.category_ar?.trim() || null,
+        category_en: formData.category_en?.trim() || null,
         stock_quantity: parseInt(formData.stock_quantity as any),
         image_url: primaryImageUrl || null,
         seo_title: formData.seo_title?.trim() || null,
+        seo_title_en: formData.seo_title_en?.trim() || null,
         seo_description: formData.seo_description?.trim() || null,
+        seo_description_en: formData.seo_description_en?.trim() || null,
         seo_keywords: formData.seo_keywords?.trim() || null,
+        seo_keywords_en: formData.seo_keywords_en?.trim() || null,
         slug: formData.slug?.trim() || null,
       };
 
@@ -646,24 +666,38 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
     <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
         <div className="space-y-2">
-          <Label>اسم المنتج</Label>
+          <Label>اسم المنتج (عربي) *</Label>
           <Input
             value={formData.name_ar}
             onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
             required
+            dir="rtl"
           />
         </div>
+        <div className="space-y-2">
+          <Label>Product Name (English)</Label>
+          <Input
+            value={formData.name_en}
+            onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+            placeholder="Product name in English"
+            dir="ltr"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
         <div className="space-y-2">
           <Label>الفئة</Label>
           <Select
             value={formData.category}
             onValueChange={(value) => {
-              // جلب اسم الفئة بالعربي تلقائياً
+              // جلب اسم الفئة بالعربي والإنجليزي تلقائياً
               const selectedCategory = categories?.find(c => c.slug === value);
               setFormData({ 
                 ...formData, 
                 category: value,
-                category_ar: selectedCategory?.name_ar || ''
+                category_ar: selectedCategory?.name_ar || '',
+                category_en: selectedCategory?.name_en || ''
               });
             }}
           >
@@ -708,7 +742,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
 
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
-          <Label>الوصف</Label>
+          <Label>الوصف (عربي)</Label>
           <Button
             type="button"
             variant="outline"
@@ -733,12 +767,24 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           value={formData.description_ar}
           onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
           rows={3}
+          dir="rtl"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Description (English)</Label>
+        <Textarea
+          value={formData.description_en}
+          onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
+          placeholder="Product description in English..."
+          rows={3}
+          dir="ltr"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
-          <Label>المكونات</Label>
+          <Label>المكونات (عربي)</Label>
           <Button
             type="button"
             variant="outline"
@@ -764,12 +810,24 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           onChange={(e) => setFormData({ ...formData, ingredients_ar: e.target.value })}
           placeholder="أدخل مكونات المنتج..."
           rows={3}
+          dir="rtl"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Ingredients (English)</Label>
+        <Textarea
+          value={formData.ingredients_en}
+          onChange={(e) => setFormData({ ...formData, ingredients_en: e.target.value })}
+          placeholder="Enter product ingredients..."
+          rows={3}
+          dir="ltr"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
-          <Label>طريقة الاستخدام</Label>
+          <Label>طريقة الاستخدام (عربي)</Label>
           <Button
             type="button"
             variant="outline"
@@ -795,12 +853,24 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           onChange={(e) => setFormData({ ...formData, how_to_use_ar: e.target.value })}
           placeholder="كيفية استخدام المنتج..."
           rows={3}
+          dir="rtl"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>How to Use (English)</Label>
+        <Textarea
+          value={formData.how_to_use_en}
+          onChange={(e) => setFormData({ ...formData, how_to_use_en: e.target.value })}
+          placeholder="How to use this product..."
+          rows={3}
+          dir="ltr"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
-          <Label>الفوائد</Label>
+          <Label>الفوائد (عربي)</Label>
           <Button
             type="button"
             variant="outline"
@@ -826,16 +896,40 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           onChange={(e) => setFormData({ ...formData, benefits_ar: e.target.value })}
           placeholder="فوائد المنتج..."
           rows={2}
+          dir="rtl"
         />
       </div>
 
       <div className="space-y-2">
-        <Label>التحذيرات (اختياري)</Label>
+        <Label>Benefits (English)</Label>
+        <Textarea
+          value={formData.benefits_en}
+          onChange={(e) => setFormData({ ...formData, benefits_en: e.target.value })}
+          placeholder="Product benefits..."
+          rows={2}
+          dir="ltr"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>التحذيرات (عربي - اختياري)</Label>
         <Textarea
           value={formData.warnings_ar}
           onChange={(e) => setFormData({ ...formData, warnings_ar: e.target.value })}
           placeholder="تحذيرات الاستخدام..."
           rows={2}
+          dir="rtl"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Warnings (English - Optional)</Label>
+        <Textarea
+          value={formData.warnings_en}
+          onChange={(e) => setFormData({ ...formData, warnings_en: e.target.value })}
+          placeholder="Usage warnings..."
+          rows={2}
+          dir="ltr"
         />
       </div>
 
@@ -957,36 +1051,75 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           </Button>
         </div>
         <div className="space-y-2">
-          <Label>عنوان SEO</Label>
+          <Label>عنوان SEO (عربي)</Label>
           <Input
             value={formData.seo_title}
             onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
             placeholder="عنوان محسّن لمحركات البحث (50-60 حرف)"
             maxLength={60}
+            dir="rtl"
           />
           <p className="text-xs text-muted-foreground">
             {formData.seo_title.length}/60 حرف
           </p>
         </div>
         <div className="space-y-2">
-          <Label>وصف SEO</Label>
+          <Label>SEO Title (English)</Label>
+          <Input
+            value={formData.seo_title_en}
+            onChange={(e) => setFormData({ ...formData, seo_title_en: e.target.value })}
+            placeholder="SEO optimized title (50-60 chars)"
+            maxLength={60}
+            dir="ltr"
+          />
+          <p className="text-xs text-muted-foreground">
+            {formData.seo_title_en.length}/60 chars
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label>وصف SEO (عربي)</Label>
           <Textarea
             value={formData.seo_description}
             onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
             placeholder="وصف محسّن لمحركات البحث (150-160 حرف)"
             rows={2}
             maxLength={160}
+            dir="rtl"
           />
           <p className="text-xs text-muted-foreground">
             {formData.seo_description.length}/160 حرف
           </p>
         </div>
         <div className="space-y-2">
-          <Label>كلمات مفتاحية</Label>
+          <Label>SEO Description (English)</Label>
+          <Textarea
+            value={formData.seo_description_en}
+            onChange={(e) => setFormData({ ...formData, seo_description_en: e.target.value })}
+            placeholder="SEO optimized description (150-160 chars)"
+            rows={2}
+            maxLength={160}
+            dir="ltr"
+          />
+          <p className="text-xs text-muted-foreground">
+            {formData.seo_description_en.length}/160 chars
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label>كلمات مفتاحية (عربي)</Label>
           <Input
             value={formData.seo_keywords}
             onChange={(e) => setFormData({ ...formData, seo_keywords: e.target.value })}
             placeholder="كلمة1, كلمة2, كلمة3"
+            dir="rtl"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>SEO Keywords (English)</Label>
+          <Input
+            value={formData.seo_keywords_en}
+            onChange={(e) => setFormData({ ...formData, seo_keywords_en: e.target.value })}
+            placeholder="keyword1, keyword2, keyword3"
+            dir="ltr"
           />
         </div>
       </div>
