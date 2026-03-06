@@ -42,7 +42,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   // Determine if slug is UUID or text slug
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
 
-  // Prefetch product
+  // Prefetch product with images, reviews, and ratingStats combined
+  // This must match the data structure returned by the component's useQuery queryFn
   await queryClient.prefetchQuery({
     queryKey: ['product', slug],
     queryFn: async () => {
@@ -52,43 +53,34 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       } else {
         query = query.eq('slug', slug);
       }
-      const { data } = await query.maybeSingle();
-      return data;
+      const { data: productData } = await query.maybeSingle();
+      if (!productData) return null;
+
+      const { data: images } = await db
+        .from('product_images')
+        .select('*')
+        .eq('product_id', productData.id)
+        .order('display_order');
+
+      const { data: reviews } = await db
+        .from('product_reviews')
+        .select('*')
+        .eq('product_id', productData.id)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+
+      return {
+        ...productData,
+        images: images || [],
+        reviews: reviews || [],
+        ratingStats: null,
+      };
     },
   });
 
   // Check if product was found
   const product = queryClient.getQueryData(['product', slug]);
   if (!product) return { notFound: true };
-
-  const productId = (product as any).id;
-
-  // Prefetch product images
-  await queryClient.prefetchQuery({
-    queryKey: ['product-images', productId],
-    queryFn: async () => {
-      const { data } = await db
-        .from('product_images')
-        .select('*')
-        .eq('product_id', productId)
-        .order('display_order');
-      return data || [];
-    },
-  });
-
-  // Prefetch reviews
-  await queryClient.prefetchQuery({
-    queryKey: ['product-reviews', productId],
-    queryFn: async () => {
-      const { data } = await db
-        .from('product_reviews')
-        .select('*')
-        .eq('product_id', productId)
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false });
-      return data || [];
-    },
-  });
 
   return {
     props: {

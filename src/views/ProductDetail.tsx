@@ -176,7 +176,7 @@ export default function ProductDetail() {
   const productUrl = getLocalizedPath(`/product/${product.slug || product.id}`);
   const isInStock = product.stock_quantity > 0;
   
-  const allImages = product.images.length > 0 
+  const allImages = product.images?.length > 0 
     ? product.images.map(img => img.image_url) 
     : product.image_url ? [product.image_url] : [];
 
@@ -288,7 +288,7 @@ export default function ProductDetail() {
 
       <div className="grid md:grid-cols-2 gap-12">
         <ProductImageGallery 
-          images={product.images.length > 0 ? product.images : [{ image_url: product.image_url }]}
+          images={product.images?.length > 0 ? product.images : [{ image_url: product.image_url }]}
           productName={productName}
         />
 
