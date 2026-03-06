@@ -60,11 +60,11 @@ export const CategoryShortcuts = () => {
           ]}
           className="w-full"
         >
-          <CarouselContent className="-mr-2 md:-mr-4">
+          <CarouselContent className="-ms-2 md:-ms-4">
             {categories.map((category) => {
               const categoryName = getLocalizedField(category, 'name');
               return (
-                <CarouselItem key={category.id} className="pr-2 md:pr-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
+                <CarouselItem key={category.id} className="ps-2 md:ps-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
                   <LocalizedLink
                     to={`/products?category=${category.slug}`}
                     className="group"

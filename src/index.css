@@ -90,11 +90,6 @@
   }
   body {
     @apply bg-background text-foreground font-['Cairo',sans-serif];
-    direction: rtl;
-  }
-  
-  html {
-    direction: rtl;
   }
   
   /* Mobile SEO Optimizations */
