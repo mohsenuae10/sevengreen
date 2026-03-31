@@ -23,6 +23,7 @@ import { ReviewsList } from '@/components/product/ReviewsList';
 import { ReviewSchema } from '@/components/SEO/ReviewSchema';
 import { getCareType } from '@/utils/categoryHelpers';
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import { trackViewContent, trackAddToCart } from '@/lib/meta-pixel';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -95,6 +96,19 @@ export default function ProductDetail() {
     }
   }, [product, id, navigate, getLocalizedPath]);
 
+  // Meta Pixel: ViewContent
+  useEffect(() => {
+    if (product) {
+      trackViewContent({
+        content_name: product.name_ar,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: product.price,
+        currency: 'SAR',
+      });
+    }
+  }, [product]);
+
   const productName = product ? getLocalizedField(product, 'name') : '';
   const productCategory = product ? (getLocalizedField(product, 'category') || product.category) : '';
   const productDescription = product ? getLocalizedField(product, 'description') : '';
@@ -120,6 +134,16 @@ export default function ProductDetail() {
         image_url: product.image_url,
       });
     }
+
+    // Meta Pixel: AddToCart
+    trackAddToCart({
+      content_name: product.name_ar,
+      content_ids: [product.id],
+      content_type: 'product',
+      value: product.price * quantity,
+      currency: 'SAR',
+      num_items: quantity,
+    });
 
     toast({
       title: t('common.added'),

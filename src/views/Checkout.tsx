@@ -16,6 +16,7 @@ import { SEOHead } from '@/components/SEO/SEOHead';
 import { BreadcrumbSchema } from '@/components/SEO/BreadcrumbSchema';
 import Head from 'next/head';
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import { trackInitiateCheckout } from '@/lib/meta-pixel';
 
 // قائمة الدول العربية ودول الخليج
 const ARAB_COUNTRIES = [
@@ -410,6 +411,19 @@ export default function Checkout() {
     console.log('🍏 Apple Pay Domain:', window.location.hostname);
     console.log('═══════════════════════════════════');
   }, [items, totalPrice, clientSecret]);
+
+  // Meta Pixel: InitiateCheckout
+  useEffect(() => {
+    if (items.length > 0) {
+      trackInitiateCheckout({
+        content_ids: items.map((item) => item.id),
+        content_type: 'product',
+        value: totalPrice,
+        currency: 'SAR',
+        num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+      });
+    }
+  }, []); // fire once on mount
 
   // Handle empty cart with delay
   useEffect(() => {

@@ -8,6 +8,7 @@ import { CheckCircle, Package, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEO/SEOHead';
 import Head from 'next/head';
 import { useLanguageCurrency } from '@/contexts/LanguageCurrencyContext';
+import { trackPurchase } from '@/lib/meta-pixel';
 
 export default function OrderSuccess() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -97,6 +98,18 @@ export default function OrderSuccess() {
       console.log('✅ Order fetched:', data);
       console.log('Payment status:', data.payment_status);
       console.log('Stripe payment ID:', data.stripe_payment_id);
+
+      // Meta Pixel: Purchase
+      if (data && data.order_items) {
+        trackPurchase({
+          content_ids: data.order_items.map((item: any) => item.product_id || item.id),
+          content_type: 'product',
+          value: data.total_amount,
+          currency: 'SAR',
+          num_items: data.order_items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0),
+          order_id: data.order_number || orderId,
+        });
+      }
       
       setIsLoading(false);
       return data;
