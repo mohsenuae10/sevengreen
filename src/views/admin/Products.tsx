@@ -591,13 +591,38 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
 
       console.log('Attempting to save product:', productData);
 
+      // Helper: strip English-only columns if the DB schema doesn't have them yet
+      const stripEnglishColumns = (data: Record<string, any>) => {
+        const enKeys = [
+          'name_en', 'description_en', 'long_description_en', 'ingredients_en',
+          'how_to_use_en', 'benefits_en', 'warnings_en', 'category_en',
+          'seo_title_en', 'seo_description_en', 'seo_keywords_en'
+        ];
+        const cleaned = { ...data };
+        for (const key of enKeys) {
+          delete cleaned[key];
+        }
+        return cleaned;
+      };
+
       let productId = product?.id;
 
       if (product) {
-        const { error } = await supabase
+        let { error } = await supabase
           .from('products')
           .update(productData)
           .eq('id', product.id);
+
+        // Retry without English columns if schema is missing them
+        if (error && error.message?.includes('column')) {
+          console.warn('Retrying update without English columns:', error.message);
+          const fallbackData = stripEnglishColumns(productData);
+          const retryResult = await supabase
+            .from('products')
+            .update(fallbackData)
+            .eq('id', product.id);
+          error = retryResult.error;
+        }
 
         if (error) {
           console.error('Update error:', error);
@@ -609,11 +634,24 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
           return;
         }
       } else {
-        const { error, data } = await supabase
+        let { error, data } = await supabase
           .from('products')
           .insert(productData)
           .select()
           .single();
+
+        // Retry without English columns if schema is missing them
+        if (error && error.message?.includes('column')) {
+          console.warn('Retrying insert without English columns:', error.message);
+          const fallbackData = stripEnglishColumns(productData);
+          const retryResult = await supabase
+            .from('products')
+            .insert(fallbackData)
+            .select()
+            .single();
+          error = retryResult.error;
+          data = retryResult.data;
+        }
 
         if (error) {
           console.error('Insert error:', error);

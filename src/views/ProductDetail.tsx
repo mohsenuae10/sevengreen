@@ -129,7 +129,7 @@ export default function ProductDetail() {
       addToCart({
         id: product.id,
         name_ar: product.name_ar,
-        name_en: product.name_en,
+        name_en: product.name_en || undefined,
         price: product.price,
         image_url: product.image_url,
       });
@@ -167,7 +167,7 @@ export default function ProductDetail() {
       addToCart({
         id: product.id,
         name_ar: product.name_ar,
-        name_en: product.name_en,
+        name_en: product.name_en || undefined,
         price: product.price,
         image_url: product.image_url,
       });

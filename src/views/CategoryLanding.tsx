@@ -157,7 +157,7 @@ const CategoryLanding = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name_ar, price, image_url, category, category_ar, slug, stock_quantity, is_active')
+        .select('id, name_ar, name_en, price, image_url, category, category_ar, category_en, slug, stock_quantity, is_active')
         .eq('category', slug)
         .eq('is_active', true)
         .order('created_at', { ascending: false });

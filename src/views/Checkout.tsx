@@ -802,13 +802,13 @@ export default function Checkout() {
                               <div className="w-16 h-16 rounded-lg overflow-hidden bg-background border border-border flex-shrink-0">
                                 <img 
                                   src={item.image_url} 
-                                  alt={item.name_ar}
+                                  alt={language === 'en' && item.name_en ? item.name_en : item.name_ar}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm mb-1 line-clamp-2">{item.name_ar}</div>
+                              <div className="font-medium text-sm mb-1 line-clamp-2">{language === 'en' && item.name_en ? item.name_en : item.name_ar}</div>
                               <div className="text-xs text-muted-foreground">{t('product.quantity')}: {item.quantity}</div>
                             </div>
                           </div>
