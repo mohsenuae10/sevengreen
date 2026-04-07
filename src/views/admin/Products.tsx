@@ -616,7 +616,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         // Retry without English columns if schema is missing them
         if (error && error.message?.includes('column')) {
           console.warn('Retrying update without English columns:', error.message);
-          const fallbackData = stripEnglishColumns(productData);
+          const fallbackData = stripEnglishColumns(productData) as typeof productData;
           const retryResult = await supabase
             .from('products')
             .update(fallbackData)
@@ -643,7 +643,7 @@ function ProductForm({ product, onClose }: { product?: any; onClose: () => void 
         // Retry without English columns if schema is missing them
         if (error && error.message?.includes('column')) {
           console.warn('Retrying insert without English columns:', error.message);
-          const fallbackData = stripEnglishColumns(productData);
+          const fallbackData = stripEnglishColumns(productData) as typeof productData;
           const retryResult = await supabase
             .from('products')
             .insert(fallbackData)
