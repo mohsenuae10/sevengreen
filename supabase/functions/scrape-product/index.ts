@@ -1270,7 +1270,7 @@ function extractProductLinks(html: string, hostname: string, baseUrl: string): s
     console.error('Error extracting product links:', error);
   }
   
-  return links.slice(0, 10);
+  return links.slice(0, 60);
 }
 
 // دالة لاستخراج بيانات منتج واحد مع استراتيجيات متعددة
@@ -1394,9 +1394,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url, imagesOnly = false, maxImages = 20 } = await req.json();
-    
-    console.log('خيارات الاستيراد:', { imagesOnly, maxImages });
+    const { url, imagesOnly = false, maxImages = 20, linksOnly = false } = await req.json();
+
+    console.log('خيارات الاستيراد:', { imagesOnly, maxImages, linksOnly });
 
     if (!url || typeof url !== 'string') {
       return new Response(
@@ -1530,7 +1530,7 @@ Deno.serve(async (req) => {
       }
       
       const productLinks = extractProductLinks(result.html, hostname, baseUrl);
-      
+
       if (productLinks.length === 0) {
         return new Response(
           JSON.stringify({
@@ -1542,24 +1542,38 @@ Deno.serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
+
+      // وضع الروابط فقط - يرجع الروابط بدون سحب كل منتج (سريع جداً)
+      if (linksOnly) {
+        console.log(`LinksOnly mode: returning ${productLinks.length} product links`);
+        return new Response(
+          JSON.stringify({
+            success: true,
+            linksOnly: true,
+            links: productLinks,
+            count: productLinks.length,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       console.log(`Found ${productLinks.length} products, starting scraping...`);
-      
+
       const results = [];
       for (const productUrl of productLinks) {
         console.log(`Scraping: ${productUrl}`);
         const result = await scrapeProductData(productUrl);
         results.push(result);
-        
+
         // تأخير لتجنب Rate Limiting
         await new Promise(resolve => setTimeout(resolve, 800));
       }
-      
+
       const successful = results.filter(r => r.success).length;
       const failed = results.filter(r => !r.success).length;
-      
+
       console.log(`Bulk import complete: ${successful} successful, ${failed} failed`);
-      
+
       return new Response(
         JSON.stringify({
           success: true,

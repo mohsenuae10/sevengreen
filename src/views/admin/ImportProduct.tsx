@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Link as LinkIcon, Download, Check, Sparkles, X, Star, Upload, FileSpreadsheet } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Download, Check, Sparkles, X, Star, Upload, FileSpreadsheet, StopCircle, FolderOpen } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
@@ -62,7 +62,19 @@ export default function ImportProduct() {
   const [optimizeProductName, setOptimizeProductName] = useState(false);
   const [isOptimizingName, setIsOptimizingName] = useState(false);
   const [isOptimizingNameManual, setIsOptimizingNameManual] = useState(false);
-  
+
+  // ======= حالة استيراد القسم (Category Import) =======
+  const [categoryLinks, setCategoryLinks] = useState<string[]>([]);
+  const [isFetchingLinks, setIsFetchingLinks] = useState(false);
+  const [categoryImportProgress, setCategoryImportProgress] = useState<{
+    current: number;
+    total: number;
+    results: Array<{ url: string; status: 'pending' | 'scraping' | 'saving' | 'done' | 'error'; name?: string; error?: string; imageUrl?: string }>;
+  } | null>(null);
+  const [isCategoryImporting, setIsCategoryImporting] = useState(false);
+  const [categoryTargetSlug, setCategoryTargetSlug] = useState('');
+  const abortCategoryRef = useRef(false);
+
   // بيانات النموذج القابلة للتعديل
   const [formData, setFormData] = useState({
     name_ar: '',
@@ -518,6 +530,199 @@ export default function ImportProduct() {
     } finally {
       setIsOptimizingNameManual(false);
     }
+  };
+
+  // ======= استيراد قسم كامل - الخطوة 1: جلب الروابط فقط =======
+  const handleFetchCategoryLinks = async () => {
+    if (!productUrl.trim()) {
+      toast({ title: 'خطأ', description: 'الرجاء إدخال رابط القسم', variant: 'destructive' });
+      return;
+    }
+
+    setIsFetchingLinks(true);
+    setCategoryLinks([]);
+    setCategoryImportProgress(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-product', {
+        body: { url: productUrl, linksOnly: true },
+      });
+
+      if (error) throw error;
+
+      if (data.linksOnly && data.links?.length > 0) {
+        setCategoryLinks(data.links);
+        toast({
+          title: 'تم جلب روابط المنتجات',
+          description: `تم العثور على ${data.count} منتج في هذا القسم`,
+        });
+      } else if (!data.success) {
+        toast({
+          title: 'فشل',
+          description: data.message || 'لم يتم العثور على منتجات',
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching category links:', error);
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل في جلب روابط القسم',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsFetchingLinks(false);
+    }
+  };
+
+  // ======= استيراد قسم كامل - الخطوة 2: استيراد المنتجات واحد بواحد =======
+  const handleImportCategoryProducts = async () => {
+    if (!categoryTargetSlug) {
+      toast({ title: 'خطأ', description: 'الرجاء اختيار القسم المستهدف', variant: 'destructive' });
+      return;
+    }
+
+    const matchedCategory = categories.find(c => c.slug === categoryTargetSlug);
+
+    abortCategoryRef.current = false;
+    setIsCategoryImporting(true);
+
+    const initialResults = categoryLinks.map(url => ({
+      url,
+      status: 'pending' as const,
+    }));
+    setCategoryImportProgress({ current: 0, total: categoryLinks.length, results: initialResults });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < categoryLinks.length; i++) {
+      if (abortCategoryRef.current) {
+        toast({ title: 'تم الإيقاف', description: `توقف الاستيراد عند المنتج ${i} من ${categoryLinks.length}` });
+        break;
+      }
+
+      const url = categoryLinks[i];
+
+      // تحديث الحالة إلى "scraping"
+      setCategoryImportProgress(prev => {
+        if (!prev) return prev;
+        const results = [...prev.results];
+        results[i] = { ...results[i], status: 'scraping' };
+        return { ...prev, current: i + 1, results };
+      });
+
+      try {
+        // سحب بيانات المنتج
+        const { data, error } = await supabase.functions.invoke('scrape-product', {
+          body: { url, maxImages: 15 },
+        });
+
+        if (error) throw error;
+        if (!data.success || data.isBulkImport) throw new Error(data.message || 'فشل في سحب المنتج');
+
+        const rawProduct = data.data;
+        const priceInSAR = rawProduct.price ? Math.ceil(rawProduct.price * 3.75) : 0;
+
+        // تحديث الحالة إلى "saving"
+        setCategoryImportProgress(prev => {
+          if (!prev) return prev;
+          const results = [...prev.results];
+          results[i] = { ...results[i], status: 'saving', name: rawProduct.name };
+          return { ...prev, results };
+        });
+
+        // حفظ المنتج في قاعدة البيانات
+        const { data: savedProduct, error: productError } = await supabase
+          .from('products')
+          .insert({
+            name_ar: rawProduct.name || '',
+            description_ar: rawProduct.description || '',
+            price: priceInSAR,
+            category: categoryTargetSlug,
+            category_ar: matchedCategory?.name_ar || '',
+            stock_quantity: 10,
+            made_in: rawProduct.brand || '',
+            is_active: true,
+          })
+          .select()
+          .single();
+
+        if (productError) throw productError;
+
+        // حفظ الصور
+        let primaryImageUrl: string | null = null;
+        const images = rawProduct.images || [];
+        for (let imgIdx = 0; imgIdx < Math.min(images.length, 5); imgIdx++) {
+          try {
+            const imgUrl = images[imgIdx];
+            const imageResponse = await fetch(imgUrl);
+            if (!imageResponse.ok) continue;
+
+            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+            const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
+            const imageBlob = await imageResponse.blob();
+
+            const fileName = `${savedProduct.id}-${imgIdx}-${Date.now()}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+              .from('product-images')
+              .upload(fileName, imageBlob, { contentType, upsert: false });
+
+            let finalUrl: string;
+            if (uploadError) {
+              finalUrl = imgUrl;
+            } else {
+              const { data: { publicUrl } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(fileName);
+              finalUrl = publicUrl;
+            }
+
+            await supabase.from('product_images').insert({
+              product_id: savedProduct.id,
+              image_url: finalUrl,
+              is_primary: imgIdx === 0,
+              display_order: imgIdx,
+            });
+
+            if (imgIdx === 0) primaryImageUrl = finalUrl;
+          } catch (imgErr) {
+            console.error('Image error:', imgErr);
+          }
+        }
+
+        if (primaryImageUrl) {
+          await supabase.from('products').update({ image_url: primaryImageUrl }).eq('id', savedProduct.id);
+        }
+
+        successCount++;
+        setCategoryImportProgress(prev => {
+          if (!prev) return prev;
+          const results = [...prev.results];
+          results[i] = { ...results[i], status: 'done', name: rawProduct.name, imageUrl: primaryImageUrl || undefined };
+          return { ...prev, results };
+        });
+      } catch (err: any) {
+        failCount++;
+        setCategoryImportProgress(prev => {
+          if (!prev) return prev;
+          const results = [...prev.results];
+          results[i] = { ...results[i], status: 'error', error: err.message || 'خطأ غير معروف' };
+          return { ...prev, results };
+        });
+      }
+
+      // تأخير بين المنتجات
+      if (i < categoryLinks.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+    }
+
+    setIsCategoryImporting(false);
+    toast({
+      title: 'اكتمل استيراد القسم',
+      description: `نجح: ${successCount} | فشل: ${failCount} | الإجمالي: ${categoryLinks.length}`,
+    });
   };
 
   const handleSaveProduct = async () => {
@@ -1003,7 +1208,7 @@ export default function ImportProduct() {
                     <span className="text-purple-600 dark:text-purple-400">📁</span>
                     <span className="font-medium">قسم كامل:</span>
                     <code className="text-[10px] bg-muted px-1 rounded">aliexpress.com/category/...</code>
-                    <span className="text-[10px] opacity-60">(حتى 10 منتجات)</span>
+                    <span className="text-[10px] opacity-60">(حتى 60 منتج مع تقدم مباشر)</span>
                   </p>
                   <p className="flex items-center gap-1">
                     <span className="text-green-600 dark:text-green-400">📊</span>
@@ -1087,28 +1292,47 @@ export default function ImportProduct() {
                   placeholder="https://www.aliexpress.com/item/..."
                   value={productUrl}
                   onChange={(e) => setProductUrl(e.target.value)}
-                  disabled={isLoading || isFileImporting}
+                  disabled={isLoading || isFileImporting || isFetchingLinks || isCategoryImporting}
                   dir="ltr"
                   className="flex-1"
                 />
-                <Button
-                  onClick={handleFetchProduct}
-                  disabled={isLoading || isFileImporting || !productUrl.trim() || isOptimizingName}
-                >
-                  {isLoading || isOptimizingName ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                      {isOptimizingName ? 'جارٍ تحسين الاسم...' : 'جاري الجلب...'}
-                    </>
-                  ) : (
-                    <>
-                      <Download className="h-4 w-4 ml-2" />
-                      {importMode === 'images-only' ? 'جلب الصور' : 'جلب البيانات'}
-                    </>
-                  )}
-                </Button>
+                {detectedUrlType === 'category' ? (
+                  <Button
+                    onClick={handleFetchCategoryLinks}
+                    disabled={isFetchingLinks || isCategoryImporting || !productUrl.trim()}
+                  >
+                    {isFetchingLinks ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                        جاري جلب الروابط...
+                      </>
+                    ) : (
+                      <>
+                        <FolderOpen className="h-4 w-4 ml-2" />
+                        جلب روابط القسم
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleFetchProduct}
+                    disabled={isLoading || isFileImporting || !productUrl.trim() || isOptimizingName}
+                  >
+                    {isLoading || isOptimizingName ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                        {isOptimizingName ? 'جارٍ تحسين الاسم...' : 'جاري الجلب...'}
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4 ml-2" />
+                        {importMode === 'images-only' ? 'جلب الصور' : 'جلب البيانات'}
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
-              
+
               {/* URL Type Indicator */}
               {detectedUrlType && productUrl.trim() && (
                 <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-md border ${
@@ -1118,8 +1342,8 @@ export default function ImportProduct() {
                 }`}>
                   <span className="text-lg">{detectedUrlType === 'category' ? '📁' : '📦'}</span>
                   <span className="font-medium">
-                    {detectedUrlType === 'category' 
-                      ? 'تم اكتشاف: رابط قسم - سيتم استيراد حتى 10 منتجات' 
+                    {detectedUrlType === 'category'
+                      ? 'تم اكتشاف: رابط قسم - سيتم جلب روابط المنتجات ثم استيرادها واحداً تلو الآخر'
                       : 'تم اكتشاف: رابط منتج واحد'}
                   </span>
                 </div>
@@ -1156,6 +1380,146 @@ export default function ImportProduct() {
             )}
           </CardContent>
         </Card>
+
+        {/* ======= واجهة استيراد القسم الكامل ======= */}
+        {categoryLinks.length > 0 && (
+          <Card className="border-purple-300 dark:border-purple-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5 text-purple-600" />
+                استيراد قسم كامل ({categoryLinks.length} منتج)
+              </CardTitle>
+              <CardDescription>
+                تم العثور على {categoryLinks.length} رابط منتج - اختر القسم المستهدف ثم ابدأ الاستيراد
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* اختيار القسم المستهدف */}
+              <div className="space-y-2">
+                <Label className="font-semibold">القسم المستهدف</Label>
+                <Select value={categoryTargetSlug} onValueChange={setCategoryTargetSlug} disabled={isCategoryImporting}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر القسم الذي سيتم إضافة المنتجات إليه" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.slug} value={cat.slug}>
+                        {cat.name_ar}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* أزرار التحكم */}
+              <div className="flex gap-2">
+                {!isCategoryImporting ? (
+                  <>
+                    <Button
+                      onClick={handleImportCategoryProducts}
+                      disabled={!categoryTargetSlug}
+                      className="flex-1"
+                    >
+                      <Download className="h-4 w-4 ml-2" />
+                      استيراد الكل ({categoryLinks.length} منتج)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setCategoryLinks([]);
+                        setCategoryImportProgress(null);
+                        setCategoryTargetSlug('');
+                      }}
+                    >
+                      إلغاء
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="destructive"
+                    onClick={() => { abortCategoryRef.current = true; }}
+                    className="flex-1"
+                  >
+                    <StopCircle className="h-4 w-4 ml-2" />
+                    إيقاف الاستيراد
+                  </Button>
+                )}
+              </div>
+
+              {/* شريط التقدم */}
+              {categoryImportProgress && (
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>التقدم: {categoryImportProgress.current} من {categoryImportProgress.total}</span>
+                    <span>{Math.round((categoryImportProgress.current / categoryImportProgress.total) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-3">
+                    <div
+                      className="bg-purple-600 h-3 rounded-full transition-all duration-300"
+                      style={{ width: `${(categoryImportProgress.current / categoryImportProgress.total) * 100}%` }}
+                    />
+                  </div>
+
+                  {/* ملخص النتائج */}
+                  <div className="flex gap-4 text-sm">
+                    <span className="text-green-600 font-medium">
+                      نجح: {categoryImportProgress.results.filter(r => r.status === 'done').length}
+                    </span>
+                    <span className="text-red-600 font-medium">
+                      فشل: {categoryImportProgress.results.filter(r => r.status === 'error').length}
+                    </span>
+                    <span className="text-muted-foreground">
+                      متبقي: {categoryImportProgress.results.filter(r => r.status === 'pending').length}
+                    </span>
+                  </div>
+
+                  {/* قائمة المنتجات مع الحالة */}
+                  <div className="max-h-80 overflow-y-auto space-y-2 border rounded-lg p-2">
+                    {categoryImportProgress.results.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-3 p-2 rounded-md text-sm ${
+                          item.status === 'done' ? 'bg-green-50 dark:bg-green-950' :
+                          item.status === 'error' ? 'bg-red-50 dark:bg-red-950' :
+                          item.status === 'scraping' || item.status === 'saving' ? 'bg-amber-50 dark:bg-amber-950' :
+                          'bg-muted/30'
+                        }`}
+                      >
+                        {/* أيقونة الحالة */}
+                        <div className="flex-shrink-0">
+                          {item.status === 'done' && <Check className="h-4 w-4 text-green-600" />}
+                          {item.status === 'error' && <X className="h-4 w-4 text-red-600" />}
+                          {(item.status === 'scraping' || item.status === 'saving') && <Loader2 className="h-4 w-4 animate-spin text-amber-600" />}
+                          {item.status === 'pending' && <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />}
+                        </div>
+
+                        {/* صورة مصغرة */}
+                        {item.imageUrl && (
+                          <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0">
+                            <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+
+                        {/* التفاصيل */}
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate font-medium">
+                            {item.name || `منتج ${idx + 1}`}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate" dir="ltr">
+                            {item.status === 'scraping' ? 'جاري سحب البيانات...' :
+                             item.status === 'saving' ? 'جاري الحفظ...' :
+                             item.status === 'error' ? item.error :
+                             item.url}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* شريط تقدم استيراد الملف */}
         {fileImportProgress && isFileImporting && (
