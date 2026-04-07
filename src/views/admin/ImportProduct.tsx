@@ -163,6 +163,20 @@ export default function ImportProduct() {
         return 'single';
       }
       
+      // Salla stores and generic e-commerce category patterns
+      // /c{digits} pattern (e.g., careandideas.com/ar/hair-care-tools/c24077328)
+      if (lowerUrl.match(/\/c\d{5,}/)) {
+        return 'category';
+      }
+      // Salla category patterns
+      if (lowerUrl.includes('/categories/') || lowerUrl.includes('/cat/')) {
+        return 'category';
+      }
+      // Generic /category/ pattern
+      if (lowerUrl.includes('/category/')) {
+        return 'category';
+      }
+
       // Default: assume single product
       return 'single';
     } catch {
