@@ -168,11 +168,13 @@ export type Database = {
           banner_url: string | null
           created_at: string | null
           description_ar: string | null
+          description_en: string | null
           display_order: number
           icon: string
           id: string
           is_active: boolean | null
           name_ar: string
+          name_en: string | null
           slug: string
           updated_at: string | null
         }
@@ -180,11 +182,13 @@ export type Database = {
           banner_url?: string | null
           created_at?: string | null
           description_ar?: string | null
+          description_en?: string | null
           display_order?: number
           icon?: string
           id?: string
           is_active?: boolean | null
           name_ar: string
+          name_en?: string | null
           slug: string
           updated_at?: string | null
         }
@@ -192,11 +196,13 @@ export type Database = {
           banner_url?: string | null
           created_at?: string | null
           description_ar?: string | null
+          description_en?: string | null
           display_order?: number
           icon?: string
           id?: string
           is_active?: boolean | null
           name_ar?: string
+          name_en?: string | null
           slug?: string
           updated_at?: string | null
         }
@@ -484,89 +490,122 @@ export type Database = {
       products: {
         Row: {
           benefits_ar: string | null
+          benefits_en: string | null
           category: string
           category_ar: string | null
+          category_en: string | null
           created_at: string | null
           description_ar: string | null
+          description_en: string | null
           faqs: Json | null
           gtin: string | null
           how_to_use_ar: string | null
+          how_to_use_en: string | null
           id: string
           image_url: string | null
           ingredients_ar: string | null
+          ingredients_en: string | null
           is_active: boolean | null
           key_features: Json | null
           long_description_ar: string | null
+          long_description_en: string | null
           made_in: string | null
           mpn: string | null
           name_ar: string
+          name_en: string | null
           price: number
           seo_description: string | null
+          seo_description_en: string | null
           seo_keywords: string | null
+          seo_keywords_en: string | null
           seo_title: string | null
+          seo_title_en: string | null
           size_info: string | null
           slug: string | null
           stock_quantity: number
           updated_at: string | null
           warnings_ar: string | null
+          warnings_en: string | null
           why_choose: Json | null
         }
         Insert: {
           benefits_ar?: string | null
+          benefits_en?: string | null
           category: string
           category_ar?: string | null
+          category_en?: string | null
           created_at?: string | null
           description_ar?: string | null
+          description_en?: string | null
           faqs?: Json | null
           gtin?: string | null
           how_to_use_ar?: string | null
+          how_to_use_en?: string | null
           id?: string
           image_url?: string | null
           ingredients_ar?: string | null
+          ingredients_en?: string | null
           is_active?: boolean | null
           key_features?: Json | null
           long_description_ar?: string | null
+          long_description_en?: string | null
           made_in?: string | null
           mpn?: string | null
           name_ar: string
+          name_en?: string | null
           price: number
           seo_description?: string | null
+          seo_description_en?: string | null
           seo_keywords?: string | null
+          seo_keywords_en?: string | null
           seo_title?: string | null
+          seo_title_en?: string | null
           size_info?: string | null
           slug?: string | null
           stock_quantity?: number
           updated_at?: string | null
           warnings_ar?: string | null
+          warnings_en?: string | null
           why_choose?: Json | null
         }
         Update: {
           benefits_ar?: string | null
+          benefits_en?: string | null
           category?: string
           category_ar?: string | null
+          category_en?: string | null
           created_at?: string | null
           description_ar?: string | null
+          description_en?: string | null
           faqs?: Json | null
           gtin?: string | null
           how_to_use_ar?: string | null
+          how_to_use_en?: string | null
           id?: string
           image_url?: string | null
           ingredients_ar?: string | null
+          ingredients_en?: string | null
           is_active?: boolean | null
           key_features?: Json | null
           long_description_ar?: string | null
+          long_description_en?: string | null
           made_in?: string | null
           mpn?: string | null
           name_ar?: string
+          name_en?: string | null
           price?: number
           seo_description?: string | null
+          seo_description_en?: string | null
           seo_keywords?: string | null
+          seo_keywords_en?: string | null
           seo_title?: string | null
+          seo_title_en?: string | null
           size_info?: string | null
           slug?: string | null
           stock_quantity?: number
           updated_at?: string | null
           warnings_ar?: string | null
+          warnings_en?: string | null
           why_choose?: Json | null
         }
         Relationships: []
