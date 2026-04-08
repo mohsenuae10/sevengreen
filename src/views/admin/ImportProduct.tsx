@@ -575,7 +575,14 @@ export default function ImportProduct() {
       } else if (!data.success) {
         toast({
           title: 'فشل',
-          description: data.message || 'لم يتم العثور على منتجات',
+          description: data.message || 'لم يتم العثور على منتجات في هذا الرابط',
+          variant: 'destructive',
+        });
+      } else {
+        // linksOnly returned but with 0 links, or unexpected response
+        toast({
+          title: 'لم يتم العثور على منتجات',
+          description: 'لم يتم العثور على روابط منتجات في هذه الصفحة. تأكد أن الرابط هو رابط قسم يحتوي على منتجات.',
           variant: 'destructive',
         });
       }

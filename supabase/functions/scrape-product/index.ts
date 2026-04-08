@@ -1384,41 +1384,109 @@ async function extractProductLinks(html: string, hostname: string, baseUrl: stri
         }
       }
 
-      // Strategy 2: Generic HTML product link extraction
+      // Strategy 2: Generic HTML product link extraction (always try)
       if (links.length === 0) {
         console.log('Trying generic HTML extraction...');
-        const genericSelectors = [
+        const origin = baseUrl.split('/').slice(0, 3).join('/');
+
+        // Regex patterns for product URLs
+        const genericPatterns = [
           /<a[^>]*href=["']([^"']*\/product\/[^"']+)["']/gi,
           /<a[^>]*href=["']([^"']*\/products\/[^"']+)["']/gi,
           /<a[^>]*href=["']([^"']*\/p\d{5,}[^"']*)["']/gi,
           /<a[^>]*href=["']([^"']*\/item\/[^"']+)["']/gi,
+          /<a[^>]*href=["']([^"']*\/product-page\/[^"']+)["']/gi,
+          /<a[^>]*href=["']([^"']*\/shop\/[^"']+)["']/gi,
         ];
 
-        for (const pattern of genericSelectors) {
+        for (const pattern of genericPatterns) {
           const matches = html.matchAll(pattern);
           for (const match of matches) {
             let link = match[1];
             if (!link.startsWith('http')) {
-              link = link.startsWith('/') ? `${baseUrl.split('/').slice(0, 3).join('/')}${link}` : `${baseUrl}/${link}`;
+              link = link.startsWith('/') ? `${origin}${link}` : `${origin}/${link}`;
             }
-            const cleanLink = link.split('?')[0];
-            if (!seen.has(cleanLink)) {
+            const cleanLink = link.split('?')[0].split('#')[0];
+            // Skip category/collection/tag/page links
+            if (/\/(categor|collect|tag|page|cart|checkout|account|login|search)/i.test(cleanLink)) continue;
+            if (!seen.has(cleanLink) && cleanLink !== origin && cleanLink !== origin + '/') {
               seen.add(cleanLink);
               links.push(cleanLink);
             }
           }
         }
 
-        // Salla-specific: product cards with data attributes
+        // Product cards: elements with "product" in class that contain links
         const productCardMatches = html.matchAll(/<[^>]*class=["'][^"']*product[^"']*["'][^>]*>[\s\S]*?<a[^>]*href=["']([^"']+)["']/gi);
         for (const match of productCardMatches) {
           let link = match[1];
           if (!link.startsWith('http')) {
-            link = `${baseUrl.split('/').slice(0, 3).join('/')}${link.startsWith('/') ? '' : '/'}${link}`;
+            link = `${origin}${link.startsWith('/') ? '' : '/'}${link}`;
           }
-          if (!link.includes('#') && !seen.has(link)) {
-            seen.add(link);
-            links.push(link);
+          const cleanLink = link.split('?')[0].split('#')[0];
+          if (/\/(categor|collect|tag|page|cart|checkout|account|login|search)/i.test(cleanLink)) continue;
+          if (!seen.has(cleanLink) && cleanLink !== origin && cleanLink !== origin + '/') {
+            seen.add(cleanLink);
+            links.push(cleanLink);
+          }
+        }
+
+        // JSON-LD: find product URLs from structured data
+        const jsonLdMatches = html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi);
+        for (const match of jsonLdMatches) {
+          try {
+            const json = JSON.parse(match[1]);
+            const items = json['@graph'] || (Array.isArray(json) ? json : [json]);
+            for (const item of items) {
+              if (item['@type'] === 'Product' && item.url) {
+                let link = item.url;
+                if (!link.startsWith('http')) link = `${origin}${link.startsWith('/') ? '' : '/'}${link}`;
+                if (!seen.has(link)) { seen.add(link); links.push(link); }
+              }
+              // ItemList with products
+              if (item.itemListElement && Array.isArray(item.itemListElement)) {
+                for (const li of item.itemListElement) {
+                  const pUrl = li.url || li.item?.url || li.item?.['@id'];
+                  if (pUrl) {
+                    let link = pUrl;
+                    if (!link.startsWith('http')) link = `${origin}${link.startsWith('/') ? '' : '/'}${link}`;
+                    if (!seen.has(link)) { seen.add(link); links.push(link); }
+                  }
+                }
+              }
+            }
+          } catch (e) { /* skip */ }
+        }
+
+        // Fallback: all internal links that look like product pages (have slug after path)
+        if (links.length === 0) {
+          console.log('Trying broad link extraction...');
+          const allLinks = html.matchAll(/<a[^>]*href=["']([^"']+)["']/gi);
+          const hostPattern = new URL(baseUrl).hostname;
+          for (const match of allLinks) {
+            let link = match[1];
+            if (link.startsWith('#') || link.startsWith('mailto:') || link.startsWith('javascript:') || link.startsWith('tel:')) continue;
+            if (!link.startsWith('http')) {
+              if (link.startsWith('/')) link = `${origin}${link}`;
+              else continue;
+            }
+            try {
+              const linkUrl = new URL(link);
+              if (!linkUrl.hostname.includes(hostPattern)) continue;
+              const path = linkUrl.pathname;
+              // Must have path depth >= 2 segments (like /something/product-name)
+              const segments = path.split('/').filter(Boolean);
+              if (segments.length < 2) continue;
+              // Skip known non-product paths
+              if (/\/(categor|collect|tag|page|cart|checkout|account|login|search|blog|about|contact|faq|terms|privacy|shipping|return)/i.test(path)) continue;
+              // Skip if it ends with common file extensions
+              if (/\.(css|js|png|jpg|jpeg|gif|svg|ico|pdf|xml)$/i.test(path)) continue;
+              const cleanLink = link.split('?')[0].split('#')[0];
+              if (!seen.has(cleanLink)) {
+                seen.add(cleanLink);
+                links.push(cleanLink);
+              }
+            } catch (e) { /* skip */ }
           }
         }
 
@@ -1664,8 +1732,9 @@ Deno.serve(async (req) => {
     }
     
     // ============ اكتشاف نوع الرابط ============
-    const isCategoryPage = isCategoryUrl(url, hostname);
-    
+    // إذا أرسل المستخدم linksOnly: true من تبويب القسم، نعامله كقسم دائماً
+    const isCategoryPage = linksOnly || isCategoryUrl(url, hostname);
+
     if (isCategoryPage) {
       // ====== معالجة Category URL (Bulk Import) ======
       console.log('Detected category URL, extracting product links...');
