@@ -39,6 +39,7 @@ interface BulkImportResult {
 // سيتم تحميل الأقسام من قاعدة البيانات
 
 export default function ImportProduct() {
+  const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single');
   const [productUrl, setProductUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -64,6 +65,7 @@ export default function ImportProduct() {
   const [isOptimizingNameManual, setIsOptimizingNameManual] = useState(false);
 
   // ======= حالة استيراد القسم (Category Import) =======
+  const [categoryUrl, setCategoryUrl] = useState('');
   const [categoryLinks, setCategoryLinks] = useState<string[]>([]);
   const [isFetchingLinks, setIsFetchingLinks] = useState(false);
   const [categoryImportProgress, setCategoryImportProgress] = useState<{
@@ -548,7 +550,7 @@ export default function ImportProduct() {
 
   // ======= استيراد قسم كامل - الخطوة 1: جلب الروابط فقط =======
   const handleFetchCategoryLinks = async () => {
-    if (!productUrl.trim()) {
+    if (!categoryUrl.trim()) {
       toast({ title: 'خطأ', description: 'الرجاء إدخال رابط القسم', variant: 'destructive' });
       return;
     }
@@ -559,7 +561,7 @@ export default function ImportProduct() {
 
     try {
       const { data, error } = await supabase.functions.invoke('scrape-product', {
-        body: { url: productUrl, linksOnly: true },
+        body: { url: categoryUrl.trim(), linksOnly: true },
       });
 
       if (error) throw error;
@@ -1193,141 +1195,96 @@ export default function ImportProduct() {
     }
   };
 
+  // حسابات التقدم للاستيراد الجماعي
+  const completedCount = categoryImportProgress?.results.filter(r => r.status === 'done').length || 0;
+  const errorCount = categoryImportProgress?.results.filter(r => r.status === 'error').length || 0;
+
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">استيراد منتج</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Download className="h-7 w-7 text-primary" />
+            استيراد المنتجات
+          </h1>
           <p className="text-muted-foreground mt-2">
-            استيراد منتج من رابط خارجي (AliExpress، Amazon، وغيرها)
+            استورد المنتجات من متاجر سلة، AliExpress، Amazon، وغيرها
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LinkIcon className="h-5 w-5" />
-              استيراد المنتجات
-            </CardTitle>
-            <CardDescription>
-              <div className="space-y-2">
-                <p>اختر طريقة الاستيراد: رابط مباشر أو ملف Excel/CSV</p>
-                <div className="text-xs opacity-70 space-y-1 border-r-2 border-muted pr-2 mt-2">
-                  <p className="flex items-center gap-1">
-                    <span className="text-blue-600 dark:text-blue-400">📦</span>
-                    <span className="font-medium">منتج واحد:</span>
-                    <code className="text-[10px] bg-muted px-1 rounded">aliexpress.com/item/...</code>
-                  </p>
-                  <p className="flex items-center gap-1">
-                    <span className="text-purple-600 dark:text-purple-400">📁</span>
-                    <span className="font-medium">قسم كامل:</span>
-                    <code className="text-[10px] bg-muted px-1 rounded">aliexpress.com/category/...</code>
-                    <span className="text-[10px] opacity-60">(حتى 60 منتج مع تقدم مباشر)</span>
-                  </p>
-                  <p className="flex items-center gap-1">
-                    <span className="text-green-600 dark:text-green-400">📊</span>
-                    <span className="font-medium">ملف Excel/CSV:</span>
-                    <span className="text-[10px] opacity-60">(عدة روابط دفعة واحدة)</span>
-                  </p>
-                </div>
-              </div>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* استيراد من ملف */}
-            <div className="space-y-2 p-4 border-2 border-dashed rounded-lg bg-muted/10">
-              <div className="flex items-center gap-2 mb-2">
-                <FileSpreadsheet className="h-5 w-5 text-primary" />
-                <Label className="text-base font-semibold">استيراد من ملف Excel/CSV</Label>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                قم برفع ملف يحتوي على روابط المنتجات في أي عمود أو صف
-              </p>
-              <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-3">
-                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  💡 <span className="font-semibold">ملاحظة:</span> الاستيراد من الملف يجلب الصور فقط للسرعة - يمكنك إضافة البيانات الأخرى يدوياً أو بالذكاء الاصطناعي لاحقاً
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  onChange={handleFileUpload}
-                  disabled={isFileImporting || isLoading}
-                  className="flex-1"
-                />
-                <Button
-                  variant="outline"
-                  disabled={isFileImporting || isLoading}
-                  className="whitespace-nowrap"
-                >
-                  <Upload className="h-4 w-4 ml-2" />
-                  رفع الملف
-                </Button>
-              </div>
-            </div>
+        {/* ======= التبويبات ======= */}
+        <div className="flex gap-2 bg-muted rounded-xl p-1 max-w-sm">
+          <button
+            onClick={() => setActiveTab('single')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'single'
+                ? 'bg-background text-primary shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <LinkIcon className="w-4 h-4" />
+            منتج واحد
+          </button>
+          <button
+            onClick={() => setActiveTab('bulk')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'bulk'
+                ? 'bg-background text-primary shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <FolderOpen className="w-4 h-4" />
+            استيراد قسم
+          </button>
+        </div>
 
-            {/* استيراد من رابط مباشر */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">استيراد من رابط مباشر</Label>
-              
-              {/* خيارات الاستيراد */}
-              <div className="flex gap-2 p-3 bg-muted/30 rounded-lg">
-                <Button
-                  type="button"
-                  variant={importMode === 'full' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setImportMode('full')}
-                  className="flex-1"
-                >
-                  <Download className="h-4 w-4 ml-2" />
-                  استيراد كامل
-                </Button>
-                <Button
-                  type="button"
-                  variant={importMode === 'images-only' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setImportMode('images-only')}
-                  className="flex-1"
-                >
-                  <FileSpreadsheet className="h-4 w-4 ml-2" />
-                  الصور فقط
-                </Button>
-              </div>
-              
-              {importMode === 'images-only' && (
-                <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                  🚀 <span className="font-semibold">وضع سريع:</span> سيتم جلب الصور فقط (حتى 20 صورة) مع تجاهل باقي البيانات - مثالي للاستيراد السريع من علي إكسبريس
-                </div>
-              )}
-              
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://www.aliexpress.com/item/..."
-                  value={productUrl}
-                  onChange={(e) => setProductUrl(e.target.value)}
-                  disabled={isLoading || isFileImporting || isFetchingLinks || isCategoryImporting}
-                  dir="ltr"
-                  className="flex-1"
-                />
-                {detectedUrlType === 'category' ? (
+        {/* ──────── تبويب: منتج واحد ──────── */}
+        {activeTab === 'single' && (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">استيراد منتج من رابط</CardTitle>
+                <CardDescription>
+                  الصق رابط المنتج من أي متجر إلكتروني وسنقوم بجلب البيانات تلقائياً
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* خيارات الاستيراد */}
+                <div className="flex gap-2 p-3 bg-muted/30 rounded-lg">
                   <Button
-                    onClick={handleFetchCategoryLinks}
-                    disabled={isFetchingLinks || isCategoryImporting || !productUrl.trim()}
+                    type="button"
+                    variant={importMode === 'full' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setImportMode('full')}
+                    className="flex-1"
                   >
-                    {isFetchingLinks ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                        جاري جلب الروابط...
-                      </>
-                    ) : (
-                      <>
-                        <FolderOpen className="h-4 w-4 ml-2" />
-                        جلب روابط القسم
-                      </>
-                    )}
+                    <Download className="h-4 w-4 ml-2" />
+                    استيراد كامل
                   </Button>
-                ) : (
+                  <Button
+                    type="button"
+                    variant={importMode === 'images-only' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setImportMode('images-only')}
+                    className="flex-1"
+                  >
+                    <FileSpreadsheet className="h-4 w-4 ml-2" />
+                    الصور فقط
+                  </Button>
+                </div>
+
+                {/* حقل الرابط */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://www.aliexpress.com/item/..."
+                    value={productUrl}
+                    onChange={(e) => setProductUrl(e.target.value)}
+                    disabled={isLoading || isFileImporting}
+                    dir="ltr"
+                    className="flex-1"
+                    onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
+                  />
                   <Button
                     onClick={handleFetchProduct}
                     disabled={isLoading || isFileImporting || !productUrl.trim() || isOptimizingName}
@@ -1335,208 +1292,72 @@ export default function ImportProduct() {
                     {isLoading || isOptimizingName ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                        {isOptimizingName ? 'جارٍ تحسين الاسم...' : 'جاري الجلب...'}
+                        {isOptimizingName ? 'تحسين الاسم...' : 'جاري الجلب...'}
                       </>
                     ) : (
                       <>
                         <Download className="h-4 w-4 ml-2" />
-                        {importMode === 'images-only' ? 'جلب الصور' : 'جلب البيانات'}
+                        {importMode === 'images-only' ? 'جلب الصور' : 'جلب المنتج'}
                       </>
                     )}
                   </Button>
+                </div>
+
+                {/* مؤشر التحميل */}
+                {isLoading && (
+                  <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-center gap-3">
+                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">جاري جلب البيانات وتحميل الصور...</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">يتم تحميل الصور وحفظها في السيرفر الخاص بك</p>
+                    </div>
+                  </div>
                 )}
-              </div>
 
-              {/* URL Type Indicator */}
-              {detectedUrlType && productUrl.trim() && (
-                <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-md border ${
-                  detectedUrlType === 'category'
-                    ? 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300'
-                    : 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
-                }`}>
-                  <span className="text-lg">{detectedUrlType === 'category' ? '📁' : '📦'}</span>
-                  <span className="font-medium">
-                    {detectedUrlType === 'category'
-                      ? 'تم اكتشاف: رابط قسم - سيتم جلب روابط المنتجات ثم استيرادها واحداً تلو الآخر'
-                      : 'تم اكتشاف: رابط منتج واحد'}
-                  </span>
-                </div>
-              )}
-            </div>
+                {/* رسالة النجاح */}
+                {scrapedData && (
+                  <div className={`rounded-lg border p-4 ${
+                    scrapedData.incomplete
+                      ? 'border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800'
+                      : 'border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800'
+                  }`}>
+                    <div className={`flex items-center gap-2 ${scrapedData.incomplete ? 'text-yellow-800 dark:text-yellow-200' : 'text-green-800 dark:text-green-200'}`}>
+                      <Check className="h-5 w-5" />
+                      <span className="font-medium">
+                        {scrapedData.incomplete ? 'تم جلب البيانات (مراجعة مطلوبة)' : 'تم جلب البيانات بنجاح'}
+                      </span>
+                    </div>
+                    <p className={`text-sm mt-1 ${scrapedData.incomplete ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}`}>
+                      تم العثور على {scrapedData.images.length} صورة
+                    </p>
+                  </div>
+                )}
 
-            {scrapedData && (
-              <div className={`rounded-lg border p-4 ${
-                scrapedData.incomplete 
-                  ? 'border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800'
-                  : 'border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800'
-              }`}>
-                <div className={`flex items-center gap-2 ${
-                  scrapedData.incomplete 
-                    ? 'text-yellow-800 dark:text-yellow-200'
-                    : 'text-green-800 dark:text-green-200'
-                }`}>
-                  <Check className="h-5 w-5" />
-                  <span className="font-medium">
-                    {scrapedData.incomplete ? 'تم جلب البيانات (مراجعة مطلوبة)' : 'تم جلب البيانات بنجاح'}
-                  </span>
-                </div>
-                <div className={`text-sm mt-1 space-y-1 ${
-                  scrapedData.incomplete 
-                    ? 'text-yellow-600 dark:text-yellow-400'
-                    : 'text-green-600 dark:text-green-400'
-                }`}>
-                  <p>تم العثور على {scrapedData.images.length} صورة</p>
-                  {scrapedData.incomplete && (
-                    <p className="font-medium">⚠️ يرجى مراجعة البيانات وتعديلها حسب الحاجة</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* ======= واجهة استيراد القسم الكامل ======= */}
-        {categoryLinks.length > 0 && (
-          <Card className="border-purple-300 dark:border-purple-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderOpen className="h-5 w-5 text-purple-600" />
-                استيراد قسم كامل ({categoryLinks.length} منتج)
-              </CardTitle>
-              <CardDescription>
-                تم العثور على {categoryLinks.length} رابط منتج - اختر القسم المستهدف ثم ابدأ الاستيراد
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* اختيار القسم المستهدف */}
-              <div className="space-y-2">
-                <Label className="font-semibold">القسم المستهدف</Label>
-                <Select value={categoryTargetSlug} onValueChange={setCategoryTargetSlug} disabled={isCategoryImporting}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر القسم الذي سيتم إضافة المنتجات إليه" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.slug} value={cat.slug}>
-                        {cat.name_ar}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* أزرار التحكم */}
-              <div className="flex gap-2">
-                {!isCategoryImporting ? (
-                  <>
-                    <Button
-                      onClick={handleImportCategoryProducts}
-                      disabled={!categoryTargetSlug}
+                {/* استيراد من ملف */}
+                <div className="space-y-2 p-4 border-2 border-dashed rounded-lg bg-muted/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileSpreadsheet className="h-5 w-5 text-primary" />
+                    <Label className="text-base font-semibold">أو استيراد من ملف Excel/CSV</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="file"
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleFileUpload}
+                      disabled={isFileImporting || isLoading}
                       className="flex-1"
-                    >
-                      <Download className="h-4 w-4 ml-2" />
-                      استيراد الكل ({categoryLinks.length} منتج)
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setCategoryLinks([]);
-                        setCategoryImportProgress(null);
-                        setCategoryTargetSlug('');
-                      }}
-                    >
-                      إلغاء
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    variant="destructive"
-                    onClick={() => { abortCategoryRef.current = true; }}
-                    className="flex-1"
-                  >
-                    <StopCircle className="h-4 w-4 ml-2" />
-                    إيقاف الاستيراد
-                  </Button>
-                )}
-              </div>
-
-              {/* شريط التقدم */}
-              {categoryImportProgress && (
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm font-medium">
-                    <span>التقدم: {categoryImportProgress.current} من {categoryImportProgress.total}</span>
-                    <span>{Math.round((categoryImportProgress.current / categoryImportProgress.total) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-3">
-                    <div
-                      className="bg-purple-600 h-3 rounded-full transition-all duration-300"
-                      style={{ width: `${(categoryImportProgress.current / categoryImportProgress.total) * 100}%` }}
                     />
-                  </div>
-
-                  {/* ملخص النتائج */}
-                  <div className="flex gap-4 text-sm">
-                    <span className="text-green-600 font-medium">
-                      نجح: {categoryImportProgress.results.filter(r => r.status === 'done').length}
-                    </span>
-                    <span className="text-red-600 font-medium">
-                      فشل: {categoryImportProgress.results.filter(r => r.status === 'error').length}
-                    </span>
-                    <span className="text-muted-foreground">
-                      متبقي: {categoryImportProgress.results.filter(r => r.status === 'pending').length}
-                    </span>
-                  </div>
-
-                  {/* قائمة المنتجات مع الحالة */}
-                  <div className="max-h-80 overflow-y-auto space-y-2 border rounded-lg p-2">
-                    {categoryImportProgress.results.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex items-center gap-3 p-2 rounded-md text-sm ${
-                          item.status === 'done' ? 'bg-green-50 dark:bg-green-950' :
-                          item.status === 'error' ? 'bg-red-50 dark:bg-red-950' :
-                          item.status === 'scraping' || item.status === 'saving' ? 'bg-amber-50 dark:bg-amber-950' :
-                          'bg-muted/30'
-                        }`}
-                      >
-                        {/* أيقونة الحالة */}
-                        <div className="flex-shrink-0">
-                          {item.status === 'done' && <Check className="h-4 w-4 text-green-600" />}
-                          {item.status === 'error' && <X className="h-4 w-4 text-red-600" />}
-                          {(item.status === 'scraping' || item.status === 'saving') && <Loader2 className="h-4 w-4 animate-spin text-amber-600" />}
-                          {item.status === 'pending' && <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />}
-                        </div>
-
-                        {/* صورة مصغرة */}
-                        {item.imageUrl && (
-                          <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0">
-                            <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                          </div>
-                        )}
-
-                        {/* التفاصيل */}
-                        <div className="flex-1 min-w-0">
-                          <p className="truncate font-medium">
-                            {item.name || `منتج ${idx + 1}`}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground truncate" dir="ltr">
-                            {item.status === 'scraping' ? 'جاري سحب البيانات...' :
-                             item.status === 'saving' ? 'جاري الحفظ...' :
-                             item.status === 'error' ? item.error :
-                             item.url}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                    <Button variant="outline" disabled={isFileImporting || isLoading} className="whitespace-nowrap">
+                      <Upload className="h-4 w-4 ml-2" />
+                      رفع الملف
+                    </Button>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
 
-        {/* شريط تقدم استيراد الملف */}
-        {fileImportProgress && isFileImporting && (
+            {/* شريط تقدم استيراد الملف */}
+            {fileImportProgress && isFileImporting && (
           <Card className="border-primary">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -2164,6 +1985,215 @@ export default function ImportProduct() {
               </div>
             </CardContent>
           </Card>
+        )}
+          </>
+        )}
+
+        {/* ──────── تبويب: استيراد قسم كامل ──────── */}
+        {activeTab === 'bulk' && (
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">استيراد جماعي من قسم</CardTitle>
+                <CardDescription>
+                  الصق رابط قسم من أي متجر (سلة، AliExpress، وغيرها) وسيتم جلب كل المنتجات تلقائياً
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* حقل رابط القسم */}
+                <div className="flex gap-2">
+                  <Input
+                    value={categoryUrl}
+                    onChange={(e) => setCategoryUrl(e.target.value)}
+                    placeholder="https://store.salla.sa/categories/... أو أي رابط قسم"
+                    className="flex-1"
+                    dir="ltr"
+                    disabled={isFetchingLinks || isCategoryImporting}
+                    onKeyDown={(e) => e.key === 'Enter' && handleFetchCategoryLinks()}
+                  />
+                  <Button
+                    onClick={handleFetchCategoryLinks}
+                    disabled={isFetchingLinks || isCategoryImporting || !categoryUrl.trim()}
+                  >
+                    {isFetchingLinks ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                        جاري البحث...
+                      </>
+                    ) : (
+                      <>
+                        <FolderOpen className="h-4 w-4 ml-2" />
+                        جلب المنتجات
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* مؤشر التحميل */}
+                {isFetchingLinks && (
+                  <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-center gap-3">
+                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">جاري البحث عن المنتجات في القسم...</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">يتم تحليل الصفحة واستخراج روابط المنتجات</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* اختيار القسم المستهدف + زر الاستيراد */}
+                {categoryLinks.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                      <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                        تم العثور على {categoryLinks.length} منتج
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">القسم المستهدف</Label>
+                      <Select value={categoryTargetSlug} onValueChange={setCategoryTargetSlug} disabled={isCategoryImporting}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر القسم" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.slug} value={cat.slug}>
+                              {cat.name_ar}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {!isCategoryImporting ? (
+                        <>
+                          <Button
+                            onClick={handleImportCategoryProducts}
+                            disabled={!categoryTargetSlug}
+                            className="flex-1"
+                          >
+                            <Download className="h-4 w-4 ml-2" />
+                            استيراد الكل ({categoryLinks.length} منتج)
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setCategoryLinks([]);
+                              setCategoryImportProgress(null);
+                              setCategoryTargetSlug('');
+                            }}
+                          >
+                            إلغاء
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          variant="destructive"
+                          onClick={() => { abortCategoryRef.current = true; }}
+                          className="flex-1"
+                        >
+                          <StopCircle className="h-4 w-4 ml-2" />
+                          إيقاف الاستيراد
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* شريط التقدم */}
+                {categoryImportProgress && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm font-medium">
+                      <span>التقدم: {completedCount + errorCount} / {categoryImportProgress.total}</span>
+                      <span>{Math.round(((completedCount + errorCount) / categoryImportProgress.total) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-3">
+                      <div
+                        className="bg-primary h-3 rounded-full transition-all duration-300"
+                        style={{ width: `${((completedCount + errorCount) / categoryImportProgress.total) * 100}%` }}
+                      />
+                    </div>
+                    <div className="flex gap-4 text-xs">
+                      <span className="flex items-center gap-1 text-green-600">
+                        <Check className="w-3 h-3" /> {completedCount} نجح
+                      </span>
+                      <span className="flex items-center gap-1 text-red-600">
+                        <X className="w-3 h-3" /> {errorCount} فشل
+                      </span>
+                      <span className="text-muted-foreground">
+                        {categoryImportProgress.total - completedCount - errorCount} متبقي
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* قائمة المنتجات مع الحالة */}
+            {categoryImportProgress && categoryImportProgress.results.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">المنتجات ({categoryImportProgress.results.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                    {categoryImportProgress.results.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                          item.status === 'done' ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' :
+                          item.status === 'error' ? 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800' :
+                          item.status === 'scraping' || item.status === 'saving' ? 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800' :
+                          'bg-muted/30 border-border'
+                        }`}
+                      >
+                        {/* أيقونة الحالة */}
+                        <div className="flex-shrink-0">
+                          {item.status === 'done' && <Check className="h-5 w-5 text-green-600" />}
+                          {item.status === 'error' && <X className="h-5 w-5 text-red-500" />}
+                          {(item.status === 'scraping' || item.status === 'saving') && <Loader2 className="h-5 w-5 text-amber-600 animate-spin" />}
+                          {item.status === 'pending' && <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30" />}
+                        </div>
+
+                        {/* صورة مصغرة */}
+                        {item.imageUrl && (
+                          <img src={item.imageUrl} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
+                        )}
+
+                        {/* التفاصيل */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {item.name || `منتج ${idx + 1}`}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate" dir="ltr">
+                            {item.status === 'scraping' ? 'جاري سحب البيانات...' :
+                             item.status === 'saving' ? 'جاري الحفظ...' :
+                             item.status === 'error' ? item.error :
+                             item.url}
+                          </p>
+                        </div>
+
+                        {/* حالة */}
+                        <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
+                          item.status === 'done' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
+                          item.status === 'error' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                          item.status === 'scraping' || item.status === 'saving' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          {item.status === 'pending' && 'في الانتظار'}
+                          {item.status === 'scraping' && 'جلب البيانات...'}
+                          {item.status === 'saving' && 'جاري الحفظ...'}
+                          {item.status === 'done' && 'تم'}
+                          {item.status === 'error' && 'فشل'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
       </div>
     </AdminLayout>
