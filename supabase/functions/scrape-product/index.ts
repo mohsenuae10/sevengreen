@@ -1117,7 +1117,7 @@ function isCategoryUrl(url: string, hostname: string): boolean {
 }
 
 // دالة لاستخراج روابط المنتجات من صفحة category
-async function extractProductLinks(html: string, hostname: string, baseUrl: string): Promise<string[]> {
+async function extractProductLinks(html: string, hostname: string, baseUrl: string, originalUrl: string): Promise<string[]> {
   const links: string[] = [];
   const seen = new Set<string>();
   
@@ -1757,7 +1757,7 @@ Deno.serve(async (req) => {
         );
       }
       
-      const productLinks = await extractProductLinks(result.html, hostname, baseUrl);
+      const productLinks = await extractProductLinks(result.html, hostname, baseUrl, url);
 
       if (productLinks.length === 0) {
         return new Response(
