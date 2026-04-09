@@ -1281,53 +1281,179 @@ async function extractProductLinks(html: string, hostname: string, baseUrl: stri
       // ======= Salla stores + generic e-commerce =======
       const isSalla = /cdn\.salla\.sa|salla\.sa\/|twilight|salla-theme|salla-products-list/i.test(html);
       console.log(`=== استخراج روابط المنتجات (${isSalla ? 'Salla' : 'عام'}) من ${hostname} ===`);
+      const origin = new URL(baseUrl).origin;
+      // Salla product URL pattern: /p{5+ digits} or /{name}/p{digits}
+      const SALLA_PRODUCT_RE = /\/p\d{5,}/;
 
-      // Strategy 1: Salla API (if Salla store detected)
-      if (isSalla) {
-        // Try to find category ID from salla-products-list or URL
+      // Strategy 1: Salla HTML selectors (like Trend Zone's cheerio selectors but via regex)
+      if (isSalla || true) { // Always try these generic selectors
+        // Extract product links matching common Salla/e-commerce patterns
+        const productLinkPatterns = [
+          /<a[^>]*href=["']([^"']*\/product\/[^"']+)["']/gi,
+          /<a[^>]*href=["']([^"']*\/products\/[^"']+)["']/gi,
+          /<a[^>]*href=["']([^"']*\/p\d{5,}[^"']*)["']/gi,
+        ];
+
+        for (const pattern of productLinkPatterns) {
+          const matches = html.matchAll(pattern);
+          for (const match of matches) {
+            let link = match[1];
+            try {
+              const fullUrl = new URL(link, origin).href;
+              if (SALLA_PRODUCT_RE.test(fullUrl) && fullUrl.includes(hostname)) {
+                const clean = fullUrl.split('?')[0].split('#')[0];
+                if (!seen.has(clean)) { seen.add(clean); links.push(clean); }
+              }
+            } catch { /* skip */ }
+          }
+        }
+
+        // Also scan ALL <a href> for Salla product patterns (like Trend Zone's generic fallback)
+        if (links.length === 0) {
+          const allHrefs = html.matchAll(/<a[^>]*href=["']([^"']+)["']/gi);
+          for (const match of allHrefs) {
+            try {
+              const fullUrl = new URL(match[1], origin).href;
+              if (SALLA_PRODUCT_RE.test(fullUrl) && fullUrl.includes(hostname)) {
+                const clean = fullUrl.split('?')[0].split('#')[0];
+                if (!seen.has(clean)) { seen.add(clean); links.push(clean); }
+              }
+            } catch { /* skip */ }
+          }
+        }
+        console.log(`HTML selectors: found ${links.length} product links`);
+
+        // Strategy 1b: Scrape pagination pages (like Trend Zone scrapes up to 5 more pages)
+        if (links.length > 0) {
+          const pageUrls = new Set<string>();
+          const pageMatches = html.matchAll(/<a[^>]*href=["']([^"']*[?&]page=\d+[^"']*)["']/gi);
+          for (const match of pageMatches) {
+            try {
+              const fullUrl = new URL(match[1], origin).href;
+              if (fullUrl.includes(hostname)) pageUrls.add(fullUrl);
+            } catch { /* skip */ }
+          }
+          let pageCount = 0;
+          for (const pageUrl of pageUrls) {
+            if (pageCount >= 5) break;
+            try {
+              console.log(`Fetching pagination page: ${pageUrl}`);
+              const pageRes = await fetch(pageUrl, {
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                  'Accept-Language': 'ar,en;q=0.5',
+                },
+                redirect: 'follow',
+              });
+              if (!pageRes.ok) continue;
+              const pageHtml = await pageRes.text();
+              const pageHrefs = pageHtml.matchAll(/<a[^>]*href=["']([^"']+)["']/gi);
+              for (const m of pageHrefs) {
+                try {
+                  const fullUrl = new URL(m[1], origin).href;
+                  if (SALLA_PRODUCT_RE.test(fullUrl) && fullUrl.includes(hostname)) {
+                    const clean = fullUrl.split('?')[0].split('#')[0];
+                    if (!seen.has(clean)) { seen.add(clean); links.push(clean); }
+                  }
+                } catch { /* skip */ }
+              }
+              pageCount++;
+            } catch { /* skip failed pages */ }
+          }
+          if (pageCount > 0) console.log(`After pagination: ${links.length} total product links`);
+        }
+      }
+
+      // Strategy 2: Salla API (if Salla v2 detected - client-rendered with salla-products-list)
+      if (links.length === 0 && isSalla) {
+        console.log('⚡ Salla v2 detected – trying API with cookies (like Trend Zone)…');
+        // Extract category ID from HTML source-value OR from URL path
         const sourceValueMatch = html.match(/source-value=["']([^"']+)["']/i);
-        const urlCategoryMatch = baseUrl.match(/\/c(\d{5,})/);
+        const urlCategoryMatch = originalUrl.match(/\/c(\d{5,})/);
         const categoryId = sourceValueMatch?.[1] || urlCategoryMatch?.[1] || '';
 
         if (categoryId) {
           console.log('Salla category ID:', categoryId);
           try {
-            // Extract XSRF token from HTML
-            const xsrfMatch = html.match(/XSRF-TOKEN[=:]\s*["']?([^"';\s]+)/i);
+            // Step 1: Fetch page to get Set-Cookie headers (like Trend Zone does)
+            let cookieHeader = '';
+            let xsrfToken = '';
+            try {
+              const freshRes = await fetch(originalUrl, {
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                  'Accept-Language': 'ar,en;q=0.5',
+                },
+                redirect: 'follow',
+              });
+              // Extract cookies from Set-Cookie headers
+              const setCookies: string[] = [];
+              freshRes.headers.forEach((value, key) => {
+                if (key.toLowerCase() === 'set-cookie') {
+                  setCookies.push(value);
+                }
+              });
+              cookieHeader = setCookies.map(c => c.split(';')[0]).join('; ');
+              const xsrfCookie = setCookies.find(c => c.startsWith('XSRF-TOKEN='));
+              if (xsrfCookie) {
+                xsrfToken = decodeURIComponent(xsrfCookie.split('=').slice(1).join('=').split(';')[0]);
+              }
+              console.log(`Cookies obtained: ${cookieHeader.length > 0 ? 'yes' : 'no'}, XSRF: ${xsrfToken ? 'yes' : 'no'}`);
+            } catch (e) {
+              console.error('Cookie fetch error:', e);
+            }
 
+            // Step 2: Call Salla API with cookies (matching Trend Zone's trySallaApi)
             for (let page = 1; page <= 10; page++) {
-              const apiUrl = `${baseUrl.split('/').slice(0, 3).join('/')}/api/products?source=product.index&source_value=${categoryId}&page=${page}`;
+              const apiUrl = `${origin}/api/products?source=product.index&source_value=${categoryId}&page=${page}`;
               console.log(`Salla API page ${page}: ${apiUrl}`);
 
-              const apiResponse = await fetch(apiUrl, {
-                headers: {
-                  'Accept': 'application/json',
-                  'X-Requested-With': 'XMLHttpRequest',
-                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
-                  ...(xsrfMatch ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrfMatch[1]) } : {}),
-                },
-              });
+              const controller = new AbortController();
+              const timeout = setTimeout(() => controller.abort(), 10000);
+              try {
+                const apiResponse = await fetch(apiUrl, {
+                  headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Referer': `${origin}/`,
+                    ...(cookieHeader ? { 'Cookie': cookieHeader } : {}),
+                    ...(xsrfToken ? { 'X-XSRF-TOKEN': xsrfToken } : {}),
+                  },
+                  signal: controller.signal,
+                  redirect: 'follow',
+                });
 
-              if (!apiResponse.ok) {
-                console.log(`Salla API returned ${apiResponse.status}, stopping pagination`);
-                break;
-              }
-
-              const apiData = await apiResponse.json();
-              const products = apiData?.data || [];
-              if (products.length === 0) break;
-
-              for (const product of products) {
-                const productUrl = product.url || (product.id ? `${baseUrl.split('/').slice(0, 3).join('/')}/p${product.id}` : null);
-                if (productUrl && !seen.has(productUrl)) {
-                  seen.add(productUrl);
-                  links.push(productUrl);
+                if (!apiResponse.ok) {
+                  console.log(`Salla API returned ${apiResponse.status}, stopping`);
+                  break;
                 }
-              }
 
-              // Check if there are more pages
-              if (!apiData.cursor?.next && products.length < 20) break;
-              await new Promise(r => setTimeout(r, 500));
+                const apiText = await apiResponse.text();
+                let apiData: any;
+                try { apiData = JSON.parse(apiText); } catch { break; }
+
+                const products = Array.isArray(apiData?.data) ? apiData.data : [];
+                if (products.length === 0) break;
+
+                for (const product of products) {
+                  const productUrl = product.url || (product.id ? `${origin}/p${product.id}` : null);
+                  if (productUrl && !seen.has(productUrl)) {
+                    seen.add(productUrl);
+                    links.push(productUrl);
+                  }
+                }
+
+                // Check pagination
+                const totalPages = apiData.pagination?.totalPages || 0;
+                if (totalPages > 0 && page >= Math.min(totalPages, 10)) break;
+                if (!apiData.pagination && products.length < 20) break;
+                await new Promise(r => setTimeout(r, 500));
+              } finally {
+                clearTimeout(timeout);
+              }
             }
             console.log(`Salla API: found ${links.length} products`);
           } catch (e) {
@@ -1335,29 +1461,29 @@ async function extractProductLinks(html: string, hostname: string, baseUrl: stri
           }
         }
 
-        // Fallback: sitemap
+        // Strategy 3: Sitemap fallback
         if (links.length === 0) {
-          console.log('Trying sitemap fallback...');
+          console.log('📍 API unavailable – fetching from sitemap…');
           try {
-            const origin = baseUrl.split('/').slice(0, 3).join('/');
             const sitemapRes = await fetch(`${origin}/sitemap.xml`, {
               headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
             });
             if (sitemapRes.ok) {
               const sitemapXml = await sitemapRes.text();
-              // Extract all URLs from sitemap
-              const locMatches = sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/gi);
-              for (const m of locMatches) {
-                const loc = m[1];
-                // Product URLs in Salla: /p{digits} pattern
-                if (/\/p\d{5,}/.test(loc) && !seen.has(loc)) {
-                  seen.add(loc);
-                  links.push(loc);
-                }
+              const sitemapUrls: string[] = [];
+
+              // Check if this is a sitemap index (contains child sitemaps)
+              const locMatches = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/gi)];
+              const childSitemaps = locMatches.filter(m => /sitemap.*\.xml/i.test(m[1]));
+              const directProducts = locMatches.filter(m => SALLA_PRODUCT_RE.test(m[1]));
+
+              // If direct product URLs found
+              for (const m of directProducts) {
+                if (!seen.has(m[1])) { seen.add(m[1]); links.push(m[1]); }
               }
-              // If main sitemap has child sitemaps, fetch them
-              if (links.length === 0) {
-                const childSitemaps = [...sitemapXml.matchAll(/<loc>([^<]*sitemap[^<]*)<\/loc>/gi)];
+
+              // If no direct products, fetch child sitemaps
+              if (links.length === 0 && childSitemaps.length > 0) {
                 for (const cs of childSitemaps.slice(0, 5)) {
                   try {
                     const childRes = await fetch(cs[1], {
@@ -1367,13 +1493,32 @@ async function extractProductLinks(html: string, hostname: string, baseUrl: stri
                       const childXml = await childRes.text();
                       const childLocs = childXml.matchAll(/<loc>([^<]+)<\/loc>/gi);
                       for (const cl of childLocs) {
-                        if (/\/p\d{5,}/.test(cl[1]) && !seen.has(cl[1])) {
+                        if (SALLA_PRODUCT_RE.test(cl[1]) && !seen.has(cl[1])) {
                           seen.add(cl[1]);
                           links.push(cl[1]);
                         }
                       }
                     }
-                  } catch (e) { /* skip */ }
+                  } catch { /* skip */ }
+                }
+              }
+
+              // Deduplicate by product ID (prefer non-/en/ versions for Arabic store)
+              if (links.length > 0) {
+                const idMap = new Map<string, string>();
+                for (const pUrl of links) {
+                  const idMatch = pUrl.match(/\/p(\d{5,})/);
+                  if (!idMatch) { idMap.set(pUrl, pUrl); continue; }
+                  const pid = idMatch[1];
+                  if (!idMap.has(pid) || !pUrl.includes('/en/')) {
+                    idMap.set(pid, pUrl);
+                  }
+                }
+                links.length = 0;
+                seen.clear();
+                for (const url of idMap.values()) {
+                  seen.add(url);
+                  links.push(url);
                 }
               }
               console.log(`Sitemap: found ${links.length} products`);
