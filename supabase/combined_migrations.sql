@@ -4,6 +4,14 @@
 -- Run this in Supabase SQL Editor of the NEW project (kvieobbwmlbddqpbdovg)
 -- ============================================================================
 
+-- Clean reset: drop the public schema completely and recreate it
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO anon;
+GRANT ALL ON SCHEMA public TO authenticated;
+GRANT ALL ON SCHEMA public TO service_role;
+COMMENT ON SCHEMA public IS 'standard public schema';
 
 -- ============================================================================
 -- 20251015155150_208257ff-a7e1-44ea-ae6a-8c9c2e5cbee3.sql
