@@ -5,7 +5,7 @@ const SitemapXML = () => {
     const fetchSitemap = async () => {
       try {
         const response = await fetch(
-          'https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-sitemap'
+          'https://kvieobbwmlbddqpbdovg.supabase.co/functions/v1/generate-sitemap'
         );
         const xmlText = await response.text();
         

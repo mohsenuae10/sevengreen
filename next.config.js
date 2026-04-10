@@ -5,7 +5,7 @@ const nextConfig = {
   // Image optimization domains
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'kcunskgjvmzrxenjblmk.supabase.co' },
+      { protocol: 'https', hostname: 'kvieobbwmlbddqpbdovg.supabase.co' },
       { protocol: 'https', hostname: 'ae01.alicdn.com' },
       { protocol: 'https', hostname: 'storage.googleapis.com' },
     ],

@@ -17,9 +17,9 @@ export default function Document() {
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://kcunskgjvmzrxenjblmk.supabase.co" />
+        <link rel="dns-prefetch" href="https://kvieobbwmlbddqpbdovg.supabase.co" />
         <link rel="dns-prefetch" href="https://ae01.alicdn.com" />
-        <link rel="preconnect" href="https://kcunskgjvmzrxenjblmk.supabase.co" />
+        <link rel="preconnect" href="https://kvieobbwmlbddqpbdovg.supabase.co" />
         <link rel="preconnect" href="https://ae01.alicdn.com" />
 
         {/* Fonts */}

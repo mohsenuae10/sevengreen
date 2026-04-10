@@ -8,7 +8,7 @@ const SitemapProductsXML = () => {
     const fetchAndServeSitemap = async () => {
       try {
         const response = await fetch(
-          'https://kcunskgjvmzrxenjblmk.supabase.co/functions/v1/generate-product-sitemap'
+          'https://kvieobbwmlbddqpbdovg.supabase.co/functions/v1/generate-product-sitemap'
         );
         
         if (!response.ok) {
