@@ -81,8 +81,10 @@ export type Database = {
         Row: {
           category_id: string | null
           content_ar: string
+          content_en: string | null
           created_at: string | null
           excerpt_ar: string | null
+          excerpt_en: string | null
           featured_image: string | null
           id: string
           meta_description: string | null
@@ -90,17 +92,22 @@ export type Database = {
           meta_title: string | null
           published_at: string | null
           reading_time: number | null
+          seo_description_en: string | null
+          seo_title_en: string | null
           slug: string
           status: string | null
           title_ar: string
+          title_en: string | null
           updated_at: string | null
           views: number | null
         }
         Insert: {
           category_id?: string | null
           content_ar: string
+          content_en?: string | null
           created_at?: string | null
           excerpt_ar?: string | null
+          excerpt_en?: string | null
           featured_image?: string | null
           id?: string
           meta_description?: string | null
@@ -108,17 +115,22 @@ export type Database = {
           meta_title?: string | null
           published_at?: string | null
           reading_time?: number | null
+          seo_description_en?: string | null
+          seo_title_en?: string | null
           slug: string
           status?: string | null
           title_ar: string
+          title_en?: string | null
           updated_at?: string | null
           views?: number | null
         }
         Update: {
           category_id?: string | null
           content_ar?: string
+          content_en?: string | null
           created_at?: string | null
           excerpt_ar?: string | null
+          excerpt_en?: string | null
           featured_image?: string | null
           id?: string
           meta_description?: string | null
@@ -126,9 +138,12 @@ export type Database = {
           meta_title?: string | null
           published_at?: string | null
           reading_time?: number | null
+          seo_description_en?: string | null
+          seo_title_en?: string | null
           slug?: string
           status?: string | null
           title_ar?: string
+          title_en?: string | null
           updated_at?: string | null
           views?: number | null
         }
@@ -168,7 +183,6 @@ export type Database = {
           banner_url: string | null
           created_at: string | null
           description_ar: string | null
-          description_en: string | null
           display_order: number
           icon: string
           id: string
@@ -182,7 +196,6 @@ export type Database = {
           banner_url?: string | null
           created_at?: string | null
           description_ar?: string | null
-          description_en?: string | null
           display_order?: number
           icon?: string
           id?: string
@@ -196,7 +209,6 @@ export type Database = {
           banner_url?: string | null
           created_at?: string | null
           description_ar?: string | null
-          description_en?: string | null
           display_order?: number
           icon?: string
           id?: string

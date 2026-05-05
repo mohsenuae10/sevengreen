@@ -2,8 +2,9 @@
   "name": "lamset-beauty",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "vite",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
